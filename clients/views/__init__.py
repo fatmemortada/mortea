@@ -21,7 +21,9 @@ from .exports_activity import export_clients_csv, export_compliance_csv, export_
 from .blog import (landing_view, blog_article_view, pricing_view, security_view,
     trust_center_view, resources_view, industry_page_view, privacy_view, terms_view,
     search_results_view, provider_list_view, provider_profile_view,
-    booking_view, booking_confirmation_view, results_gallery_view,
+    booking_view, booking_confirmation_view, booking_payment_view,
+    create_booking_checkout_session, booking_payment_success_view,
+    results_gallery_view,
     for_professionals_view, join_mortea_view)
 from .seo_views import service_city_view, service_hub_view, city_hub_view, sitemap_view
 from .acquisition_views import (
@@ -30,7 +32,7 @@ from .acquisition_views import (
     batch_detail_view,
 )
 from .portfolio_views import discovery_feed_view, toggle_like, toggle_save, toggle_follow
-from .admin_views import admin_dashboard_view, verification_dashboard_view
+from .admin_views import admin_dashboard_view, admin_revenue_view, verification_dashboard_view
 from .marketplace_views import (
     submit_request_view, request_detail_view, provider_leads_view,
     customer_dashboard_view, lead_analytics_view,
@@ -44,7 +46,7 @@ from .owner_views import (
     owner_dashboard_view, owner_edit_profile_view, owner_manage_services_view,
     owner_manage_photos_view, owner_manage_social_view, owner_manage_bookings_view,
     owner_respond_review_view, track_click, owner_analytics_view,
-    owner_manage_results_view,
+    owner_manage_results_view, owner_payouts_view,
 )
 from .search import global_search_view
 from .csv_import import csv_import_clients
