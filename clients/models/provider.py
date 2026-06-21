@@ -47,6 +47,8 @@ class BeautyProvider(models.Model):
     plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='free', db_index=True)
     plan_expires_at = models.DateTimeField(null=True, blank=True)
     stripe_subscription_id = models.CharField(max_length=100, blank=True)
+    stripe_account_id = models.CharField(max_length=100, blank=True, help_text='Stripe Connect account ID for receiving payouts')
+    stripe_onboarding_complete = models.BooleanField(default=False, help_text='Provider completed Stripe Connect onboarding')
     referral_code = models.CharField(max_length=20, unique=True, null=True, blank=True, help_text='Unique referral code for provider referral program')
     referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referrals')
     is_early_adopter = models.BooleanField(default=False, help_text='Joined in the first 100 providers')
@@ -84,6 +86,12 @@ class BeautyProvider(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def commission_rate(self):
+        """Return commission rate for bookings (0.15 free, 0.05 premium/featured)."""
+        from decimal import Decimal
+        return Decimal('0.05') if self.plan in ('premium', 'featured') else Decimal('0.15')
 
     @property
     def rating_stars(self):
@@ -291,6 +299,7 @@ class OpeningHours(models.Model):
 class Booking(models.Model):
     """A client booking/appointment request."""
     STATUS_CHOICES = [
+        ('pending_payment', 'Pending Payment'),
         ('pending', 'Pending Confirmation'),
         ('confirmed', 'Confirmed'),
         ('cancelled', 'Cancelled'),
@@ -326,6 +335,63 @@ class Booking(models.Model):
 
     def __str__(self):
         return f"{self.client_name} — {self.service} @ {self.provider.name} ({self.date})"
+
+
+class BookingPayment(models.Model):
+    """Payment transaction for a booking via Stripe Connect."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('refunded', 'Refunded'),
+        ('partially_refunded', 'Partially Refunded'),
+    ]
+
+    booking = models.OneToOneField(
+        Booking, on_delete=models.CASCADE, related_name='payment'
+    )
+    stripe_payment_intent_id = models.CharField(max_length=100, blank=True)
+    stripe_session_id = models.CharField(max_length=100, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, help_text='Total charged to customer')
+    application_fee = models.DecimalField(max_digits=10, decimal_places=2, help_text='Mortea commission')
+    net_amount = models.DecimalField(max_digits=10, decimal_places=2, help_text='Amount after commission (to provider)')
+    currency = models.CharField(max_length=3, default='cad')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Payment #{self.booking_id} — ${self.amount} ({self.get_status_display()})"
+
+
+class ProviderPayout(models.Model):
+    """Record of a payout to a provider via Stripe Connect."""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+    ]
+
+    provider = models.ForeignKey(
+        BeautyProvider, on_delete=models.CASCADE, related_name='payouts'
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2, help_text='Total payout amount')
+    period_start = models.DateField(help_text='Start of payout period')
+    period_end = models.DateField(help_text='End of payout period')
+    stripe_payout_id = models.CharField(max_length=100, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Payout to {self.provider.name} — ${self.amount} ({self.get_status_display()})"
 
 
 class ClaimRequest(models.Model):

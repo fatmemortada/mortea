@@ -219,12 +219,11 @@ def booking_view(request, slug):
                     client_phone=client_phone,
                     client_email=client_email,
                     notes=notes,
+                    status='pending_payment',
                 )
-                # Send booking confirmation email
-                from ..views.acquisition_views import send_provider_email
-                send_provider_email(provider, 'booking_confirmation')
+                # Redirect to payment page
                 return redirect(
-                    "booking_confirmation",
+                    "booking_payment",
                     slug=provider.slug,
                     booking_id=booking.id,
                 )
@@ -256,6 +255,158 @@ def booking_confirmation_view(request, slug, booking_id):
     )
     return render(request, "clients/booking_confirmation.html", {
         "booking": booking,
+    })
+
+
+def booking_payment_view(request, slug, booking_id):
+    """Payment page between booking creation and confirmation."""
+    import os
+    from ..models import Booking
+    booking = get_object_or_404(
+        Booking.objects.select_related("provider", "service"),
+        id=booking_id, provider__slug=slug,
+        status='pending_payment',
+    )
+    provider = booking.provider
+    service = booking.service
+    commission_rate = provider.commission_rate
+
+    price = service.price if service and service.price else None
+
+    return render(request, "clients/booking_payment.html", {
+        "booking": booking,
+        "provider": provider,
+        "service": service,
+        "price": price,
+        "commission_pct": int(commission_rate * 100),
+        "commission_amount": (price * commission_rate).quantize(price) if price else None,
+        "net_amount": (price * (1 - commission_rate)).quantize(price) if price else None,
+        "stripe_publishable_key": os.environ.get('STRIPE_PUBLISHABLE_KEY', ''),
+    })
+
+
+def create_booking_checkout_session(request, slug, booking_id):
+    """Create a Stripe Checkout Session for a booking with Connect application fee."""
+    import os
+    import stripe
+    import json
+    from decimal import Decimal
+    from django.http import JsonResponse
+    from django.conf import settings
+    from ..models import Booking
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
+
+    booking = get_object_or_404(
+        Booking.objects.select_related("provider", "service"),
+        id=booking_id, provider__slug=slug,
+        status='pending_payment',
+    )
+    provider = booking.provider
+    service = booking.service
+
+    if not provider.stripe_account_id or not provider.stripe_onboarding_complete:
+        return JsonResponse({'error': 'This provider is not yet set up to receive payments.'}, status=400)
+
+    if not service or not service.price:
+        return JsonResponse({'error': 'This service has no price set.'}, status=400)
+
+    amount_cents = int(service.price * 100)
+    commission_cents = int(amount_cents * float(provider.commission_rate))
+    site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            mode='payment',
+            line_items=[{
+                'price_data': {
+                    'currency': 'cad',
+                    'product_data': {
+                        'name': service.name,
+                        'description': f'{provider.name} • {provider.get_category_display()}',
+                    },
+                    'unit_amount': amount_cents,
+                },
+                'quantity': 1,
+            }],
+            payment_intent_data={
+                'application_fee_amount': commission_cents,
+                'transfer_data': {
+                    'destination': provider.stripe_account_id,
+                },
+            },
+            success_url=f'{site_url}/providers/{slug}/book/{booking_id}/payment/success/?session_id={{CHECKOUT_SESSION_ID}}',
+            cancel_url=f'{site_url}/providers/{slug}/book/{booking_id}/payment/',
+            customer_email=booking.client_email,
+            metadata={
+                'booking_id': str(booking.id),
+                'provider_id': str(provider.id),
+                'service_name': service.name,
+                'commission_pct': str(provider.commission_rate),
+            },
+        )
+        return JsonResponse({'session_id': session.id, 'url': session.url})
+
+    except stripe.error.StripeError as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+def booking_payment_success_view(request, slug, booking_id):
+    """Handle return from Stripe Checkout after successful payment."""
+    import os
+    import stripe
+    from decimal import Decimal
+    from django.utils import timezone
+    from ..models import Booking, BookingPayment
+
+    session_id = request.GET.get('session_id', '')
+    booking = get_object_or_404(
+        Booking.objects.select_related("provider", "service", "staff"),
+        id=booking_id, provider__slug=slug,
+    )
+
+    payment_status = 'pending'
+
+    if session_id:
+        stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
+        try:
+            session = stripe.checkout.Session.retrieve(session_id)
+            if session.get('payment_status') == 'paid':
+                payment_status = 'completed'
+                service = booking.service
+                provider = booking.provider
+
+                if not hasattr(booking, 'payment') and service and service.price:
+                    amount = service.price
+                    commission = (amount * provider.commission_rate).quantize(Decimal('0.01'))
+                    net = amount - commission
+
+                    BookingPayment.objects.create(
+                        booking=booking,
+                        stripe_payment_intent_id=session.get('payment_intent', ''),
+                        stripe_session_id=session_id,
+                        amount=amount,
+                        application_fee=commission,
+                        net_amount=net,
+                        currency='cad',
+                        status='completed',
+                        paid_at=timezone.now(),
+                    )
+
+                if booking.status == 'pending_payment':
+                    booking.status = 'pending'
+                    booking.save(update_fields=['status'])
+
+        except stripe.error.StripeError:
+            pass
+
+    return render(request, "clients/booking_confirmation.html", {
+        "booking": booking,
+        "payment_status": payment_status,
     })
 
 

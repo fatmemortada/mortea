@@ -224,6 +224,10 @@ EMAIL_TIMEOUT = 10
 # ── Site URL (used in emails) ─────────────────────────────────────────────────
 SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
 
+# ── Stripe ──────────────────────────────────────────────────────────────────────
+STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
+STRIPE_CONNECT_CLIENT_ID = os.environ.get('STRIPE_CONNECT_CLIENT_ID', '')
+
 
 # ── Security settings for production ─────────────────────────────────────────
 SECURE_SSL_REDIRECT = os.environ.get('DJANGO_SECURE_SSL_REDIRECT', 'false').lower() == 'true'

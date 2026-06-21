@@ -258,6 +258,11 @@ def stripe_webhook(request):
         _handle_payment_failed(event['data']['object'])
     elif event_type == 'checkout.session.completed':
         _handle_checkout_completed(event['data']['object'])
+        _handle_booking_checkout_completed(event['data']['object'])
+    elif event_type == 'account.updated':
+        _handle_connect_account_updated(event['data']['object'])
+    elif event_type == 'charge.refunded':
+        _handle_booking_refund(event['data']['object'])
     else:
         logger.info(f'Unhandled Stripe event type: {event_type}')
 
@@ -336,6 +341,129 @@ def _handle_checkout_completed(session):
         )
     except Exception:
         logger.error('Error handling checkout.session.completed', exc_info=True)
+
+
+# ─────────────────────────────────────────────
+# STRIPE CONNECT — BOOKING PAYMENT HANDLERS
+# ─────────────────────────────────────────────
+
+
+def _handle_booking_checkout_completed(session):
+    """Handle checkout.session.completed for booking payments via Connect."""
+    logger = __logging.getLogger('clients')
+    meta = session.get('metadata', {}) or {}
+    booking_id = meta.get('booking_id')
+
+    if not booking_id:
+        return  # Not a booking checkout — skip
+
+    from decimal import Decimal
+    from django.utils import timezone
+    from .models import Booking, BookingPayment
+
+    try:
+        booking = Booking.objects.select_related('provider', 'service').get(id=booking_id)
+    except Booking.DoesNotExist:
+        logger.warning('Booking #%s not found for checkout completion', booking_id)
+        return
+
+    provider = booking.provider
+    service = booking.service
+
+    # Avoid duplicate payment records
+    if hasattr(booking, 'payment'):
+        return
+
+    try:
+        amount = Decimal(str(session.get('amount_total', 0))) / Decimal('100')
+        commission_rate = provider.commission_rate
+        application_fee = (amount * commission_rate).quantize(Decimal('0.01'))
+        net_amount = amount - application_fee
+
+        payment = BookingPayment.objects.create(
+            booking=booking,
+            stripe_payment_intent_id=session.get('payment_intent', ''),
+            stripe_session_id=session.get('id', ''),
+            amount=amount,
+            application_fee=application_fee,
+            net_amount=net_amount,
+            currency=(session.get('currency', 'cad') or 'cad').upper(),
+            status='completed',
+            paid_at=timezone.now(),
+        )
+
+        booking.status = 'pending'
+        booking.save(update_fields=['status'])
+
+        logger.info(
+            'Booking #%s payment: $%s total, $%s fee, $%s net to %s',
+            booking_id, amount, application_fee, net_amount, provider.name,
+        )
+
+    except Exception:
+        logger.error('Error processing booking checkout #%s', booking_id, exc_info=True)
+
+
+def _handle_connect_account_updated(account):
+    """Handle account.updated webhook — update provider Stripe Connect status."""
+    logger = __logging.getLogger('clients')
+    account_id = account.get('id', '')
+    charges_enabled = account.get('charges_enabled', False)
+    payouts_enabled = account.get('payouts_enabled', False)
+    details_submitted = account.get('details_submitted', False)
+
+    try:
+        provider = BeautyProvider.objects.filter(stripe_account_id=account_id).first()
+        if not provider:
+            return
+
+        was_complete = provider.stripe_onboarding_complete
+        provider.stripe_onboarding_complete = details_submitted and charges_enabled
+
+        if provider.stripe_onboarding_complete and not was_complete:
+            logger.info('Provider %s completed Stripe Connect onboarding', provider.name)
+
+        provider.save(update_fields=['stripe_onboarding_complete'])
+
+    except Exception:
+        logger.error('Error handling account.updated for %s', account_id, exc_info=True)
+
+
+def _handle_booking_refund(charge):
+    """Handle charge.refunded — update BookingPayment and cancel booking if fully refunded."""
+    logger = __logging.getLogger('clients')
+    payment_intent = charge.get('payment_intent', '')
+
+    if not payment_intent:
+        return
+
+    from decimal import Decimal
+
+    try:
+        payment = BookingPayment.objects.filter(stripe_payment_intent_id=payment_intent).first()
+        if not payment:
+            return
+
+        amount_refunded = Decimal(str(charge.get('amount_refunded', 0))) / Decimal('100')
+        amount_charged = Decimal(str(charge.get('amount', 0))) / Decimal('100')
+
+        if amount_refunded >= amount_charged:
+            payment.status = 'refunded'
+            booking = payment.booking
+            booking.status = 'cancelled'
+            booking.save(update_fields=['status'])
+        else:
+            payment.status = 'partially_refunded'
+
+        payment.save(update_fields=['status'])
+
+        logger.info(
+            'Refund for PaymentIntent %s: $%s refunded of $%s',
+            payment_intent, amount_refunded, amount_charged,
+        )
+
+    except Exception:
+        logger.error('Error handling refund for %s', payment_intent, exc_info=True)
 
 
 # ─────────────────────────────────────────────

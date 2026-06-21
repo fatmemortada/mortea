@@ -67,7 +67,7 @@ from .t1_organizer import (T1Organizer, T1Document, T1_QUESTIONNAIRE,
 from ..cra_connector import (CRAAccount, get_or_create_cra_accounts,
     estimate_balances_from_filings, sync_all_firm_accounts, get_firm_cra_summary)
 from .academy import AcademyModuleProgress
-from .provider import BeautyProvider, BeautyService, ProviderPhoto, ProviderReview, StaffMember, OpeningHours, Booking, ClaimRequest, AnalyticsEvent, BeforeAfterResult, PortfolioPost, PortfolioLike, PortfolioSave, ProviderFollow, WaitlistEntry, BeautyRequest, ProviderQuote
+from .provider import BeautyProvider, BeautyService, ProviderPhoto, ProviderReview, StaffMember, OpeningHours, Booking, BookingPayment, ProviderPayout, ClaimRequest, AnalyticsEvent, BeforeAfterResult, PortfolioPost, PortfolioLike, PortfolioSave, ProviderFollow, WaitlistEntry, BeautyRequest, ProviderQuote
 from .acquisition import BusinessImport, EmailTemplate, SentEmail
 from .crm import ClientProfile, TreatmentNote, MarketingCampaign
 from .creator import CreatorProfile, CreatorPost, CreatorFavorite, CreatorCollection, AffiliateLink, ReferralEarning

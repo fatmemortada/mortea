@@ -1,0 +1,98 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complete Payment — {{ provider.name }} | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+    .page { padding-top: 72px; min-height: 100vh; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+    .card { background: var(--card); border: 1px solid var(--card-border); border-radius: var(--radius-xl); padding: 44px 40px; max-width: 520px; width: 100%; margin: 40px 20px; }
+    .card h1 { font-family: 'Playfair Display',serif; font-size: 30px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -0.02em; }
+    .card .sub { font-size: 14px; color: var(--text-muted); margin-bottom: 28px; }
+    .summary { background: var(--bg); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 24px; }
+    .summary-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: var(--text-muted); }
+    .summary-row.total { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; margin-top: 6px; font-weight: 700; font-size: 17px; color: var(--text); }
+    .provider-line { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 16px; color: var(--text); }
+    .provider-line strong { color: var(--accent); }
+    .detail { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+    .btn-pay { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 17px; background: var(--accent); color: #0D0D0D; border: none; border-radius: var(--radius-full); font-size: 17px; font-weight: 600; cursor: pointer; transition: all 0.25s; font-family: 'Inter',sans-serif; }
+    .btn-pay:hover { background: #E0C4A0; box-shadow: 0 8px 28px rgba(212,176,140,0.3); transform: translateY(-1px); }
+    .btn-pay:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .secure-note { text-align: center; font-size: 12px; color: var(--text-faint); margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .error-msg { background: rgba(212,117,107,0.1); color: #D4756B; padding: 12px 16px; border-radius: var(--radius); font-size: 14px; margin-bottom: 16px; border: 1px solid rgba(212,117,107,0.2); display: none; }
+    @media (max-width:560px) { .card { padding: 28px 20px; } .card h1 { font-size: 24px; } }
+</style></head><body>
+
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea<span class="nav-logo-dot"></span></a></div></nav>
+
+<div class="page">
+    <div class="card">
+        <h1>Complete Your Booking</h1>
+        <p class="sub">Your payment is processed securely via Stripe.</p>
+
+        <div class="provider-line">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4B08C" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <strong>{{ provider.name }}</strong>
+        </div>
+
+        <div class="detail">📅 {{ booking.date|date:"F j, Y" }} at {{ booking.time|time:"g:i A" }}</div>
+        <div class="detail">💆 {{ booking.client_name }}</div>
+
+        <div class="summary">
+            <div class="summary-row"><span>{{ service.name|default:"Service" }}</span><span>${{ price|floatformat:"0" }}</span></div>
+            <div class="summary-row"><span>Mortea fee ({{ commission_pct }}%)</span><span>-${{ commission_amount|floatformat:"0" }}</span></div>
+            <div class="summary-row"><span style="font-size:12px;color:var(--text-faint)">Provider receives</span><span style="font-size:12px;color:var(--text-faint)">${{ net_amount|floatformat:"0" }}</span></div>
+            <div class="summary-row total"><span>Total</span><span>${{ price|floatformat:"0" }}</span></div>
+        </div>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <button class="btn-pay" id="payBtn" onclick="startPayment()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Pay ${{ price|floatformat:"0" }} CAD
+        </button>
+
+        <div class="secure-note">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Secured by Stripe
+        </div>
+    </div>
+</div>
+
+<script>
+function startPayment() {
+    var btn = document.getElementById('payBtn');
+    var errorEl = document.getElementById('errorMsg');
+    btn.disabled = true;
+    btn.textContent = 'Redirecting to Stripe...';
+    errorEl.style.display = 'none';
+
+    fetch('{% url "create_booking_checkout_session" slug=provider.slug booking_id=booking.id %}', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCSRF() },
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.url) {
+            window.location.href = data.url;
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay ${{ price|floatformat:"0" }} CAD';
+            errorEl.textContent = data.error || 'Payment setup failed. Please try again.';
+            errorEl.style.display = 'block';
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Pay ${{ price|floatformat:"0" }} CAD';
+        errorEl.textContent = 'Could not connect to payment service. Please try again.';
+        errorEl.style.display = 'block';
+    });
+}
+
+function getCSRF() {
+    var m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+}
+</script>
+</body></html>

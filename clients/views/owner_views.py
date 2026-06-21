@@ -113,10 +113,25 @@ def owner_dashboard_view(request, slug):
     recent_bookings = provider.bookings.order_by('-created_at')[:5]
     recent_reviews = provider.reviews.order_by('-created_at')[:5]
 
+    # Financial stats
+    from decimal import Decimal
+    from django.db.models import Sum
+    from ..models import BookingPayment
+    payments = BookingPayment.objects.filter(booking__provider=provider, status='completed')
+    agg = payments.aggregate(
+        gross=Sum('amount'), fee=Sum('application_fee'), net=Sum('net_amount'),
+    )
+    gross_revenue = agg['gross'] or Decimal('0')
+    commission_paid = agg['fee'] or Decimal('0')
+    net_earnings = agg['net'] or Decimal('0')
+
     return render(request, 'clients/owner/dashboard.html', {
         'provider': provider,
         'recent_bookings': recent_bookings,
         'recent_reviews': recent_reviews,
+        'gross_revenue': gross_revenue,
+        'commission_paid': commission_paid,
+        'net_earnings': net_earnings,
     })
 
 
@@ -272,6 +287,36 @@ def owner_respond_review_view(request, slug, review_id):
     return render(request, 'clients/owner/respond_review.html', {
         'provider': provider,
         'review': review,
+    })
+
+
+# ── Payouts Dashboard ─────────────────────────────────────────────────
+
+
+def owner_payouts_view(request, slug):
+    """Show payout history and pending earnings for a provider."""
+    from decimal import Decimal
+    from django.db.models import Sum
+    from ..models import BookingPayment, ProviderPayout
+
+    provider = get_object_or_404(BeautyProvider, slug=slug, is_claimed=True)
+
+    # Completed payments not yet assigned to a payout
+    completed_payments = BookingPayment.objects.filter(
+        booking__provider=provider,
+        status='completed',
+    )
+    unassigned = completed_payments.exclude(
+        booking__in=provider.bookings.filter(payment__status='completed')
+    )
+    pending_payout = unassigned.aggregate(total=Sum('net_amount'))['total'] or Decimal('0')
+
+    payouts = ProviderPayout.objects.filter(provider=provider).order_by('-created_at')
+
+    return render(request, 'clients/owner/payouts.html', {
+        'provider': provider,
+        'payouts': payouts,
+        'pending_payout': pending_payout,
     })
 
 

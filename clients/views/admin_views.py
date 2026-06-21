@@ -65,6 +65,18 @@ def admin_dashboard_view(request):
     pending_claims = ClaimRequest.objects.filter(status='pending').count()
     emails_sent = SentEmail.objects.count()
 
+    # Revenue stats
+    from ..models import BookingPayment
+    completed_payments = BookingPayment.objects.filter(status='completed')
+    agg = completed_payments.aggregate(
+        total_commission=Sum('application_fee'),
+        total_volume=Sum('amount'),
+        payment_count=Count('id'),
+    )
+    total_commission = agg['total_commission'] or 0
+    total_booking_volume = agg['total_volume'] or 0
+    total_paid_bookings = agg['payment_count'] or 0
+
     # 30-day activity
     profile_views_30d = AnalyticsEvent.objects.filter(
         event_type='profile_view', created_at__date__gte=days_30
@@ -112,4 +124,72 @@ def admin_dashboard_view(request):
         'recent_bookings': recent_bookings,
         'recent_reviews': recent_reviews,
         'recent_claims': recent_claims,
+        'total_commission': total_commission,
+        'total_booking_volume': total_booking_volume,
+        'total_paid_bookings': total_paid_bookings,
+    })
+
+
+@staff_member_required
+def admin_revenue_view(request):
+    """Detailed revenue dashboard — commissions, provider breakdown, city breakdown."""
+    from decimal import Decimal
+    from django.db.models import Sum, Count
+    from django.db.models.functions import TruncMonth
+    from ..models import BookingPayment
+
+    completed = BookingPayment.objects.filter(status='completed').select_related('booking__provider')
+
+    agg = completed.aggregate(
+        total_commission=Sum('application_fee'),
+        total_volume=Sum('amount'),
+        payment_count=Count('id'),
+    )
+
+    # Revenue by provider
+    by_provider = (
+        completed.values(
+            'booking__provider__name',
+            'booking__provider__slug',
+            'booking__provider__city',
+            'booking__provider__plan',
+        )
+        .annotate(
+            total=Sum('amount'),
+            commission=Sum('application_fee'),
+            count=Count('id'),
+        )
+        .order_by('-commission')[:20]
+    )
+
+    # Revenue by city
+    by_city = (
+        completed.values('booking__provider__city')
+        .annotate(
+            total=Sum('amount'),
+            commission=Sum('application_fee'),
+            count=Count('id'),
+        )
+        .order_by('-commission')
+    )
+
+    # Monthly revenue
+    monthly = (
+        completed.annotate(month=TruncMonth('paid_at'))
+        .values('month')
+        .annotate(
+            total=Sum('amount'),
+            commission=Sum('application_fee'),
+            count=Count('id'),
+        )
+        .order_by('-month')[:12]
+    )
+
+    return render(request, 'clients/admin/revenue.html', {
+        'total_commission': agg['total_commission'] or Decimal('0'),
+        'total_volume': agg['total_volume'] or Decimal('0'),
+        'total_payments': agg['payment_count'] or 0,
+        'by_provider': by_provider,
+        'by_city': by_city,
+        'monthly': monthly,
     })

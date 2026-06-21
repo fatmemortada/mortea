@@ -2,6 +2,7 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from clients import views
 from clients import stripe_views
+from clients import stripe_connect_views
 from clients import pdf_views
 from clients import api as api_views
 from rest_framework.routers import DefaultRouter
@@ -24,6 +25,10 @@ urlpatterns = [
     path('providers/<slug:slug>/', views.provider_profile_view, name='provider_profile'),
     path('providers/<slug:slug>/book/', views.booking_view, name='booking'),
     path('providers/<slug:slug>/book/<int:booking_id>/confirm/', views.booking_confirmation_view, name='booking_confirmation'),
+    # Booking payment flow
+    path('providers/<slug:slug>/book/<int:booking_id>/payment/', views.booking_payment_view, name='booking_payment'),
+    path('providers/<slug:slug>/book/<int:booking_id>/payment/create/', views.create_booking_checkout_session, name='create_booking_checkout_session'),
+    path('providers/<slug:slug>/book/<int:booking_id>/payment/success/', views.booking_payment_success_view, name='booking_payment_success'),
 
     # ── Claim & Owner Dashboard ────────────────────────────────────────────
     path('providers/<slug:slug>/claim/', views.claim_business_view, name='claim_business'),
@@ -35,6 +40,7 @@ urlpatterns = [
     path('providers/<slug:slug>/dashboard/photos/', views.owner_manage_photos_view, name='owner_photos'),
     path('providers/<slug:slug>/dashboard/social/', views.owner_manage_social_view, name='owner_social'),
     path('providers/<slug:slug>/dashboard/bookings/', views.owner_manage_bookings_view, name='owner_bookings'),
+    path('providers/<slug:slug>/dashboard/payouts/', views.owner_payouts_view, name='owner_payouts'),
     path('providers/<slug:slug>/dashboard/reviews/<int:review_id>/respond/', views.owner_respond_review_view, name='owner_respond_review'),
     path('providers/<slug:slug>/dashboard/analytics/', views.owner_analytics_view, name='owner_analytics'),
     path('providers/<slug:slug>/dashboard/results/', views.owner_manage_results_view, name='owner_results'),
@@ -48,6 +54,7 @@ urlpatterns = [
 
     # ── Admin: Unified Dashboard ──────────────────────────────────────────
     path('mortea-admin/', views.admin_dashboard_view, name='admin_dashboard'),
+    path('mortea-admin/revenue/', views.admin_revenue_view, name='admin_revenue'),
     path('mortea-admin/verification/', views.verification_dashboard_view, name='verification_dashboard'),
     path('mortea-admin/safety/', views.trust_safety_dashboard, name='trust_safety'),
     path('report/', views.report_content_view, name='report_content'),
@@ -179,6 +186,10 @@ urlpatterns = [
     path('billing/portal/', stripe_views.billing_portal, name='billing_portal'),
     path('upgrade/', stripe_views.upgrade_plan, name='upgrade_plan'),
     path('upgrade/success/', stripe_views.upgrade_success, name='upgrade_success'),
+    # Stripe Connect onboarding
+    path('providers/<slug:slug>/connect/stripe/', stripe_connect_views.connect_stripe_start, name='connect_stripe'),
+    path('providers/<slug:slug>/connect/return/', stripe_connect_views.connect_stripe_return, name='connect_stripe_return'),
+    path('providers/<slug:slug>/connect/dashboard/', stripe_connect_views.connect_stripe_dashboard, name='connect_stripe_dashboard'),
 
     # ── Staff management ────────────────────────────────────────────────────
     path('staff/invite/', views.staff_invite_view, name='staff_invite'),
