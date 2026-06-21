@@ -22,13 +22,13 @@ if (
     )
 ALLOWED_HOSTS = [h for h in os.environ.get(
     'ALLOWED_HOSTS',
-    'mortacc.com,www.mortacc.com,mortacc.fly.dev'
+    'mortea.ca,www.mortea.ca,mortea.fly.dev'
 ).split(',') if h]
 
 if DEBUG:
     ALLOWED_HOSTS += ['localhost', '127.0.0.1', 'testserver', '.localhost']
 
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://mortacc.com,https://www.mortacc.com,https://mortacc.fly.dev').split(',')
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://mortea.ca,https://www.mortea.ca,https://mortea.fly.dev').split(',')
 
 
 # ── Apps ──────────────────────────────────────────────────────────────────────

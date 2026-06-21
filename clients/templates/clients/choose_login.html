@@ -1,137 +1,182 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sign In — Mortacc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Mortea — Beauty Discovery Platform</title>
+    <meta name="description" content="Sign in to Mortea to manage your beauty profile, bookings, and saved providers.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'clients/icons/favicon-32.png' %}">
+    <link rel="shortcut icon" href="{% static 'clients/icons/favicon.ico' %}">
     <style>
-        body {
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-            background: #fdfbf8;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bg: #0D0D0D;
+            --card: #161616;
+            --card-border: #222;
+            --accent: #D4B08C;
+            --text: #FFFFFF;
+            --text-secondary: #CFCFCF;
+            --text-muted: #8A8A8A;
         }
-
-        .wrap {
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 24px;
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
         }
-
-        .card {
+        .wrap {
             width: 100%;
-            max-width: 860px;
-            background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
-            border-radius: 18px;
-            box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
-            padding: 44px;
+            max-width: 720px;
         }
-
+        .card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 48px;
+        }
         .logo {
-            font-size: 30px;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 32px;
             font-weight: 700;
-            margin-bottom: 14px;
-            color: #2f2a26;
+            color: var(--text);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
         }
-
-        .logo span {
-            color: #b8956a;
+        .logo-dot {
+            display: inline-block;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin-left: 1px;
+            box-shadow: 0 0 12px rgba(212,176,140,0.3);
+            vertical-align: middle;
+            margin-bottom: 4px;
         }
-
         h1 {
-            margin: 0 0 10px;
-            font-size: 34px;
-            color: #2f2a26;
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text);
+            margin: 0 0 8px;
+            letter-spacing: -0.02em;
         }
-
         .subtitle {
-            margin: 0 0 32px;
-            color: #7b6f64;
+            margin: 0 0 36px;
+            color: var(--text-muted);
             font-size: 16px;
+            line-height: 1.6;
         }
-
         .options {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 18px;
+            gap: 16px;
         }
-
         .option {
             display: block;
             text-decoration: none;
-            border: 1px solid #e9dfd2;
-            border-radius: 16px;
-            padding: 26px;
-            transition: 0.2s ease;
-            background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            background: transparent;
         }
-
         .option:hover {
-            border-color: #b8956a;
-            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+            border-color: rgba(212,176,140,0.25);
+            background: rgba(212,176,140,0.04);
             transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
         }
-
-        .option-title {
+        .option-icon {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 16px;
             font-size: 22px;
-            font-weight: 700;
-            color: #2f2a26;
-            margin-bottom: 10px;
         }
-
+        .option-icon.provider { background: rgba(212,176,140,0.12); }
+        .option-icon.client { background: rgba(160,170,200,0.12); }
+        .option-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
         .option-text {
-            color: #7b6f64;
+            color: var(--text-muted);
             font-size: 14px;
             line-height: 1.6;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
-
         .option-link {
-            color: #b8956a;
-            font-weight: 700;
+            color: var(--accent);
+            font-weight: 600;
             font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-
-        @media (max-width: 700px) {
-            .card {
-                padding: 28px;
-            }
-
-            .options {
-                grid-template-columns: 1fr;
-            }
-
-            h1 {
-                font-size: 28px;
-            }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 24px;
+            color: var(--text-muted);
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--text); }
+        @media (max-width: 600px) {
+            .card { padding: 32px 24px; }
+            .options { grid-template-columns: 1fr; }
+            h1 { font-size: 28px; }
+            .option { padding: 22px; }
         }
     </style>
 </head>
 <body>
     <div class="wrap">
         <div class="card">
-            <div class="logo">Mort<span>acc</span></div>
+            <div class="logo">Mortea<span class="logo-dot"></span></div>
             <h1>Welcome back</h1>
-            <p class="subtitle">Choose how you’d like to sign in.</p>
+            <p class="subtitle">Sign in to manage your beauty profile, bookings, and saved providers.</p>
 
             <div class="options">
                 <a href="/login/" class="option">
-                    <div class="option-title">Accountant Portal</div>
-                    <div class="option-text">
-                        Sign in as an accountant to manage clients, review documents, and access your internal dashboard.
+                    <div class="option-icon provider">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4B08C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </div>
-                    <div class="option-link">Sign in as accountant →</div>
+                    <div class="option-title">Provider Access</div>
+                    <div class="option-text">
+                        Sign in as a beauty professional to manage your profile, services, photos, and bookings.
+                    </div>
+                    <span class="option-link">Sign in as provider →</span>
                 </a>
 
                 <a href="/client/login/" class="option">
-                    <div class="option-title">Client Portal</div>
-                    <div class="option-text">
-                        Sign in as a client to view your portal, signed engagement letter, and onboarding progress.
+                    <div class="option-icon client">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A0AACC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
-                    <div class="option-link">Sign in as client →</div>
+                    <div class="option-title">Client Access</div>
+                    <div class="option-text">
+                        Sign in as a client to view your bookings, saved providers, and appointment history.
+                    </div>
+                    <span class="option-link">Sign in as client →</span>
                 </a>
             </div>
         </div>
+        <a href="/" class="back-link">← Back to Mortea</a>
     </div>
 </body>
 </html>

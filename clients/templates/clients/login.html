@@ -1,93 +1,115 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In — Mortacc</title>
+    <title>Provider Sign In — Mortea</title>
+    <meta name="description" content="Sign in to your Mortea provider account to manage your beauty profile, services, and bookings.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'clients/icons/favicon-32.png' %}">
+    <link rel="shortcut icon" href="{% static 'clients/icons/favicon.ico' %}">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
-            --navy:#2f2a26; --blue:#b8956a; --gray-100:#f6f1ea; --gray-200:#e9dfd2;
-            --gray-300:#d8cab8; --gray-500:#7b6f64; --gray-700:#4b4037; --gray-900:#2f2a26;
-            --red:#dc2626; --red-light:#fee2e2;
+            --bg: #0D0D0D; --card: #161616; --card-border: #222;
+            --accent: #D4B08C; --text: #FFFFFF; --text-secondary: #CFCFCF;
+            --text-muted: #8A8A8A; --text-faint: #5A5A5A;
+            --error: #D4756B; --error-bg: rgba(212,117,107,0.1);
         }
-        body { font-family:'DM Sans',sans-serif; min-height:100vh; display:grid; grid-template-columns:1fr 1fr; }
-
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr;
+            background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased;
+        }
         .left-panel {
-            background: var(--navy);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 60px;
-            position: relative;
-            overflow: hidden;
+            background: var(--bg);
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 80px 60px; position: relative; overflow: hidden;
         }
-
         .left-panel::before {
-            content: '';
-            position: absolute;
-            top: -100px; right: -100px;
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(96,165,250,.15) 0%, transparent 70%);
+            content: ''; position: absolute; top: -120px; right: -120px;
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(212,176,140,0.06) 0%, transparent 70%);
         }
-
         .left-panel::after {
-            content: '';
-            position: absolute;
-            bottom: -60px; left: -60px;
-            width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(52,211,153,.1) 0%, transparent 70%);
+            content: ''; position: absolute; bottom: -80px; left: -80px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,176,140,0.04) 0%, transparent 70%);
         }
-
-        .brand { margin-bottom: 48px; }
-        .wordmark { font-family:'DM Serif Display',serif; font-size:28px; color:#fff; }
-        .wordmark span { color: #d6b48a; }
-        .tagline { font-size:13px; color:rgba(255,255,255,.4); margin-top:4px; text-transform:uppercase; letter-spacing:.5px; }
-
-        .hero-text h1 { font-size:36px; font-weight:600; color:#fff; line-height:1.25; margin-bottom:16px; }
-        .hero-text h1 em { font-style:normal; color:#d6b48a; }
-        .hero-text p { font-size:15px; color:rgba(255,255,255,.55); line-height:1.7; max-width:380px; }
-
-        .feature-list { margin-top:40px; display:flex; flex-direction:column; gap:12px; }
-        .feature-item { display:flex; align-items:center; gap:12px; color:rgba(255,255,255,.7); font-size:14px; }
-        .feature-dot { width:6px; height:6px; border-radius:50%; background:#34d399; flex-shrink:0; }
+        .brand { margin-bottom: 48px; position: relative; z-index: 1; }
+        .wordmark {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.02em;
+        }
+        .wordmark-dot {
+            display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+            background: var(--accent); margin-left: 1px; vertical-align: middle; margin-bottom: 3px;
+            box-shadow: 0 0 12px rgba(212,176,140,0.3);
+        }
+        .tagline {
+            font-size: 12px; color: rgba(255,255,255,.35); margin-top: 4px;
+            text-transform: uppercase; letter-spacing: 0.1em;
+        }
+        .hero-text { position: relative; z-index: 1; }
+        .hero-text h1 { font-size: 38px; font-weight: 600; color: #fff; line-height: 1.2; margin-bottom: 16px; }
+        .hero-text h1 em { font-style: italic; color: var(--accent); }
+        .hero-text p { font-size: 15px; color: rgba(255,255,255,.5); line-height: 1.7; max-width: 380px; }
+        .feature-list { margin-top: 40px; display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1; }
+        .feature-item { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,.6); font-size: 14px; }
+        .feature-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
         .right-panel {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 40px;
-            background: #fdfbf8;
+            display: flex; align-items: center; justify-content: center;
+            padding: 60px 40px; background: var(--card);
+            border-left: 1px solid rgba(255,255,255,0.06);
         }
+        .login-box { width: 100%; max-width: 400px; }
+        .login-box h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 26px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        .login-box .sub { font-size: 14px; color: var(--text-muted); margin-bottom: 32px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; }
+        .form-control {
+            width: 100%; padding: 12px 16px; border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 15px;
+            color: var(--text); background: var(--bg); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212,176,140,0.08); }
+        .form-control::placeholder { color: var(--text-faint); }
+        .btn-submit {
+            width: 100%; padding: 13px; background: var(--accent); color: #0D0D0D;
+            border: none; border-radius: 10px; font-family: 'Inter', sans-serif;
+            font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.25s; margin-top: 4px;
+        }
+        .btn-submit:hover { background: #E0C4A0; box-shadow: 0 8px 24px rgba(212,176,140,0.25); }
+        .alt-links {
+            margin-top: 20px; display: flex; flex-direction: column; gap: 8px;
+            text-align: center; font-size: 13px; color: var(--text-muted);
+        }
+        .alt-links a { color: var(--accent); text-decoration: none; font-weight: 500; transition: opacity 0.2s; }
+        .alt-links a:hover { opacity: 0.8; }
+        .error-box {
+            background: var(--error-bg); color: var(--error); padding: 12px 16px;
+            border-radius: 10px; font-size: 14px; margin-bottom: 18px; border: 1px solid rgba(212,117,107,0.2);
+        }
+        .password-wrap { position: relative; }
+        .password-wrap .form-control { padding-right: 48px; }
+        .toggle-pw {
+            position: absolute; top: 50%; right: 14px; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; color: var(--text-faint);
+            font-size: 18px; padding: 2px;
+        }
+        .back-link { display: block; text-align: center; margin-top: 16px; color: var(--text-faint); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+        .back-link:hover { color: var(--text-muted); }
 
-        .login-box { width:100%; max-width:400px; }
-        .login-box h2 { font-size:24px; font-weight:600; color:var(--gray-900); margin-bottom:6px; }
-        .login-box .sub { font-size:14px; color:var(--gray-500); margin-bottom:32px; }
-
-        .form-group { margin-bottom:16px; }
-        .form-label { display:block; font-size:13px; font-weight:500; color:var(--gray-700); margin-bottom:6px; }
-        .form-control { width:100%; padding:10px 14px; border:1.5px solid var(--gray-200); border-radius:8px; font-family:inherit; font-size:14px; color:var(--gray-900); background:#fff; outline:none; transition:border-color .15s, box-shadow .15s; }
-        .form-control:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
-
-        .btn-submit { width:100%; padding:11px; background:var(--blue); color:#fff; border:none; border-radius:8px; font-family:inherit; font-size:15px; font-weight:500; cursor:pointer; transition:background .15s; margin-top:4px; }
-        .btn-submit:hover { background:#1d4ed8; }
-
-        .alt-links { margin-top:20px; display:flex; flex-direction:column; gap:8px; text-align:center; font-size:13px; color:var(--gray-500); }
-        .alt-links a { color:var(--blue); text-decoration:none; font-weight:500; }
-        .alt-links a:hover { text-decoration:underline; }
-
-        .error-box { background:var(--red-light); color:var(--red); padding:10px 14px; border-radius:8px; font-size:14px; margin-bottom:18px; border:1px solid #fecaca; }
-
-        .password-wrap { position:relative; }
-        .password-wrap .form-control { padding-right:44px; }
-        .toggle-pw { position:absolute; top:50%; right:12px; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--gray-500); font-size:16px; padding:2px; }
-
-        @media (max-width:768px) {
-            body { grid-template-columns:1fr; }
-            .left-panel { display:none; }
-            .right-panel { padding:40px 24px; }
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            .left-panel { display: none; }
+            .right-panel { padding: 40px 24px; border-left: none; }
         }
     </style>
 </head>
@@ -95,25 +117,25 @@
 
 <div class="left-panel">
     <div class="brand">
-        <div class="wordmark">Mort<span>acc</span></div>
-        <div class="tagline">Practice Management</div>
+        <div class="wordmark">Mortea<span class="wordmark-dot"></span></div>
+        <div class="tagline">Beauty Discovery Platform</div>
     </div>
     <div class="hero-text">
-        <h1>Your firm,<br><em>fully organized.</em></h1>
-        <p>Onboard clients, collect documents, and manage your entire practice — all in one secure platform.</p>
+        <h1>Your beauty business,<br><em>fully managed.</em></h1>
+        <p>Manage your profile, showcase your work, and connect with clients — all in one beautiful platform.</p>
     </div>
     <div class="feature-list">
-        <div class="feature-item"><div class="feature-dot"></div>Secure client onboarding portal</div>
-        <div class="feature-item"><div class="feature-dot"></div>Automated email notifications</div>
-        <div class="feature-item"><div class="feature-dot"></div>Document collection &amp; review</div>
-        <div class="feature-item"><div class="feature-dot"></div>Designed for Canadian accounting firms</div>
+        <div class="feature-item"><div class="feature-dot"></div>Premium beauty provider profile</div>
+        <div class="feature-item"><div class="feature-dot"></div>Booking &amp; appointment management</div>
+        <div class="feature-item"><div class="feature-dot"></div>Portfolio &amp; before/after gallery</div>
+        <div class="feature-item"><div class="feature-dot"></div>Client reviews &amp; reputation building</div>
     </div>
 </div>
 
 <div class="right-panel">
     <div class="login-box">
-        <h2>Welcome back</h2>
-        <p class="sub">Sign in to your firm workspace</p>
+        <h2>Provider Sign In</h2>
+        <p class="sub">Access your beauty provider dashboard</p>
 
         {% if error_message %}
         <div class="error-box">{{ error_message }}</div>
@@ -123,13 +145,15 @@
             {% csrf_token %}
             <div class="form-group">
                 <label class="form-label">Email address</label>
-                <input type="email" name="username" class="form-control" placeholder="you@firm.com" required autofocus>
+                <input type="email" name="username" class="form-control" placeholder="you@yourbusiness.com" required autofocus>
             </div>
             <div class="form-group">
                 <label class="form-label">Password</label>
                 <div class="password-wrap">
-                    <input type="password" name="password" id="pw" class="form-control" placeholder="••••••••" required>
-                    <button type="button" class="toggle-pw" onclick="togglePw()">👁</button>
+                    <input type="password" name="password" id="pw" class="form-control" placeholder="········" required>
+                    <button type="button" class="toggle-pw" onclick="togglePw()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
                 </div>
             </div>
             <button type="submit" class="btn-submit">Sign In</button>
@@ -138,6 +162,7 @@
         <div class="alt-links">
             <div>Don't have an account? <a href="{% url 'accountant_signup' %}">Create one free</a></div>
         </div>
+        <a href="{% url 'choose_login' %}" class="back-link">← Back to access options</a>
     </div>
 </div>
 
