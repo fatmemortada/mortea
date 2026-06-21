@@ -1,6 +1,9 @@
 app = "mortea"
 primary_region = "yyz"
 
+[deploy]
+  release_command = "sh -c 'python manage.py migrate --noinput && python manage.py seed_beauty_providers'"
+
 [build]
 
 [http_service]

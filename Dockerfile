@@ -32,5 +32,5 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --no-input
  
-# Run gunicorn — 2 workers with 2 threads each for SQLite concurrency, preload for scheduler
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8080", "--workers", "2", "--threads", "2", "--timeout", "120", "--preload"]
+# Run migrations then gunicorn — 2 workers with 2 threads each for SQLite concurrency, preload for scheduler
+CMD sh -c "python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8080 --workers 2 --threads 2 --timeout 120 --preload"
