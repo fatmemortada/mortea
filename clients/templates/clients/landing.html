@@ -20,28 +20,31 @@
     <link rel="shortcut icon" href="{% static 'clients/icons/favicon.ico' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     {% load static %}
     <link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- NAVIGATION                                                      -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- NAVIGATION                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <nav id="topNav">
     <div class="nav-inner">
-        <a href="/" class="nav-logo">Mortea</a>
+        <a href="/" class="nav-logo">
+            Mortea<span class="nav-logo-dot"></span>
+        </a>
         <div class="nav-links">
             <a href="#search" class="nav-link">Find Services</a>
             <a href="{% url 'discovery_feed' %}" class="nav-link">Portfolio</a>
             <a href="{% url 'results_gallery' %}" class="nav-link">Results</a>
             <a href="{% url 'for_professionals' %}" class="nav-link">For Professionals</a>
             <a href="#about" class="nav-link">About</a>
-            <a href="{% url 'choose_login' %}" class="nav-link">Login</a>
         </div>
-        <a href="{% url 'choose_login' %}" class="btn btn-outline nav-btn-desktop">Login</a>
+        <div class="nav-actions">
+            <a href="{% url 'choose_login' %}" class="btn btn-outline nav-btn-desktop">Sign In</a>
+        </div>
         <button class="hamburger" id="hamburger" aria-label="Menu">
             <span></span><span></span><span></span>
         </button>
@@ -55,202 +58,219 @@
     <a href="{% url 'results_gallery' %}" onclick="closeMenu()">Results</a>
     <a href="{% url 'for_professionals' %}" onclick="closeMenu()">For Professionals</a>
     <a href="#about" onclick="closeMenu()">About</a>
-    <a href="{% url 'choose_login' %}" onclick="closeMenu()">Login</a>
+    <a href="{% url 'choose_login' %}" onclick="closeMenu()" class="mobile-login-btn">Sign In</a>
 </div>
 
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- HERO + SEARCH                                                   -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- HERO + SEARCH                                                           -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <section class="hero" id="search">
     <div class="hero-content">
-        <h1 class="hero-title">Find Beauty Services<br>Near You</h1>
-        <p class="hero-subtitle">Discover top-rated beauty salons, med spas, clinics, and beauty professionals near your location.</p>
+        <h1 class="hero-title">
+            Find Beauty Services<br><span class="hero-title-accent">Near You</span>
+        </h1>
+        <p class="hero-subtitle">Discover salons, med spas, clinics, and beauty professionals near you.</p>
 
-        <!-- Search Box -->
-        <form class="search-box" action="{% url 'search_results' %}" method="GET">
-            <div class="search-field">
-                <span class="search-icon">📍</span>
-                <input type="text" name="location" placeholder="Enter your city or postal code" autocomplete="off" class="search-input" list="city-list">
-                <datalist id="city-list">
-                    <option value="Montreal"><option value="Laval"><option value="Brossard">
-                    <option value="Ottawa"><option value="Toronto"><option value="Quebec City">
-                    <option value="Gatineau"><option value="Longueuil"><option value="Sherbrooke">
-                </datalist>
-            </div>
-            <div class="search-divider"></div>
-            <div class="search-field">
-                <span class="search-icon">🔍</span>
-                <input type="text" name="q" placeholder="e.g., Botox, Hair Salon, Nails…" autocomplete="off" class="search-input" list="service-list">
-                <datalist id="service-list">
-                    <option value="Botox"><option value="Lip Fillers"><option value="Hair Salon">
-                    <option value="Nails"><option value="Hydrafacial"><option value="Laser Hair Removal">
-                    <option value="Head Spa"><option value="Eyelash Extensions"><option value="Brows">
-                    <option value="Makeup"><option value="Lashes"><option value="PRP">
-                    <option value="Microneedling"><option value="Microblading"><option value="Balayage">
-                    <option value="Hair Extensions"><option value="Chemical Peel"><option value="Gel Manicure">
-                </datalist>
-            </div>
-            <button type="submit" class="btn btn-search">Search</button>
-        </form>
+        <!-- Premium Search Card -->
+        <div class="search-card">
+            <form class="search-box" action="{% url 'search_results' %}" method="GET">
+                <div class="search-field">
+                    <span class="search-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    </span>
+                    <input type="text" name="q" placeholder="Service — Botox, Hair, Nails…" autocomplete="off" class="search-input" list="service-list">
+                    <datalist id="service-list">
+                        <option value="Botox"><option value="Lip Fillers"><option value="Hair Salon">
+                        <option value="Nails"><option value="Hydrafacial"><option value="Laser Hair Removal">
+                        <option value="Head Spa"><option value="Eyelash Extensions"><option value="Brows">
+                        <option value="Makeup"><option value="Lashes"><option value="PRP">
+                        <option value="Microneedling"><option value="Microblading"><option value="Balayage">
+                        <option value="Hair Extensions"><option value="Chemical Peel"><option value="Gel Manicure">
+                    </datalist>
+                </div>
+                <div class="search-divider"></div>
+                <div class="search-field">
+                    <span class="search-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </span>
+                    <input type="text" name="location" placeholder="City or postal code" autocomplete="off" class="search-input" list="city-list">
+                    <datalist id="city-list">
+                        <option value="Montreal"><option value="Laval"><option value="Brossard">
+                        <option value="Ottawa"><option value="Toronto"><option value="Quebec City">
+                        <option value="Gatineau"><option value="Longueuil"><option value="Sherbrooke">
+                    </datalist>
+                </div>
+                <button type="submit" class="btn-search">Search</button>
+            </form>
+        </div>
 
-        <!-- Service Quick Chips -->
+        <!-- Popular Quick Links -->
         <div class="service-chips">
-            <span class="chip-label">Popular:</span>
+            <span class="chip-label">Popular</span>
             <a href="/find/?q=Botox&location=Montreal" class="chip">Botox</a>
             <a href="/find/?q=Lip+Fillers&location=Montreal" class="chip">Lip Fillers</a>
             <a href="/find/?q=Hair+Salon&location=Laval" class="chip">Hair Salon</a>
             <a href="/find/?q=Nails&location=Montreal" class="chip">Nails</a>
             <a href="/find/?q=Hydrafacial" class="chip">Hydrafacial</a>
-            <a href="/find/?q=Laser+Hair+Removal&location=Montreal" class="chip">Laser Hair Removal</a>
+            <a href="/find/?q=Laser+Hair+Removal&location=Montreal" class="chip">Laser</a>
             <a href="/find/?q=Head+Spa" class="chip">Head Spa</a>
-            <a href="/find/?q=Eyelash+Extensions&location=Laval" class="chip">Eyelash Extensions</a>
+            <a href="/find/?q=Eyelash+Extensions&location=Laval" class="chip">Lash Extensions</a>
         </div>
     </div>
 </section>
 
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- CATEGORIES                                                      -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- POPULAR CATEGORIES                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <section class="section" id="categories">
     <div class="section-header">
-        <h2 class="section-title">Explore by Category</h2>
+        <span class="section-label">Explore</span>
+        <h2 class="section-title">Popular Categories</h2>
         <p class="section-sub">Find exactly what you're looking for</p>
     </div>
     <div class="category-grid">
         <a href="/find/?category=medical_aesthetics" class="category-card">
-            <div class="category-icon">💉</div>
+            <div class="category-icon-circle cat-medical">
+                <span class="category-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#D4B08C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+                </span>
+            </div>
             <h3 class="category-name">Medical Aesthetics</h3>
-            <ul class="category-items">
-                <li>Botox</li>
-                <li>Fillers</li>
-                <li>PRP Therapy</li>
-                <li>Laser Treatments</li>
-            </ul>
+            <span class="category-count">Botox · Fillers · PRP · Laser</span>
         </a>
         <a href="/find/?category=hair" class="category-card">
-            <div class="category-icon">💇</div>
+            <div class="category-icon-circle cat-hair">
+                <span class="category-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C4A882" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M8 6c-2.5 1.5-4 4-4 7s1.5 3.5 4 3"/><path d="M16 6c2.5 1.5 4 4 4 7s-1.5 3.5-4 3"/></svg>
+                </span>
+            </div>
             <h3 class="category-name">Hair</h3>
-            <ul class="category-items">
-                <li>Hair Salon</li>
-                <li>Head Spa</li>
-                <li>Hair Extensions</li>
-            </ul>
+            <span class="category-count">Salon · Head Spa · Extensions</span>
         </a>
         <a href="/find/?category=beauty" class="category-card">
-            <div class="category-icon">💅</div>
+            <div class="category-icon-circle cat-nails">
+                <span class="category-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#D4A0B0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8c-1.5-1.5-4-1.5-5.5 0s-1.5 4 0 5.5c1.3 1.3 3.2 1.5 4.7.4"/><circle cx="17" cy="10" r="4"/></svg>
+                </span>
+            </div>
             <h3 class="category-name">Nails</h3>
-            <ul class="category-items">
-                <li>Gel Manicure</li>
-                <li>Nail Art</li>
-                <li>Spa Pedicure</li>
-            </ul>
+            <span class="category-count">Manicure · Nail Art · Pedicure</span>
         </a>
-        <a href="/find/?category=beauty" class="category-card">
-            <div class="category-icon">👁</div>
+        <a href="/find/?q=lashes" class="category-card">
+            <div class="category-icon-circle cat-lashes">
+                <span class="category-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#A0AACC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-6 10-6 10 6 10 6-3 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </span>
+            </div>
             <h3 class="category-name">Lashes & Brows</h3>
-            <ul class="category-items">
-                <li>Lash Extensions</li>
-                <li>Microblading</li>
-                <li>Brow Lamination</li>
-            </ul>
+            <span class="category-count">Extensions · Microblading · Lamination</span>
         </a>
-        <a href="/find/?category=medical_aesthetics" class="category-card">
-            <div class="category-icon">✨</div>
+        <a href="/find/?q=facial" class="category-card">
+            <div class="category-icon-circle cat-skin">
+                <span class="category-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#A0C8A0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12c0 4.418-3.582 8-8 8s-8-3.582-8-8 3.582-8 8-8 8 3.582 8 8Z"/><path d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4"/></svg>
+                </span>
+            </div>
             <h3 class="category-name">Skin & Facials</h3>
-            <ul class="category-items">
-                <li>Hydrafacial</li>
-                <li>Microneedling</li>
-                <li>Chemical Peels</li>
-            </ul>
+            <span class="category-count">Hydrafacial · Microneedling · Peels</span>
         </a>
     </div>
 </section>
 
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- NEARBY PROVIDERS                                                -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<section class="section section-alt" id="nearby">
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- TOP-RATED PROVIDERS                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<section class="section" id="nearby">
     <div class="section-header">
+        <span class="section-label">Discover</span>
         <h2 class="section-title">Top-Rated Near You</h2>
         <p class="section-sub">The best beauty professionals in your area</p>
     </div>
 
-    <div class="nearby-layout">
-        <div class="provider-cards">
-            {% if providers %}
-                {% for provider in providers %}
-                <a href="{% url 'provider_profile' provider.slug %}" class="provider-card">
-                    <div class="pc-photo">
-                        {% if provider.photo %}
-                        <img src="{{ provider.photo.url }}" alt="{{ provider.name }}" loading="lazy">
-                        {% else %}
-                        <div class="pc-photo-placeholder">{{ provider.name|slice:":1" }}</div>
-                        {% endif %}
+    <div class="provider-grid">
+        {% if providers %}
+            {% for provider in providers %}
+            <a href="{% url 'provider_profile' provider.slug %}" class="provider-card">
+                <div class="pc-photo">
+                    {% if provider.photo %}
+                    <img src="{{ provider.photo.url }}" alt="{{ provider.name }}" loading="lazy">
+                    {% else %}
+                    <div class="pc-photo-placeholder">{{ provider.name|slice:":1" }}</div>
+                    {% endif %}
+                    {% if provider.is_featured %}
+                    <span class="pc-badge">Featured</span>
+                    {% endif %}
+                </div>
+                <div class="pc-info">
+                    <h4 class="pc-name">{{ provider.name }}</h4>
+                    <div class="pc-rating">
+                        <span class="stars">{% for i in "12345" %}{% if forloop.counter <= provider.rating|floatformat:"0" %}★{% else %}☆{% endif %}{% endfor %}</span>
+                        <span class="rating-num">{{ provider.rating }}</span>
+                        {% if provider.review_count %}<span class="review-count">({{ provider.review_count }})</span>{% endif %}
                     </div>
-                    <div class="pc-info">
-                        <h4 class="pc-name">{{ provider.name }}</h4>
-                        <div class="pc-rating">
-                            <span class="stars">{% for i in "12345" %}{% if forloop.counter <= provider.rating|floatformat:"0" %}★{% else %}☆{% endif %}{% endfor %}</span>
-                            <span class="rating-num">{{ provider.rating }}</span>
-                            {% if provider.review_count %}<span class="review-count">({{ provider.review_count }})</span>{% endif %}
-                        </div>
-                        <div class="pc-meta-row">
-                            <span class="pc-category">{{ provider.get_category_display }}</span>
-                            <span class="pc-city">{{ provider.city }}, {{ provider.province }}</span>
-                        </div>
-                        {% with top_services=provider.services.all|slice:":2" %}
-                        {% if top_services %}
-                        <div class="pc-services">
-                            {% for svc in top_services %}
-                            <span class="pc-service-tag">{{ svc.name }}</span>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        {% endwith %}
+                    <div class="pc-meta-row">
+                        <span class="pc-category">{{ provider.get_category_display }}</span>
+                        <span class="pc-location">{{ provider.city }}, {{ provider.province }}</span>
+                    </div>
+                    {% with top_services=provider.services.all|slice:":3" %}
+                    {% if top_services %}
+                    <div class="pc-services">
+                        {% for svc in top_services %}
+                        <span class="pc-service-tag">{{ svc.name }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    <div class="pc-footer">
                         {% if provider.min_price %}
-                        <div class="pc-price">Starting at <strong>${{ provider.min_price|floatformat:"0" }}</strong></div>
+                        <span class="pc-price">From <strong>${{ provider.min_price|floatformat:"0" }}</strong></span>
+                        {% else %}
+                        <span></span>
                         {% endif %}
-                    </div>
-                </a>
-                {% endfor %}
-            {% else %}
-                <div class="provider-card placeholder">
-                    <div class="pc-info" style="padding:32px;text-align:center">
-                        <p style="color:var(--ink-3)">No providers in your area yet.<br>Be the first to <a href="{% url 'for_professionals' %}" style="color:var(--brand)">join Mortea</a>.</p>
+                        <span class="pc-view-btn">View Profile →</span>
                     </div>
                 </div>
-            {% endif %}
-            <a href="{% url 'provider_list' %}" class="view-all-link">View all providers →</a>
-        </div>
-
-        <!-- Map -->
-        <div class="nearby-map" id="map"></div>
+            </a>
+            {% endfor %}
+        {% else %}
+            <div class="provider-empty">
+                <p>No providers in your area yet.<br>Be the first to <a href="{% url 'for_professionals' %}">join Mortea</a>.</p>
+            </div>
+        {% endif %}
     </div>
+
+    {% if providers %}
+    <div class="view-all-container">
+        <a href="{% url 'provider_list' %}" class="view-all-link">View All Providers →</a>
+    </div>
+    {% endif %}
 </section>
 
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- FOR PROFESSIONALS                                               -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- FOR PROFESSIONALS CTA                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <section class="section cta-section" id="for-professionals">
     <div class="cta-content">
+        <span class="section-label">Grow Your Business</span>
         <h2 class="cta-title">Get Found by New Clients</h2>
-        <p class="cta-sub">List your beauty business on Mortea and connect with clients searching for your services.</p>
+        <p class="cta-sub">List your beauty business on Mortea and connect with clients searching for your services. Join the most beautiful platform for beauty professionals.</p>
         <a href="{% url 'accountant_signup' %}" class="btn btn-primary btn-lg">Join Mortea</a>
     </div>
 </section>
 
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- ABOUT (MINIMAL)                                                 -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- ABOUT                                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <section class="section" id="about">
     <div class="section-header">
+        <span class="section-label">Our Mission</span>
         <h2 class="section-title">About Mortea</h2>
-        <p class="section-sub">We're building the most beautiful way to discover beauty services.</p>
+        <p class="section-sub">The most beautiful way to discover beauty services</p>
     </div>
     <div class="about-text">
         <p>Mortea connects you with the best beauty professionals in your area — from medical spas and aesthetic clinics to hair salons and nail studios. Find, compare, and book beauty services with confidence.</p>
@@ -258,14 +278,14 @@
 </section>
 
 
-<!-- ═══════════════════════════════════════════════════════════════ -->
-<!-- FOOTER                                                          -->
-<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <footer class="footer">
     <div class="footer-inner">
         <div class="footer-brand">
             <a href="/" class="footer-logo">Mortea</a>
-            <p class="footer-tagline">Find beauty services near you.</p>
+            <p class="footer-tagline">Find beauty services near you.<br>The premium discovery platform.</p>
         </div>
         <div class="footer-links">
             <div class="footer-col">
@@ -279,6 +299,7 @@
                 <h4>For Professionals</h4>
                 <a href="{% url 'accountant_signup' %}">Join Mortea</a>
                 <a href="{% url 'provider_list' %}">Browse Providers</a>
+                <a href="{% url 'for_professionals' %}">Learn More</a>
             </div>
             <div class="footer-col">
                 <h4>Company</h4>
@@ -295,91 +316,30 @@
 </footer>
 
 
-<!-- Leaflet Map -->
+<!-- Leaflet Map (hidden on landing, kept for potential use) -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ── Mobile menu ──────────────────────────────────────────────────────
+// ── Mobile menu ──────────────────────────────────────────────────────────
 const hamburger = document.getElementById('hamburger');
 const mobileMenu = document.getElementById('mobileMenu');
 hamburger.addEventListener('click', () => {
     hamburger.classList.toggle('active');
     mobileMenu.classList.toggle('active');
+    document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
 });
 function closeMenu() {
     hamburger.classList.remove('active');
     mobileMenu.classList.remove('active');
+    document.body.style.overflow = '';
 }
 
-// ── Nav scroll ───────────────────────────────────────────────────────
+// ── Nav scroll effect ────────────────────────────────────────────────────
 window.addEventListener('scroll', () => {
     const nav = document.getElementById('topNav');
     nav.classList.toggle('scrolled', window.scrollY > 50);
 });
 
-// ── Map ──────────────────────────────────────────────────────────────
-(function() {
-    const mapEl = document.getElementById('map');
-    if (!mapEl) return;
-
-    // Default center (can be overridden by geolocation)
-    const defaultCenter = [43.6532, -79.3832]; // Toronto
-    const map = L.map('map', {
-        center: defaultCenter,
-        zoom: 12,
-        scrollWheelZoom: false,
-        zoomControl: true,
-    });
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-        maxZoom: 19,
-    }).addTo(map);
-
-    // Add provider markers
-    const providers = [
-        {% for provider in providers %}
-        {
-            name: "{{ provider.name|escapejs }}",
-            lat: {{ provider.latitude|default:'null' }},
-            lng: {{ provider.longitude|default:'null' }},
-            category: "{{ provider.get_category_display|escapejs }}",
-            url: "{% url 'provider_profile' provider.slug %}",
-        },
-        {% endfor %}
-    ];
-
-    const bounds = [];
-    providers.forEach(function(p) {
-        if (p.lat && p.lng) {
-            const marker = L.marker([p.lat, p.lng])
-                .addTo(map)
-                .bindPopup('<strong><a href="' + p.url + '">' + p.name + '</a></strong><br>' + p.category);
-            bounds.push([p.lat, p.lng]);
-        }
-    });
-
-    if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
-    }
-
-    // Try geolocation
-    if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-            function(pos) {
-                const userLat = pos.coords.latitude;
-                const userLng = pos.coords.longitude;
-                // Only recenter if we have providers near the user
-                if (bounds.length === 0) {
-                    map.setView([userLat, userLng], 12);
-                }
-            },
-            function() { /* Silently fail — use default */ },
-            { timeout: 5000 }
-        );
-    }
-})();
-
-// ── Scroll reveal ────────────────────────────────────────────────────
+// ── Scroll reveal ────────────────────────────────────────────────────────
 (function() {
     const observer = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
@@ -388,12 +348,27 @@ window.addEventListener('scroll', () => {
                 observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.15 });
+    }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
 
     document.querySelectorAll('.reveal').forEach(function(el) {
         observer.observe(el);
     });
 })();
+
+// ── Smooth anchor scrolling (offset for fixed nav) ──────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+        const target = document.querySelector(href);
+        if (target) {
+            e.preventDefault();
+            const navHeight = 72;
+            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 24;
+            window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }
+    });
+});
 </script>
 </body>
 </html>

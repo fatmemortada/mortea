@@ -6,363 +6,863 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if query %}{{ query }}{% else %}Beauty Services{% endif %}{% if location %} near {{ location }}{% endif %} | Mortea</title>
     <meta name="description" content="Find top-rated beauty professionals. {% if query %}{{ query }}{% else %}Beauty services{% endif %}{% if location %} near {{ location }}{% endif %}. {{ total_results }} provider{{ total_results|pluralize }} found.">
+    <meta property="og:title" content="{% if query %}{{ query }}{% else %}Beauty Services{% endif %}{% if location %} near {{ location }}{% endif %} | Mortea">
+    <meta property="og:description" content="Find top-rated beauty professionals near you on Mortea.">
     <link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'clients/icons/favicon-32.png' %}">
+    <link rel="shortcut icon" href="{% static 'clients/icons/favicon.ico' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     {% load static %}
     <link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
     <style>
-        /* ── Search Page Layout ─────────────────────────────────── */
-        .search-page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+        /* ═══════════════════════════════════════════════════════════════════
+           Search Results Page — Premium Dark Design
+           ═══════════════════════════════════════════════════════════════════ */
 
+        /* ── Page Shell ─────────────────────────────────────────────────── */
+        .search-page {
+            min-height: 100vh;
+            background: var(--bg);
+            padding-top: 72px;
+        }
+
+        /* ── Search Bar Area ────────────────────────────────────────────── */
         .search-bar-area {
-            background: var(--surface); border-bottom: 1px solid var(--border);
-            padding: 16px 32px; position: sticky; top: 64px; z-index: 100;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 16px 32px;
+            position: sticky;
+            top: 72px;
+            z-index: 100;
         }
-        .search-bar-area .search-box { box-shadow: var(--shadow-sm); max-width: 720px; margin: 0 auto; }
+        .search-bar-area .search-card {
+            max-width: 720px;
+            margin: 0 auto;
+            box-shadow: none;
+        }
+        .search-bar-area .search-box {
+            display: flex;
+            align-items: center;
+        }
+        .search-bar-area .search-field {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 8px 0 20px;
+            min-width: 0;
+        }
+        .search-bar-area .search-input {
+            padding: 12px 0;
+            font-size: 15px;
+        }
+        .search-bar-area .btn-search {
+            padding: 12px 28px;
+            font-size: 14px;
+            border-radius: var(--radius-lg);
+        }
 
+        /* ── Results Summary ────────────────────────────────────────────── */
+        .results-summary {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            padding: 28px var(--container-padding) 4px;
+        }
+        .results-summary h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(28px, 4vw, 40px);
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+        .results-summary .summary-text {
+            font-size: 15px;
+            color: var(--text-muted);
+        }
+        .results-summary .summary-text strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* ── Results Shell (Layout) ─────────────────────────────────────── */
         .results-shell {
-            display: grid; grid-template-columns: 260px 1fr 360px;
-            max-width: 1440px; margin: 0 auto; min-height: calc(100vh - 200px);
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            max-width: var(--container-max);
+            margin: 0 auto;
+            min-height: calc(100vh - 300px);
         }
 
-        /* Filters sidebar */
-        .filters-sidebar {
-            padding: 28px 24px; border-right: 1px solid var(--border);
-            background: var(--surface); position: sticky; top: 140px;
-            height: calc(100vh - 140px); overflow-y: auto;
+        /* ── Filter Pills ───────────────────────────────────────────────── */
+        .filter-pills-area {
+            max-width: var(--container-max);
+            margin: 0 auto;
+            padding: 16px var(--container-padding) 0;
         }
-        .filters-sidebar h4 {
-            font-size: 13px; font-weight: 600; text-transform: uppercase;
-            letter-spacing: 0.08em; color: var(--ink-3); margin-bottom: 14px;
+        .filter-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
         }
-        .filter-group { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-light); }
-        .filter-group:last-child { border-bottom: none; }
-        .filter-group label {
-            display: flex; align-items: center; gap: 10px;
-            padding: 7px 0; font-size: 14px; color: var(--ink-2);
-            cursor: pointer; transition: color .15s;
+        .filter-pills-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-faint);
+            margin-right: 4px;
         }
-        .filter-group label:hover { color: var(--ink); }
-        .filter-group label input { accent-color: var(--brand); width: 16px; height: 16px; }
-        .filter-group label .count { margin-left: auto; font-size: 12px; color: var(--ink-4); }
-        .filter-group a { text-decoration: none; color: inherit; }
+        .filter-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-full);
+            transition: all 0.2s var(--ease);
+            cursor: pointer;
+            text-decoration: none;
+            letter-spacing: 0.01em;
+        }
+        .filter-pill:hover {
+            color: var(--text);
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .filter-pill.active {
+            color: #0D0D0D;
+            background: var(--accent);
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        .filter-pill .pill-remove {
+            font-size: 16px;
+            line-height: 1;
+            opacity: 0.6;
+        }
+        .filter-pill.active .pill-remove:hover { opacity: 1; }
         .filter-reset {
-            display: block; text-align: center; font-size: 13px; font-weight: 500;
-            color: var(--brand); padding: 8px; border-radius: var(--radius);
-            transition: background .15s; margin-top: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            transition: color 0.2s;
         }
-        .filter-reset:hover { background: var(--brand-light); }
+        .filter-reset:hover { color: var(--text); }
 
-        .mobile-filter-toggle {
-            display: none; align-items: center; gap: 8px;
-            padding: 10px 20px; font-size: 14px; font-weight: 600;
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius-full); cursor: pointer;
-            color: var(--ink); margin-bottom: 16px;
+        /* ── Sort ───────────────────────────────────────────────────────── */
+        .results-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px var(--container-padding);
+            max-width: var(--container-max);
+            margin: 0 auto;
         }
-
-        /* Results column */
-        .results-col { padding: 28px 32px; }
-        .results-header {
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+        .results-count {
+            font-size: 14px;
+            color: var(--text-muted);
         }
-        .results-count { font-size: 15px; color: var(--ink-3); }
-        .results-count strong { color: var(--ink); }
+        .results-count strong {
+            color: var(--text);
+            font-weight: 600;
+        }
         .sort-select {
-            padding: 8px 14px; font-size: 13px; font-family: 'Inter', sans-serif;
-            border: 1px solid var(--border); border-radius: var(--radius-full);
-            background: var(--surface); color: var(--ink-2); cursor: pointer;
+            padding: 9px 16px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-full);
+            background: var(--card);
+            color: var(--text-muted);
+            cursor: pointer;
             outline: none;
+            transition: all 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238A8A8A' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
         }
-        .sort-select:focus { border-color: var(--brand); }
+        .sort-select:hover { border-color: rgba(255, 255, 255, 0.25); }
+        .sort-select:focus { border-color: var(--accent); }
 
-        .results-list { display: flex; flex-direction: column; gap: 20px; }
+        /* ── Results Column ─────────────────────────────────────────────── */
+        .results-col {
+            padding: 0 32px 48px;
+        }
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
 
-        /* Provider card */
+        /* ── Provider Card ──────────────────────────────────────────────── */
         .result-card {
-            display: grid; grid-template-columns: 180px 1fr;
-            background: var(--surface);
-            border: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            background: var(--card);
+            border: 1px solid var(--card-border);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            transition: all .25s var(--ease);
-            text-decoration: none; color: inherit;
+            transition: all 0.3s var(--ease);
+            text-decoration: none;
+            color: inherit;
         }
         .result-card:hover {
-            border-color: var(--brand-muted);
-            box-shadow: var(--shadow-lg);
+            border-color: rgba(255, 255, 255, 0.12);
             transform: translateY(-2px);
+            box-shadow: var(--shadow-card-hover);
         }
         .rc-photo-wrap {
-            height: 100%; min-height: 200px; background: var(--brand-light);
-            position: relative; overflow: hidden;
+            position: relative;
+            overflow: hidden;
+            background: var(--card-hover);
+            min-height: 100%;
         }
-        .rc-photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .rc-photo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0; left: 0;
+            transition: transform 0.5s var(--ease-out);
+        }
+        .result-card:hover .rc-photo-wrap img {
+            transform: scale(1.05);
+        }
         .rc-photo-placeholder {
-            width: 100%; height: 100%; min-height: 200px;
-            display: flex; align-items: center; justify-content: center;
+            width: 100%;
+            height: 100%;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-family: 'Playfair Display', serif;
-            font-size: 48px; font-weight: 600;
-            color: var(--brand); background: var(--brand-light);
+            font-size: 56px;
+            font-weight: 700;
+            color: rgba(212, 176, 140, 0.25);
+            background: var(--card-hover);
         }
         .rc-featured-badge {
-            position: absolute; top: 10px; left: 10px;
-            font-size: 10px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.08em;
-            background: var(--brand); color: #fff;
-            padding: 4px 10px; border-radius: var(--radius-full);
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            background: var(--accent);
+            color: #0D0D0D;
+            padding: 5px 12px;
+            border-radius: var(--radius-xs);
+            z-index: 2;
         }
-        .rc-body { padding: 20px 24px; display: flex; flex-direction: column; }
-        .rc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-        .rc-name { font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 6px; line-height: 1.2; }
+        .rc-verified-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(124, 184, 124, 0.15);
+            color: var(--success);
+            padding: 5px 10px;
+            border-radius: var(--radius-xs);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .rc-body {
+            padding: 22px 26px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .rc-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .rc-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+        }
         .rc-rating {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 14px; margin-bottom: 8px; white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            white-space: nowrap;
         }
-        .rc-rating .stars { color: var(--star); font-size: 16px; letter-spacing: 1px; }
-        .rc-rating strong { font-size: 15px; }
-        .rc-rating .reviews { color: var(--ink-3); font-size: 13px; }
-        .rc-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+        .rc-rating .stars {
+            color: var(--star);
+            font-size: 15px;
+            letter-spacing: 2px;
+        }
+        .rc-rating .rating-num {
+            font-weight: 600;
+            color: var(--text);
+        }
+        .rc-rating .reviews {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .rc-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
         .rc-badge {
-            font-size: 12px; font-weight: 600; padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 4px 12px;
             border-radius: var(--radius-full);
-            background: var(--brand-light); color: var(--brand-dark);
+            background: rgba(212, 176, 140, 0.12);
+            color: var(--accent);
         }
-        .rc-location { font-size: 13px; color: var(--ink-3); }
+        .rc-location {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .rc-status-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .rc-status-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: var(--radius-xs);
+            letter-spacing: 0.03em;
+        }
+        .badge-verified {
+            background: rgba(124, 184, 124, 0.12);
+            color: var(--success);
+        }
+        .badge-top-rated {
+            background: rgba(212, 176, 140, 0.12);
+            color: var(--accent);
+        }
+        .badge-recommended {
+            background: rgba(160, 170, 200, 0.12);
+            color: #A0AACC;
+        }
         .rc-services {
-            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
         }
         .rc-service-tag {
-            font-size: 12px; padding: 3px 10px;
-            background: var(--bg-warm); color: var(--ink-3);
-            border-radius: var(--radius-full);
+            font-size: 11px;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            border-radius: var(--radius-xs);
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .rc-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
         .rc-price {
-            font-size: 14px; color: var(--ink-3); margin-bottom: 16px;
+            font-size: 13px;
+            color: var(--text-muted);
         }
-        .rc-price strong { color: var(--ink); font-size: 17px; }
-        .rc-actions { display: flex; gap: 10px; margin-top: auto; }
-        .rc-actions .btn { font-size: 14px; padding: 10px 20px; }
+        .rc-price strong {
+            color: var(--text);
+            font-size: 17px;
+            font-weight: 600;
+        }
+        .rc-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .rc-actions .btn {
+            font-size: 13px;
+            padding: 9px 18px;
+        }
+        .rc-actions .btn-outline {
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--text-muted);
+        }
+        .rc-actions .btn-outline:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: var(--text);
+        }
+        .rc-actions .btn-primary {
+            background: var(--accent);
+            color: #0D0D0D;
+            font-weight: 600;
+        }
+        .rc-actions .btn-primary:hover {
+            background: #E0C4A0;
+        }
+        .rc-social {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .rc-social-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.35;
+            transition: opacity 0.2s;
+        }
+        .rc-social-icon:hover { opacity: 0.7; }
 
-        /* Map column */
+        /* ── Map Column ─────────────────────────────────────────────────── */
         .map-col {
-            position: sticky; top: 140px; height: calc(100vh - 140px);
-            border-left: 1px solid var(--border); background: #f0ece9;
+            position: sticky;
+            top: 138px;
+            height: calc(100vh - 154px);
+            border-left: 1px solid rgba(255, 255, 255, 0.06);
         }
-        .map-col .map-inner { width: 100%; height: 100%; }
+        .map-col .map-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+        }
+        .map-col .map-inner .leaflet-container {
+            border-radius: 0;
+        }
 
-        /* Empty */
+        /* ── Empty State ────────────────────────────────────────────────── */
         .empty-state {
-            text-align: center; padding: 64px 24px;
-            background: var(--surface); border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
+            text-align: center;
+            padding: 80px 32px;
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            margin: 24px var(--container-padding);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        .empty-state h3 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 12px; }
-        .empty-state p { color: var(--ink-3); font-size: 16px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto; }
-        .empty-state .suggestions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-        .empty-state .suggestions a {
-            padding: 8px 18px; font-size: 14px; font-weight: 500;
-            border: 1px solid var(--border); border-radius: var(--radius-full);
-            color: var(--brand); transition: all .15s; text-decoration: none;
-        }
-        .empty-state .suggestions a:hover { background: var(--brand-light); border-color: var(--brand-muted); }
-
-        /* Mobile filters overlay */
-        .filters-overlay {
-            display: none; position: fixed; inset: 0; z-index: 2000;
-            background: rgba(0,0,0,.4);
-        }
-        .filters-overlay.active { display: block; }
-        .filters-overlay .filters-panel {
-            position: fixed; top: 0; left: 0; bottom: 0; width: 300px; max-width: 85vw;
-            background: var(--surface); overflow-y: auto; padding: 24px;
-            box-shadow: var(--shadow-xl);
-        }
-        .filters-overlay .filters-header {
-            display: flex; justify-content: space-between; align-items: center;
+        .empty-state-icon {
+            font-size: 56px;
             margin-bottom: 20px;
+            opacity: 0.4;
         }
-        .filters-overlay .filters-close {
-            background: none; border: none; font-size: 24px; cursor: pointer; color: var(--ink-3);
+        .empty-state h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        .empty-state p {
+            color: var(--text-muted);
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 28px;
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .empty-state .suggestions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .empty-state .suggestions a {
+            padding: 10px 22px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-full);
+            color: var(--text-muted);
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .empty-state .suggestions a:hover {
+            color: var(--accent);
+            border-color: rgba(212, 176, 140, 0.3);
+            background: rgba(212, 176, 140, 0.06);
+        }
+        .empty-state .btn-primary {
+            display: inline-flex;
+            margin-top: 8px;
         }
 
-        @media (max-width: 1100px) {
-            .results-shell { grid-template-columns: 1fr 320px; }
-            .filters-sidebar { display: none; }
-            .mobile-filter-toggle { display: inline-flex; }
+        /* ── Mobile Map Toggle ──────────────────────────────────────────── */
+        .mobile-map-toggle {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-full);
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
         }
-        @media (max-width: 800px) {
-            .results-shell { grid-template-columns: 1fr; }
-            .map-col { display: none; }
-            .result-card { grid-template-columns: 120px 1fr; }
-            .rc-photo-wrap, .rc-photo-placeholder { min-height: 140px; }
-            .rc-body { padding: 14px 16px; }
-            .rc-name { font-size: 17px; }
-            .search-bar-area { padding: 12px 16px; }
-            .results-col { padding: 20px 16px; }
+        .mobile-map-toggle:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--text);
         }
-        @media (max-width: 480px) {
-            .result-card { grid-template-columns: 1fr; }
-            .rc-photo-wrap { height: 160px; min-height: auto; }
-            .rc-photo-placeholder { min-height: 160px; }
-            .rc-actions { flex-direction: column; }
-            .rc-actions .btn { width: 100%; justify-content: center; }
+
+        /* ═══════════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .results-shell {
+                grid-template-columns: 1fr 320px;
+            }
+            .result-card {
+                grid-template-columns: 160px 1fr;
+            }
+            .rc-photo-placeholder {
+                min-height: 180px;
+            }
+            .rc-body {
+                padding: 16px 18px 18px;
+            }
+            .rc-name {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .results-shell {
+                grid-template-columns: 1fr;
+            }
+            .map-col {
+                display: none;
+            }
+            .mobile-map-toggle {
+                display: inline-flex;
+            }
+            .map-col.mobile-visible {
+                display: block;
+                position: static;
+                height: 400px;
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.06);
+                margin: 0;
+            }
+            .search-bar-area {
+                padding: 12px 16px;
+            }
+            .results-col {
+                padding: 0 16px 32px;
+            }
+            .filter-pills-area {
+                padding: 12px 16px 0;
+            }
+            .results-summary {
+                padding: 20px 16px 0;
+            }
+            .results-toolbar {
+                padding: 12px 16px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .result-card {
+                grid-template-columns: 1fr;
+            }
+            .rc-photo-wrap {
+                height: 200px;
+                min-height: auto;
+            }
+            .rc-photo-placeholder {
+                min-height: 200px;
+            }
+            .rc-body {
+                padding: 16px;
+            }
+            .rc-name {
+                font-size: 18px;
+            }
+            .rc-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            .rc-actions .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            .rc-footer {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            .search-bar-area .search-box {
+                flex-direction: column;
+                gap: 2px;
+            }
+            .search-bar-area .search-divider {
+                width: calc(100% - 32px);
+                height: 1px;
+                margin: 0 auto;
+            }
+            .search-bar-area .btn-search {
+                width: 100%;
+                margin-top: 6px;
+            }
+            .results-summary h1 {
+                font-size: 26px;
+            }
+            .empty-state {
+                margin: 16px;
+                padding: 48px 24px;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- Nav -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
+<!-- NAVIGATION                                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════════ -->
 <nav id="topNav">
     <div class="nav-inner">
-        <a href="/" class="nav-logo">Mortea</a>
+        <a href="/" class="nav-logo">
+            Mortea<span class="nav-logo-dot"></span>
+        </a>
         <div class="nav-links">
             <a href="/#categories" class="nav-link">Find Services</a>
-            <a href="/#for-professionals" class="nav-link">For Professionals</a>
+            <a href="{% url 'discovery_feed' %}" class="nav-link">Portfolio</a>
+            <a href="{% url 'results_gallery' %}" class="nav-link">Results</a>
+            <a href="{% url 'for_professionals' %}" class="nav-link">For Professionals</a>
             <a href="/#about" class="nav-link">About</a>
-            <a href="{% url 'choose_login' %}" class="nav-link">Login</a>
         </div>
-        <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+        <div class="nav-actions">
+            <a href="{% url 'choose_login' %}" class="btn btn-outline nav-btn-desktop">Sign In</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
     </div>
 </nav>
 
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+    <a href="/#categories" onclick="closeMenu()">Find Services</a>
+    <a href="{% url 'discovery_feed' %}" onclick="closeMenu()">Portfolio</a>
+    <a href="{% url 'results_gallery' %}" onclick="closeMenu()">Results</a>
+    <a href="{% url 'for_professionals' %}" onclick="closeMenu()">For Professionals</a>
+    <a href="/#about" onclick="closeMenu()">About</a>
+    <a href="{% url 'choose_login' %}" onclick="closeMenu()" class="mobile-login-btn">Sign In</a>
+</div>
+
+
 <div class="search-page">
-    <!-- Persistent search bar -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- SEARCH BAR                                                          -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="search-bar-area">
-        <form class="search-box" action="{% url 'search_results' %}" method="GET">
-            <input type="hidden" name="category" value="{{ category }}">
-            <div class="search-field">
-                <span class="search-icon">📍</span>
-                <input type="text" name="location" value="{{ location }}" placeholder="City or postal code" class="search-input" list="city-list">
-                <datalist id="city-list">
-                    {% for city in all_cities %}<option value="{{ city }}">{% endfor %}
-                </datalist>
-            </div>
-            <div class="search-divider"></div>
-            <div class="search-field">
-                <span class="search-icon">🔍</span>
-                <input type="text" name="q" value="{{ query }}" placeholder="Botox, Nails, Hair Salon…" class="search-input" list="service-list">
-                <datalist id="service-list">
-                    <option value="Botox"><option value="Lip Fillers"><option value="Hair Salon">
-                    <option value="Nails"><option value="Hydrafacial"><option value="Laser Hair Removal">
-                    <option value="Head Spa"><option value="Eyelash Extensions"><option value="Brows">
-                    <option value="Makeup"><option value="PRP"><option value="Microneedling">
-                    <option value="Microblading"><option value="Balayage"><option value="Extensions">
-                </datalist>
-            </div>
-            <button type="submit" class="btn btn-primary btn-search">Search</button>
-        </form>
+        <div class="search-card">
+            <form class="search-box" action="{% url 'search_results' %}" method="GET">
+                <div class="search-field">
+                    <span class="search-icon">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    </span>
+                    <input type="text" name="q" value="{{ query }}" placeholder="Botox, Hair Salon, Nails…" class="search-input" list="service-list">
+                    <datalist id="service-list">
+                        <option value="Botox"><option value="Lip Fillers"><option value="Hair Salon">
+                        <option value="Nails"><option value="Hydrafacial"><option value="Laser Hair Removal">
+                        <option value="Head Spa"><option value="Eyelash Extensions"><option value="Brows">
+                        <option value="Makeup"><option value="PRP"><option value="Microneedling">
+                        <option value="Microblading"><option value="Balayage"><option value="Extensions">
+                    </datalist>
+                </div>
+                <div class="search-divider"></div>
+                <div class="search-field">
+                    <span class="search-icon">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    </span>
+                    <input type="text" name="location" value="{{ location }}" placeholder="City or postal code" class="search-input" list="city-list">
+                    <datalist id="city-list">
+                        {% for city in all_cities %}<option value="{{ city }}">{% endfor %}
+                    </datalist>
+                </div>
+                <button type="submit" class="btn-search">Search</button>
+            </form>
+        </div>
     </div>
 
-    <div class="results-shell">
-        <!-- Filters sidebar -->
-        <aside class="filters-sidebar" id="filtersSidebar">
-            <h4>Filters</h4>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- RESULTS SUMMARY                                                     -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="results-summary">
+        <h1>
+            {% if query %}{{ query }}{% else %}Beauty Services{% endif %}
+            {% if location %}near {{ location }}{% else %}Near You{% endif %}
+        </h1>
+        <p class="summary-text">
+            <strong>{{ total_results }}</strong> provider{{ total_results|pluralize }} found
+            {% if query %}for <strong>"{{ query }}"</strong>{% endif %}
+            {% if location %}in <strong>{{ location }}</strong>{% endif %}
+            {% if category or rating or price %}
+                &middot; Filtered
+            {% endif %}
+        </p>
+    </div>
 
-            <!-- Category -->
-            <div class="filter-group">
-                <h4>Category</h4>
-                <label><a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if rating %}rating={{ rating }}&{% endif %}{% if price %}price={{ price }}&{% endif %}{% if sort != 'rating' %}sort={{ sort }}{% endif %}"><input type="radio" name="cat" {% if not category %}checked{% endif %}> All Categories</a></label>
-                {% for cat_val, cat_label in categories %}
-                <label><a href="?category={{ cat_val }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}{% if price %}&price={{ price }}{% endif %}{% if sort != 'rating' %}&sort={{ sort }}{% endif %}"><input type="radio" name="cat" {% if category == cat_val %}checked{% endif %}> {{ cat_label }}</a></label>
-                {% endfor %}
-            </div>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- FILTER PILLS                                                        -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    {% if providers %}
+    <div class="filter-pills-area">
+        <div class="filter-pills">
+            <span class="filter-pills-label">Filters</span>
 
-            <!-- City -->
-            <div class="filter-group">
-                <h4>City</h4>
-                <label><a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if rating %}rating={{ rating }}&{% endif %}{% if price %}price={{ price }}&{% endif %}"><input type="radio" name="city" {% if not city_filter %}checked{% endif %}> All Cities</a></label>
-                {% for city in all_cities %}
-                <label><a href="?city={{ city|urlencode }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}{% if price %}&price={{ price }}{% endif %}"><input type="radio" name="city" {% if city_filter == city %}checked{% endif %}> {{ city }}</a></label>
-                {% endfor %}
-            </div>
-
-            <!-- Rating -->
-            <div class="filter-group">
-                <h4>Minimum Rating</h4>
-                <label><a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if city_filter %}city={{ city_filter|urlencode }}&{% endif %}{% if price %}price={{ price }}&{% endif %}"><input type="radio" name="rtg" {% if not rating %}checked{% endif %}> Any Rating</a></label>
-                <label><a href="?rating=4.5{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if price %}&price={{ price }}{% endif %}"><input type="radio" name="rtg" {% if rating == '4.5' %}checked{% endif %}> ★ 4.5+</a></label>
-                <label><a href="?rating=4{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if price %}&price={{ price }}{% endif %}"><input type="radio" name="rtg" {% if rating == '4' %}checked{% endif %}> ★ 4.0+</a></label>
-                <label><a href="?rating=3.5{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if price %}&price={{ price }}{% endif %}"><input type="radio" name="rtg" {% if rating == '3.5' %}checked{% endif %}> ★ 3.5+</a></label>
-            </div>
-
-            <!-- Price range -->
-            <div class="filter-group">
-                <h4>Price Range</h4>
-                <label><a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if city_filter %}city={{ city_filter|urlencode }}&{% endif %}{% if rating %}rating={{ rating }}&{% endif %}"><input type="radio" name="pr" {% if not price %}checked{% endif %}> Any Price</a></label>
-                <label><a href="?price=budget{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"><input type="radio" name="pr" {% if price == 'budget' %}checked{% endif %}> $ Budget (≤$75)</a></label>
-                <label><a href="?price=mid{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"><input type="radio" name="pr" {% if price == 'mid' %}checked{% endif %}> $$ Moderate ($75-150)</a></label>
-                <label><a href="?price=premium{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"><input type="radio" name="pr" {% if price == 'premium' %}checked{% endif %}> $$$ Premium ($150-350)</a></label>
-                <label><a href="?price=luxury{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"><input type="radio" name="pr" {% if price == 'luxury' %}checked{% endif %}> $$$$ Luxury ($350+)</a></label>
-            </div>
-
-            <a href="{% url 'search_results' %}" class="filter-reset">Reset all filters</a>
-        </aside>
-
-        <!-- Filters overlay (mobile) -->
-        <div class="filters-overlay" id="filtersOverlay">
-            <div class="filters-panel" id="filtersPanel">
-                <div class="filters-header">
-                    <h4 style="margin:0">Filters</h4>
-                    <button class="filters-close" onclick="closeFilters()">×</button>
-                </div>
-                <div id="mobileFilters"></div>
-            </div>
+            <!-- Category pills -->
+            <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if rating %}rating={{ rating }}&{% endif %}{% if price %}price={{ price }}&{% endif %}{% if city_filter %}city={{ city_filter|urlencode }}&{% endif %}{% if sort != 'rating' %}sort={{ sort }}{% endif %}"
+               class="filter-pill {% if not category %}active{% endif %}">
+                All Categories
+            </a>
+            {% for cat_val, cat_label in categories %}
+            <a href="?category={{ cat_val }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}{% if price %}&price={{ price }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}"
+               class="filter-pill {% if category == cat_val %}active{% endif %}">
+                {{ cat_label }}
+                {% if category == cat_val %}<span class="pill-remove">×</span>{% endif %}
+            </a>
+            {% endfor %}
         </div>
 
-        <!-- Results -->
+        <div class="filter-pills" style="margin-top:10px">
+            <span class="filter-pills-label">Rating</span>
+            <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if city_filter %}city={{ city_filter|urlencode }}&{% endif %}{% if price %}price={{ price }}&{% endif %}"
+               class="filter-pill {% if not rating %}active{% endif %}">Any</a>
+            <a href="?rating=4.5{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if price %}&price={{ price }}{% endif %}"
+               class="filter-pill {% if rating == '4.5' %}active{% endif %}">★ 4.5+</a>
+            <a href="?rating=4{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if price %}&price={{ price }}{% endif %}"
+               class="filter-pill {% if rating == '4' %}active{% endif %}">★ 4.0+</a>
+
+            <span class="filter-pills-label" style="margin-left:8px">Price</span>
+            <a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if city_filter %}city={{ city_filter|urlencode }}&{% endif %}{% if rating %}rating={{ rating }}&{% endif %}"
+               class="filter-pill {% if not price %}active{% endif %}">Any</a>
+            <a href="?price=budget{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"
+               class="filter-pill {% if price == 'budget' %}active{% endif %}">$ Budget</a>
+            <a href="?price=mid{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"
+               class="filter-pill {% if price == 'mid' %}active{% endif %}">$$ Moderate</a>
+            <a href="?price=premium{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"
+               class="filter-pill {% if price == 'premium' %}active{% endif %}">$$$ Premium</a>
+
+            {% if category or rating or price or city_filter %}
+            <a href="{% url 'search_results' %}" class="filter-reset">Reset all</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- TOOLBAR (Count + Sort)                                              -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    {% if providers %}
+    <div class="results-toolbar">
+        <div class="results-count">
+            Showing <strong>{{ providers|length }}</strong> of <strong>{{ total_results }}</strong> provider{{ total_results|pluralize }}
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+            <button class="mobile-map-toggle" onclick="toggleMobileMap()" id="mobileMapBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                Show Map
+            </button>
+            <select class="sort-select" name="sort" onchange="location.href=this.value">
+                <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=rating" {% if sort == 'rating' or not sort %}selected{% endif %}>Top Rated</option>
+                <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=name">Name A-Z</option>
+                <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=price_low">Price: Low to High</option>
+                <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=price_high">Price: High to Low</option>
+            </select>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- RESULTS + MAP LAYOUT                                                -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="results-shell">
+
+        <!-- Results Column -->
         <div class="results-col">
-            <div class="results-header">
-                <div class="results-count">
-                    <strong>{{ total_results }}</strong> provider{{ total_results|pluralize }} found
-                    {% if query %}for <strong>"{{ query }}"</strong>{% endif %}
-                    {% if location %}near <strong>{{ location }}</strong>{% endif %}
-                </div>
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                    <button class="mobile-filter-toggle" onclick="openFilters()">☰ Filters</button>
-                    <select class="sort-select" name="sort" onchange="location.href=this.value">
-                        <option value="?{{ request.GET.urlencode }}" disabled selected>Sort by…</option>
-                        <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=rating" {% if sort == 'rating' or not sort %}selected{% endif %}>Top Rated</option>
-                        <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=name">Name A-Z</option>
-                        <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=price_low">Price: Low to High</option>
-                        <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=price_high">Price: High to Low</option>
-                    </select>
-                </div>
-            </div>
 
             {% if providers %}
             <div class="results-list">
                 {% for provider in providers %}
-                <div class="result-card">
+                <a href="{% url 'provider_profile' provider.slug %}" class="result-card">
+                    <!-- Photo -->
                     <div class="rc-photo-wrap">
                         {% if provider.photo %}
                         <img src="{{ provider.photo.url }}" alt="{{ provider.name }}" loading="lazy">
                         {% else %}
                         <div class="rc-photo-placeholder">{{ provider.name|slice:":1" }}</div>
                         {% endif %}
-                        {% if provider.is_featured %}<span class="rc-featured-badge">Featured</span>{% endif %}
+                        {% if provider.is_featured %}
+                        <span class="rc-featured-badge">Featured</span>
+                        {% endif %}
+                        {% if provider.is_verified %}
+                        <span class="rc-verified-badge">✓ Verified</span>
+                        {% endif %}
                     </div>
+
+                    <!-- Body -->
                     <div class="rc-body">
-                        <div class="rc-top">
-                            <div>
-                                <h3 class="rc-name">{{ provider.name }}</h3>
-                                <div class="rc-rating">
-                                    <span class="stars">{% for i in "12345" %}{% if forloop.counter <= provider.rating|floatformat:"0" %}★{% else %}☆{% endif %}{% endfor %}</span>
-                                    <strong>{{ provider.rating }}</strong>
-                                    <span class="reviews">({{ provider.review_count }} review{{ provider.review_count|pluralize }})</span>
-                                </div>
+                        <div class="rc-top-row">
+                            <h3 class="rc-name">{{ provider.name }}</h3>
+                            <div class="rc-rating">
+                                <span class="stars">{% for i in "12345" %}{% if forloop.counter <= provider.rating|floatformat:"0" %}★{% else %}☆{% endif %}{% endfor %}</span>
+                                <span class="rating-num">{{ provider.rating }}</span>
+                                <span class="reviews">({{ provider.review_count }})</span>
                             </div>
                         </div>
+
                         <div class="rc-meta">
                             <span class="rc-badge">{{ provider.get_category_display }}</span>
-                            <span class="rc-location">📍 {{ provider.city }}, {{ provider.province }}</span>
-                            {% if provider.is_verified %}<span style="font-size:10px;font-weight:700;background:#f0fdf4;color:#16a34a;padding:3px 8px;border-radius:var(--radius-full)">✓ Verified</span>{% endif %}
-                            {% if provider.is_top_rated %}<span style="font-size:10px;font-weight:700;background:#fefce8;color:#d4a853;padding:3px 8px;border-radius:var(--radius-full)">🌟 Top Rated</span>{% endif %}
+                            <span class="rc-location">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                {{ provider.city }}{% if provider.province %}, {{ provider.province }}{% endif %}
+                            </span>
+                            {% if provider.is_top_rated %}
+                            <span class="rc-status-badge badge-top-rated">Top Rated</span>
+                            {% endif %}
+                            {% if provider.is_mortea_recommended %}
+                            <span class="rc-status-badge badge-recommended">Recommended</span>
+                            {% endif %}
                         </div>
+
                         {% with top_services=provider.services.all|slice:":3" %}
                         {% if top_services %}
                         <div class="rc-services">
@@ -372,23 +872,41 @@
                         </div>
                         {% endif %}
                         {% endwith %}
-                        <div class="rc-price">
-                            {% if provider.min_price %}
-                            Starting at <strong>${{ provider.min_price|floatformat:"0" }}</strong>
-                            {% endif %}
-                        </div>
-                        <div class="rc-actions">
-                            <a href="{% url 'provider_profile' provider.slug %}" class="btn btn-outline">View Profile</a>
-                            <a href="{% url 'booking' provider.slug %}" class="btn btn-primary">Book Now</a>
+
+                        <div class="rc-footer">
+                            <div style="display:flex;align-items:center;gap:16px">
+                                {% if provider.min_price %}
+                                <span class="rc-price">From <strong>${{ provider.min_price|floatformat:"0" }}</strong></span>
+                                {% endif %}
+                                <div class="rc-social">
+                                    {% if provider.instagram %}
+                                    <span class="rc-social-icon" title="Instagram">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                                    </span>
+                                    {% endif %}
+                                    {% if provider.tiktok %}
+                                    <span class="rc-social-icon" title="TikTok">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="rc-actions" onclick="event.preventDefault(); event.stopPropagation();">
+                                <a href="{% url 'provider_profile' provider.slug %}" class="btn btn-outline">View Profile</a>
+                                <a href="{% url 'booking' provider.slug %}" class="btn btn-primary">Book Now</a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
                 {% endfor %}
             </div>
+
             {% else %}
+            <!-- Empty State -->
             <div class="empty-state">
-                <h3>No providers found</h3>
-                <p>Try different search terms, a broader location, or remove some filters.</p>
+                <div class="empty-state-icon">🔍</div>
+                <h3>No beauty providers found</h3>
+                <p>Try adjusting your search terms, exploring a different location, or removing some filters to discover more options.</p>
                 <div class="suggestions">
                     <a href="{% url 'search_results' %}?q=Botox">Botox</a>
                     <a href="{% url 'search_results' %}?q=Hair+Salon">Hair Salon</a>
@@ -397,43 +915,65 @@
                     <a href="{% url 'search_results' %}?location=Montreal">Montreal</a>
                     <a href="{% url 'search_results' %}?location=Laval">Laval</a>
                 </div>
+                <a href="{% url 'provider_list' %}" class="btn btn-primary" style="margin-top:24px">Explore All Providers</a>
             </div>
             {% endif %}
         </div>
 
-        <!-- Map -->
-        <div class="map-col">
+        <!-- Map Column -->
+        <div class="map-col" id="mapCol">
             <div class="map-inner" id="map"></div>
         </div>
     </div>
 </div>
 
+<!-- Leaflet -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// Mobile menu
-document.getElementById('hamburger').addEventListener('click', function() { this.classList.toggle('active'); });
-window.addEventListener('scroll', function() {
-    document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 10);
+// ── Mobile menu ──────────────────────────────────────────────────────────
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    mobileMenu.classList.toggle('active');
+    document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
 });
-
-// Mobile filters
-function openFilters() {
-    document.getElementById('filtersOverlay').classList.add('active');
-    document.getElementById('mobileFilters').innerHTML = document.getElementById('filtersSidebar').innerHTML;
+function closeMenu() {
+    hamburger.classList.remove('active');
+    mobileMenu.classList.remove('active');
+    document.body.style.overflow = '';
 }
-function closeFilters() { document.getElementById('filtersOverlay').classList.remove('active'); }
-document.getElementById('filtersOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeFilters();
+
+// ── Nav scroll ───────────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+    document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 50);
 });
 
-// Map
+// ── Mobile map toggle ────────────────────────────────────────────────────
+function toggleMobileMap() {
+    const mapCol = document.getElementById('mapCol');
+    const btn = document.getElementById('mobileMapBtn');
+    mapCol.classList.toggle('mobile-visible');
+    btn.innerHTML = mapCol.classList.contains('mobile-visible')
+        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Hide Map'
+        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> Show Map';
+    if (mapCol.classList.contains('mobile-visible')) {
+        map.invalidateSize();
+    }
+}
+
+// ── Map ──────────────────────────────────────────────────────────────────
 (function() {
     var mapEl = document.getElementById('map');
     if (!mapEl) return;
 
-    var map = L.map('map', { scrollWheelZoom: false, zoomControl: true });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+    var map = L.map('map', {
+        scrollWheelZoom: false,
+        zoomControl: true,
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
         maxZoom: 19,
     }).addTo(map);
 
@@ -456,17 +996,17 @@ document.getElementById('filtersOverlay').addEventListener('click', function(e) 
     providers.forEach(function(p) {
         var marker = L.marker([p.lat, p.lng]).addTo(map)
             .bindPopup(
-                '<div style="font-family:Inter,sans-serif;min-width:140px">' +
-                '<strong><a href="' + p.url + '" style="color:#1a1a1a;text-decoration:none">' + p.name + '</a></strong>' +
-                '<br><span style="font-size:13px;color:#8a8a8a">' + p.category + '</span>' +
-                '<br><span style="color:#d4a853">★</span> ' + p.rating +
+                '<div style="font-family:Inter,sans-serif;min-width:150px;padding:2px">' +
+                '<strong><a href="' + p.url + '" style="color:#D4B08C;text-decoration:none;font-size:14px">' + p.name + '</a></strong>' +
+                '<br><span style="font-size:12px;color:#8A8A8A">' + p.category + '</span>' +
+                '<br><span style="color:#D4B08C">★</span> <span style="color:#CFCFCF">' + p.rating + '</span>' +
                 '</div>'
             );
         bounds.push([p.lat, p.lng]);
     });
 
     if (bounds.length > 0) {
-        map.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
     } else {
         map.setView([45.55, -73.65], 10);
     }
