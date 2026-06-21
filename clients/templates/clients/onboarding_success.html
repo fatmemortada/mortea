@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submission Complete — Mortacc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+        :root { --navy:#2f2a26; --green:#16a34a; --green-light:#dcfce7; --amber:#d97706; --amber-light:#fef3c7; --gray-100:#f6f1ea; --gray-200:#e9dfd2; --gray-500:#7b6f64; --gray-700:#4b4037; --gray-900:#2f2a26; }
+        body { font-family:'DM Sans',sans-serif; background:var(--gray-100); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+
+        .card {
+            background:#fff;
+            border-radius:16px;
+            max-width:560px;
+            width:100%;
+            box-shadow:0 10px 40px rgba(0,0,0,.1);
+            overflow:hidden;
+        }
+
+        .card-top {
+            background: var(--navy);
+            padding: 40px 40px 32px;
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 64px; height: 64px;
+            background: var(--green);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 28px;
+            animation: pop .4s cubic-bezier(.175,.885,.32,1.275);
+        }
+
+        @keyframes pop { from{transform:scale(0)} to{transform:scale(1)} }
+
+        .card-top h1 { font-size:26px; font-weight:600; color:#fff; margin-bottom:8px; }
+        .card-top p { font-size:15px; color:rgba(255,255,255,.6); }
+
+        .card-body { padding:32px 40px; }
+
+        .client-row {
+            display: flex; align-items: center; gap:12px;
+            background: var(--gray-100);
+            border-radius:10px;
+            padding:14px 16px;
+            margin-bottom:24px;
+        }
+
+        .client-avatar {
+            width:40px; height:40px; border-radius:50%;
+            background: var(--navy);
+            color:#d6b48a;
+            display:flex; align-items:center; justify-content:center;
+            font-weight:600; font-size:16px; flex-shrink:0;
+        }
+
+        .client-row .name { font-weight:600; font-size:15px; color:var(--gray-900); }
+        .client-row .email { font-size:13px; color:var(--gray-500); }
+
+        .status-section { margin-bottom:24px; }
+
+        .status-section h3 { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--gray-500); margin-bottom:12px; }
+
+        {% if not missing_items %}
+        .status-badge {
+            display:flex; align-items:center; gap:10px;
+            background:var(--green-light); color:var(--green);
+            border:1px solid #bbf7d0;
+            border-radius:10px; padding:14px 16px;
+            font-weight:500; font-size:14px;
+        }
+        {% else %}
+        .status-badge {
+            display:flex; align-items:center; gap:10px;
+            background:var(--amber-light); color:var(--amber);
+            border:1px solid #fde68a;
+            border-radius:10px; padding:14px 16px;
+            font-weight:500; font-size:14px;
+        }
+        {% endif %}
+
+        .missing-list { margin-top:12px; }
+        .missing-item { display:flex; align-items:center; gap:8px; font-size:14px; padding:6px 0; color:var(--gray-700); border-bottom:1px solid var(--gray-200); }
+        .missing-item:last-child { border-bottom:none; }
+        .missing-dot { width:6px; height:6px; border-radius:50%; background:var(--amber); flex-shrink:0; }
+
+        .what-next { background:var(--gray-100); border-radius:10px; padding:16px; }
+        .what-next h3 { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--gray-500); margin-bottom:10px; }
+        .next-item { font-size:14px; color:var(--gray-700); padding:5px 0; display:flex; gap:8px; }
+        .next-item::before { content:'→'; color:var(--green); flex-shrink:0; }
+
+        .wordmark { font-family:'DM Serif Display',serif; text-align:center; margin-top:28px; font-size:15px; color:var(--gray-500); }
+        .wordmark span { color:#b8956a; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="card-top">
+        <div class="success-icon">✓</div>
+        <h1>Package Submitted!</h1>
+        <p>Your onboarding information has been sent to your accountant.</p>
+    </div>
+
+    <div class="card-body">
+        {% if client %}
+        <div class="client-row">
+            <div class="client-avatar">{{ client.name|first|upper }}</div>
+            <div>
+                <div class="name">{{ client.name }}</div>
+                <div class="email">{{ client.email }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="status-section">
+            <h3>Submission Status</h3>
+            {% if not missing_items %}
+            <div class="status-badge">
+                ✓ All required items received — your file is in review.
+            </div>
+            {% else %}
+            <div class="status-badge">
+                ⚠ Submitted with {{ missing_items|length }} item{{ missing_items|length|pluralize }} still outstanding.
+            </div>
+            <div class="missing-list">
+                {% for item in missing_items %}
+                <div class="missing-item"><div class="missing-dot"></div>{{ item }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="what-next">
+            <h3>What happens next</h3>
+            <div class="next-item">Your accountant has been notified by email.</div>
+            <div class="next-item">They will review your submission and reach out if anything else is needed.</div>
+            {% if missing_items %}
+            <div class="next-item">You may receive a reminder email to upload the missing items.</div>
+            {% endif %}
+            <div class="next-item">Keep this email handy — your portal link is always accessible.</div>
+        </div>
+
+        <div class="wordmark">Mort<span>acc</span></div>
+    </div>
+</div>
+
+</body>
+</html>

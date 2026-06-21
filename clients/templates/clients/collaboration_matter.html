@@ -1,0 +1,66 @@
+{% extends "clients/base.html" %}
+{% block title %}{{ matter.name }} — Mortacc{% endblock %}
+{% block nav_collaboration %}active{% endblock %}
+{% block topbar_title %}{{ matter.name }}{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'collaboration_hub' %}" class="btn btn-ghost btn-sm">← Hub</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .matter-tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:18px; }
+    .matter-tab { padding:10px 18px; font-size:12.5px; font-weight:500; color:var(--ink-3); cursor:pointer; border-bottom:2px solid transparent; }
+    .matter-tab.active { color:var(--brand); border-bottom-color:var(--brand); }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="matter-tabs">
+    <div class="matter-tab active" onclick="switchTab('documents')">Documents</div>
+    <div class="matter-tab" onclick="switchTab('tasks')">Tasks</div>
+    <div class="matter-tab" onclick="switchTab('approvals')">Approvals</div>
+</div>
+
+<div id="tab-documents" class="tab-panel active">
+    <div class="card">
+        <div class="card-header"><span class="card-title">Shared Documents</span></div>
+        <div class="card-body">
+            {% for doc in shared_docs %}
+            <div style="padding:8px 0;border-bottom:1px solid var(--surface-2);font-size:13px;">{{ doc.name }} <span style="color:var(--ink-4);font-size:11px;">{{ doc.created_at|date:"M d, Y" }}</span></div>
+            {% empty %}
+            <p style="color:var(--ink-4);">No shared documents yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div id="tab-tasks" class="tab-panel">
+    <div class="card">
+        <div class="card-header"><span class="card-title">Shared Tasks</span></div>
+        <div class="card-body">
+            {% for task in tasks %}
+            <div style="padding:8px 0;border-bottom:1px solid var(--surface-2);font-size:13px;">{{ task.title }} <span style="color:var(--ink-4);font-size:11px;">{{ task.due_date|date:"M d, Y" }}</span></div>
+            {% empty %}
+            <p style="color:var(--ink-4);">No tasks shared.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div id="tab-approvals" class="tab-panel">
+    <div class="card">
+        <div class="card-header"><span class="card-title">Approvals</span></div>
+        <div class="card-body">
+            {% for a in approvals %}
+            <div style="padding:8px 0;border-bottom:1px solid var(--surface-2);font-size:13px;">{{ a.task_name }}</div>
+            {% empty %}
+            <p style="color:var(--ink-4);">No pending approvals.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>function switchTab(name){document.querySelectorAll('.matter-tab').forEach((t,i)=>{t.classList.toggle('active',t.textContent.toLowerCase().includes(name)||(name==='documents'&&i===0)||(name==='tasks'&&i===1)||(name==='approvals'&&i===2))});document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');}</script>
+{% endblock %}

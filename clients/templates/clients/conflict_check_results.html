@@ -1,0 +1,28 @@
+{% extends "clients/base.html" %}{% block title %}Conflict Results — Mortacc{% endblock %}{% block nav_conflicts %}active{% endblock %}{% block topbar_title %}Conflict Check Results{% endblock %}
+{% block extra_head %}<style>.res-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;margin-bottom:16px}.match-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--surface-2);font-size:12px}.severity-badge{font-size:10px;font-weight:700;text-transform:uppercase;padding:3px 10px;border-radius:99px}.severity-badge.high{background:var(--red-bg);color:var(--red)}.severity-badge.medium{background:#fef3c7;color:#b45309}.severity-badge.low{background:var(--surface-2);color:var(--ink-3)}.clear-card{background:var(--green-bg);border:2px solid var(--green);border-radius:var(--radius-lg);padding:28px;text-align:center}.clear-card h2{color:var(--green);font-size:20px;margin:0 0 8px}</style>{% endblock %}
+{% block content %}
+{% if check.status == 'clear' %}
+<div class="clear-card"><h2>✅ No Conflicts Found</h2><p style="font-size:14px;color:var(--ink-2)">{{ check.entity_name }} — {{ check.matches.count }} matches against existing clients.</p><p style="font-size:12px;color:var(--ink-3);margin-top:8px">You may proceed with the engagement.</p></div>
+{% else %}
+<div class="res-card"><h2 style="font-size:16px;font-weight:700;color:var(--red);margin:0 0 6px">⚠ {{ check.total_matches }} Potential Conflict(s)</h2><p style="font-size:13px;color:var(--ink-3)">{{ check.entity_name }} — Review each match before proceeding.</p>
+<div style="margin-top:14px">{% for m in matches %}
+<div class="match-row">
+    <span class="severity-badge {{ m.risk_level }}">{{ m.get_risk_level_display }}</span>
+    <span style="font-weight:600;min-width:120px">{{ m.get_match_type_display }}</span>
+    <span style="flex:1"><strong>{{ m.searched_term }}</strong> ↔ {{ m.matched_name }}</span>
+    <span style="font-size:10px;color:var(--ink-3)">{{ m.matched_detail }}</span>
+    <form method="POST" style="display:inline"><input type="hidden" name="action" value="review_match"><input type="hidden" name="match_id" value="{{ m.id }}">
+        {% if m.is_reviewed %}<span style="color:var(--green);font-size:10px">Reviewed</span>{% else %}<button type="submit" class="btn btn-outline btn-sm">Review</button>{% endif %}
+    </form>
+</div>{% endfor %}</div></div>
+<div class="res-card"><h3 style="font-size:13px;font-weight:600;color:var(--ink);margin:0 0 10px">Decision</h3>
+<form method="POST">{% csrf_token %}<input type="hidden" name="action" value="decide">
+    <select name="decision" style="width:100%;padding:8px;margin-bottom:10px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:13px">
+        <option value="">Select decision...</option><option value="proceed">Proceed — No actual conflict</option><option value="wall_off">Wall Off — Ethical screen</option><option value="decline">Decline — Actual conflict</option><option value="waiver">Waiver — Client consent obtained</option>
+    </select>
+    <textarea name="decision_notes" rows="2" placeholder="Decision notes" style="width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:13px;padding:8px;margin-bottom:10px"></textarea>
+    <button type="submit" class="btn btn-primary">Record Decision</button>
+</form></div>
+{% endif %}
+<a href="{% url 'conflict_check_new' %}" class="btn btn-outline" style="margin-top:12px">New Check</a>
+{% endblock %}

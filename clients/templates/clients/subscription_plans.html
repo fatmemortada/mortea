@@ -1,0 +1,213 @@
+{% extends "clients/base.html" %}
+{% block title %}Entity Subscriptions — Mortacc{% endblock %}
+{% block nav_subscriptions %}active{% endblock %}
+{% block topbar_title %}Entity Subscriptions{% endblock %}
+{% block topbar_actions %}
+    {% if clients_without_subs %}
+    <span style="font-size:12px;color:var(--ink-3);margin-right:8px">{{ clients_without_subs.count }} unsubscribed</span>
+    {% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .subs-layout { display:grid; grid-template-columns:1fr 320px; gap:20px; }
+    @media (max-width:1000px) { .subs-layout { grid-template-columns:1fr; } }
+
+    .plan-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; margin-bottom:28px; }
+    .plan-card {
+        background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+        padding:22px; transition:var(--transition); position:relative; overflow:hidden;
+    }
+    .plan-card:hover { border-color:var(--brand-muted); box-shadow:var(--shadow-md); transform:translateY(-1px); }
+    .plan-card.featured { border-color:var(--brand); border-width:2px; }
+    .plan-badge {
+        position:absolute; top:12px; right:-30px; background:var(--brand); color:#fff;
+        font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+        padding:3px 32px; transform:rotate(45deg);
+    }
+    .plan-tier { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--ink-3); margin-bottom:8px; }
+    .plan-name { font-size:18px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+    .plan-price { font-size:28px; font-weight:800; color:var(--ink); margin:12px 0 4px; }
+    .plan-price span { font-size:13px; font-weight:400; color:var(--ink-3); }
+    .plan-desc { font-size:13px; color:var(--ink-3); line-height:1.5; margin-bottom:16px; min-height:36px; }
+    .plan-features { list-style:none; padding:0; margin:0 0 18px; }
+    .plan-features li {
+        font-size:12px; color:var(--ink-2); padding:5px 0 5px 22px;
+        background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20' fill='%232563eb'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd'/%3E%3C/svg%3E") left 5px no-repeat;
+    }
+    .plan-features li.missing { color:var(--ink-4); background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20' fill='%23cbd5e1'%3E%3Cpath fill-rule='evenodd' d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E"); }
+
+    .metric-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px; }
+    .metric-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; text-align:center; }
+    .metric-value { font-size:24px; font-weight:800; color:var(--ink); }
+    .metric-label { font-size:11px; color:var(--ink-3); margin-top:2px; text-transform:uppercase; letter-spacing:.5px; }
+
+    .subs-list { display:flex; flex-direction:column; gap:8px; }
+    .subs-item {
+        display:flex; align-items:center; justify-content:space-between;
+        padding:11px 14px; background:var(--surface); border:1px solid var(--border);
+        border-radius:var(--radius); transition:var(--transition);
+    }
+    .subs-item:hover { border-color:var(--brand-muted); }
+    .subs-client { font-weight:600; font-size:13px; color:var(--ink); }
+    .subs-plan { font-size:11px; color:var(--ink-3); }
+    .subs-status {
+        font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.5px;
+        padding:3px 8px; border-radius:99px;
+    }
+    .subs-status.active { background:var(--green-bg); color:var(--green); }
+    .subs-status.past_due { background:#fef3c7; color:#b45309; }
+    .subs-status.canceled { background:var(--surface-2); color:var(--ink-3); }
+
+    .empty-state { text-align:center; padding:40px 20px; color:var(--ink-3); }
+    .empty-state svg { width:48px; height:48px; margin-bottom:12px; color:var(--ink-4); }
+    .empty-state h3 { font-size:16px; color:var(--ink-2); margin-bottom:8px; }
+    .empty-state p { font-size:13px; line-height:1.5; max-width:400px; margin:0 auto 16px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="subs-layout">
+    <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <h2 style="font-size:16px;font-weight:600;color:var(--ink);margin:0">Plans</h2>
+            <a href="{% url 'subscription_analytics' %}" style="font-size:12px;color:var(--brand);text-decoration:none;font-weight:500">Analytics →</a>
+        </div>
+
+        <div class="plan-grid">
+            {% for plan in plans %}
+            <div class="plan-card {% if plan.tier == 'standard' %}featured{% endif %}">
+                {% if plan.tier == 'standard' %}<div class="plan-badge">Popular</div>{% endif %}
+                <div class="plan-tier">{{ plan.get_tier_display }}</div>
+                <div class="plan-name">{{ plan.name }}</div>
+                <div class="plan-price">
+                    ${{ plan.price_monthly|floatformat:0 }}<span>/mo</span>
+                </div>
+                {% if plan.price_annual %}
+                <div style="font-size:12px;color:var(--green);margin-bottom:2px">${{ plan.price_annual|floatformat:0 }}/yr (save ~17%)</div>
+                {% endif %}
+                <div class="plan-desc">{{ plan.description }}</div>
+                <ul class="plan-features">
+                    <li {% if not plan.includes_compliance_monitoring %}class="missing"{% endif %}>Compliance monitoring</li>
+                    <li {% if not plan.includes_document_generation %}class="missing"{% endif %}>Document generation</li>
+                    <li {% if not plan.includes_annual_return_filing %}class="missing"{% endif %}>Annual return filing</li>
+                    <li {% if not plan.includes_registered_agent %}class="missing"{% endif %}>Registered agent</li>
+                    <li {% if not plan.includes_ubo_monitoring %}class="missing"{% endif %}>UBO monitoring</li>
+                    <li {% if not plan.includes_ai_drafting %}class="missing"{% endif %}>AI drafting</li>
+                    {% if plan.max_documents_per_month %}
+                    <li>{{ plan.max_documents_per_month }} docs/month</li>
+                    {% else %}
+                    <li>Unlimited documents</li>
+                    {% endif %}
+                </ul>
+                <button class="btn btn-primary" style="width:100%"
+                    onclick="document.getElementById('subscribe-modal-{{ plan.id }}').style.display='flex'">
+                    Subscribe Entity
+                </button>
+            </div>
+
+            <!-- Subscribe Modal -->
+            <div class="modal-backdrop" id="subscribe-modal-{{ plan.id }}">
+                <div class="modal">
+                    <div class="modal-header">
+                        <span class="modal-title">Subscribe to {{ plan.name }}</span>
+                        <button class="modal-close" onclick="document.getElementById('subscribe-modal-{{ plan.id }}').style.display='none'">&times;</button>
+                    </div>
+                    <form method="POST" action="{% url 'subscription_create' client_id=0 %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="plan_id" value="{{ plan.id }}">
+                        <div class="modal-body">
+                            <div class="form-group" style="margin-bottom:14px">
+                                <label style="display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:4px">Entity</label>
+                                <select name="client_id_override" class="filter-select" style="width:100%;padding:8px" required>
+                                    <option value="">Select entity...</option>
+                                    {% for c in clients_without_subs %}
+                                    <option value="{{ c.id }}">{{ c.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                {% if not clients_without_subs %}
+                                <p style="font-size:11px;color:var(--ink-3);margin-top:4px">All entities are already subscribed.</p>
+                                {% endif %}
+                            </div>
+                            <div class="form-group" style="margin-bottom:14px">
+                                <label style="display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:4px">Billing Cycle</label>
+                                <select name="billing_cycle" class="filter-select" style="width:100%;padding:8px">
+                                    <option value="monthly">Monthly — ${{ plan.price_monthly|floatformat:0 }}/mo</option>
+                                    <option value="annual" selected>Annual — ${{ plan.price_annual|floatformat:0 }}/yr</option>
+                                </select>
+                            </div>
+                            <div style="padding:10px 12px;background:var(--surface-2);border-radius:var(--radius);font-size:12px;color:var(--ink-3)">
+                                💡 Annual billing saves ~17%. Entity subscriptions auto-renew and can be canceled anytime.
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline" onclick="document.getElementById('subscribe-modal-{{ plan.id }}').style.display='none'">Cancel</button>
+                            <button type="submit" class="btn btn-primary" {% if not clients_without_subs %}disabled{% endif %}>Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Active Subscriptions -->
+        {% if entity_subs %}
+        <div style="margin-top:8px">
+            <h2 style="font-size:16px;font-weight:600;color:var(--ink);margin:0 0 12px">Active Subscriptions ({{ active_count }})</h2>
+            <div class="subs-list">
+                {% for sub in entity_subs %}
+                <a href="{% url 'subscription_manage' sub.id %}" class="subs-item" style="text-decoration:none">
+                    <div>
+                        <div class="subs-client">{{ sub.client.name }}</div>
+                        <div class="subs-plan">{{ sub.plan.name }} · ${{ sub.monthly_revenue|floatformat:2 }}/mo · Next billing: {{ sub.next_billing_date|default:"—" }}</div>
+                    </div>
+                    <span class="subs-status {{ sub.status }}">{{ sub.get_status_display }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <aside>
+        <div class="metric-row">
+            <div class="metric-card">
+                <div class="metric-value">${{ total_mrr|floatformat:0 }}</div>
+                <div class="metric-label">Monthly Recurring Revenue</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ active_count }}</div>
+                <div class="metric-label">Active Subscriptions</div>
+            </div>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px">
+            <h3 style="font-size:13px;font-weight:600;color:var(--ink);margin:0 0 10px">Why Subscriptions?</h3>
+            <ul style="list-style:none;padding:0;margin:0;font-size:12px;color:var(--ink-3);line-height:1.8">
+                <li>✅ Predictable monthly revenue</li>
+                <li>✅ Auto-bill clients on schedule</li>
+                <li>✅ Auto-generate annual resolutions</li>
+                <li>✅ Auto-file annual returns</li>
+                <li>✅ Clients never miss deadlines</li>
+                <li>✅ Higher client retention</li>
+                <li>✅ Bundle services for higher ARPU</li>
+            </ul>
+        </div>
+    </aside>
+</div>
+
+<!-- Handle the dynamic client_id in form -->
+<script>
+document.querySelectorAll('form[action*="subscription_plans/create/0/"]').forEach(f => {
+    f.addEventListener('submit', function(e) {
+        const select = this.querySelector('select[name="client_id_override"]');
+        if (select && select.value) {
+            this.action = this.action.replace('/0/', '/' + select.value + '/');
+        } else {
+            e.preventDefault();
+            alert('Please select an entity.');
+        }
+    });
+});
+</script>
+{% endblock %}

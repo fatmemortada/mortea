@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Services — {{ provider.name }} | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.panel { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; }
+.sidebar { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 88px; }
+.sidebar a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; color: var(--ink-2); text-decoration: none; }
+.sidebar a:hover, .sidebar a.active { background: var(--brand-light); color: var(--brand-dark); }
+.sidebar a .si { font-size: 16px; width: 24px; text-align: center; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; }
+.svc-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-light); gap: 12px; }
+.svc-row:last-child { border-bottom: none; }
+.svc-name { font-weight: 600; color: var(--ink); font-size: 15px; }
+.svc-meta { display: flex; gap: 16px; align-items: center; color: var(--ink-3); font-size: 14px; }
+.btn-sm { padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: var(--radius-full); border: 1px solid var(--border); background: var(--surface); color: var(--ink-3); cursor: pointer; }
+.btn-sm.danger { color: #dc2626; border-color: #fecaca; }
+.btn-sm.danger:hover { background: #fef2f2; }
+.btn { padding: 12px 28px; font-size: 15px; font-weight: 600; border-radius: var(--radius-full); border: none; background: var(--brand); color: #fff; cursor: pointer; }
+.field { margin-bottom: 12px; }
+.field input { width: 100%; padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 14px; border: 1.5px solid var(--border); border-radius: var(--radius); outline: none; }
+.field input:focus { border-color: var(--brand); }
+.inline-form { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 20px; }
+.inline-form .field { margin: 0; }
+.popular-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; background: var(--brand); color: #fff; padding: 2px 8px; border-radius: var(--radius-full); }
+@media (max-width:700px){ .panel{grid-template-columns:1fr;} .sidebar{position:static;flex-direction:row;overflow-x:auto;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><div class="panel">
+<div class="sidebar">
+<a href="{% url 'owner_dashboard' provider.slug %}"><span class="si">📊</span> Overview</a>
+<a href="{% url 'owner_edit_profile' provider.slug %}"><span class="si">✏️</span> Edit Profile</a>
+<a href="{% url 'owner_services' provider.slug %}" class="active"><span class="si">💰</span> Services</a>
+<a href="{% url 'owner_photos' provider.slug %}"><span class="si">📸</span> Photos & Videos</a>
+<a href="{% url 'owner_social' provider.slug %}"><span class="si">📱</span> Social Links</a>
+<a href="{% url 'owner_bookings' provider.slug %}"><span class="si">📋</span> Bookings</a>
+<a href="{% url 'provider_profile' provider.slug %}" target="_blank"><span class="si">👁</span> View Profile</a>
+</div>
+<div class="main"><h1>Services & Pricing</h1>
+<div class="card">
+<h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:16px">Add Service</h3>
+<form method="POST" class="inline-form">{% csrf_token %}<input type="hidden" name="action" value="add">
+<div class="field"><input type="text" name="name" placeholder="Service name" required></div>
+<div class="field"><input type="number" name="price" placeholder="Price ($)" step="0.01" style="width:120px"></div>
+<div class="field"><input type="number" name="duration" placeholder="Minutes" style="width:100px"></div>
+<div style="display:flex;align-items:center;gap:6px"><input type="checkbox" name="is_popular" id="pop"><label for="pop" style="font-size:13px">Popular</label></div>
+<button type="submit" class="btn">Add</button></form></div>
+<div class="card"><h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:16px">Current Services</h3>
+{% for svc in provider.services.all %}
+<div class="svc-row"><div class="svc-name">{{ svc.name }}{% if svc.is_popular %} <span class="popular-tag">Popular</span>{% endif %}</div><div class="svc-meta">{% if svc.price %}${{ svc.price|floatformat:"0" }}{% endif %} {% if svc.duration_minutes %}{{ svc.duration_minutes }}min{% endif %}<form method="POST" style="display:inline" onsubmit="return confirm('Delete this service?')">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="service_id" value="{{ svc.id }}"><button type="submit" class="btn-sm danger">Delete</button></form></div></div>
+{% empty %}<p style="color:var(--ink-3)">No services added yet.</p>{% endfor %}</div></div></div></div>
+</body></html>

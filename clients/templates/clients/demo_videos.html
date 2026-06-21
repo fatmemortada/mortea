@@ -1,0 +1,517 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Interactive Demo — Mortacc Product Walkthrough</title><meta name="description" content="Step-by-step interactive walkthrough of Mortacc — see the dashboard, onboarding, corporate records, minute books, compliance, and AI assistant in action."><meta property="og:title" content="Mortacc Interactive Demo — See Every Feature"><meta property="og:description" content="Interactive product walkthrough — no signup needed."><meta property="og:type" content="website"><meta property="og:url" content="https://mortacc.com/demo-videos/"><meta property="og:site_name" content="Mortacc"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://mortacc.com/demo-videos/"><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>⚖</text></svg>"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"><link rel="stylesheet" href="{% static 'clients/css/landing.css' %}"><style>
+:root{--bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--brand:#2563eb;--brand-dark:#1d4ed8;--ink:#0f172a;--ink-2:#334155;--ink-3:#64748b;--ink-4:#94a3b8;--green:#16a34a;--amber:#d97706;--red:#dc2626;--purple:#7c3aed}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',-apple-system,sans-serif;background:#0f172a;color:#fff;overflow:hidden;height:100vh}
+.app{display:flex;height:100vh}
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.sidebar{width:290px;background:#1e293b;border-right:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sidebar-header{padding:20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-header .logo{font-family:'DM Serif Display',serif;font-size:22px;color:#fff;text-decoration:none}.sidebar-header .logo span{color:#60a5fa}
+.sidebar-header .sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:2px}
+.sidebar-search{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-search input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;outline:none;font-family:inherit}
+.sidebar-search input:focus{border-color:rgba(96,165,250,.4)}
+.chapter-list{flex:1;overflow-y:auto;padding:4px}
+.chapter-list::-webkit-scrollbar{width:4px}.chapter-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.chapter{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:all .15s;font-size:13px;color:rgba(255,255,255,.55);border:1px solid transparent;margin-bottom:1px}
+.chapter:hover{background:rgba(255,255,255,.05);color:rgba(255,255,255,.8)}
+.chapter.active{background:rgba(37,99,235,.18);border-color:rgba(96,165,250,.25);color:#fff;font-weight:500}
+.chapter .ch-num{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.chapter.active .ch-num{background:#2563eb;color:#fff}
+.chapter .ch-info{flex:1;min-width:0}.chapter .ch-name{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chapter .ch-meta{font-size:10px;color:rgba(255,255,255,.25);margin-top:1px}
+.sidebar-footer{padding:12px;border-top:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:8px}
+.sidebar-footer .btn{display:block;text-align:center;padding:11px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;transition:all .15s}
+.btn-demo{background:#2563eb;color:#fff}.btn-demo:hover{background:#1d4ed8}
+.btn-book{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)}.btn-book:hover{background:rgba(255,255,255,.15)}
+
+/* ── Main ─────────────────────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid rgba(255,255,255,.08);min-height:49px;flex-shrink:0}
+.topbar .step-title{font-size:15px;font-weight:700;flex:1}
+.topbar .step-counter{font-size:11px;color:rgba(255,255,255,.3);font-weight:500;background:rgba(255,255,255,.05);padding:4px 10px;border-radius:99px;white-space:nowrap}
+.player-area{flex:1;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
+
+/* ── Mock App Frame ──────────────────────────────────────────── */
+.mock-app{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.45);width:100%;max-width:920px;max-height:100%;display:flex;flex-direction:column;transition:opacity .25s}
+.mock-app.loading{opacity:.4}
+.mock-topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:10px 16px;display:flex;align-items:center;gap:10px;height:43px;flex-shrink:0}
+.mock-topbar .dots{display:flex;gap:5px}.mock-topbar .dots span{width:10px;height:10px;border-radius:50%}.mock-topbar .dots span:nth-child(1){background:#ef4444}.mock-topbar .dots span:nth-child(2){background:#f59e0b}.mock-topbar .dots span:nth-child(3){background:#22c55e}
+.mock-topbar .title{font-size:12px;font-weight:600;color:#475569}
+.mock-topbar .badge{font-size:10px;padding:3px 10px;border-radius:99px;background:#eff6ff;color:#2563eb;font-weight:600;margin-left:auto}
+.mock-body{display:flex;flex:1;min-height:380px;max-height:460px;overflow:hidden}
+.mock-sidebar{width:170px;background:#0f172a;padding:10px 0;flex-shrink:0;overflow-y:auto;font-size:10px}
+.mock-sidebar .nav-label{padding:8px 14px 4px;color:rgba(255,255,255,.2);text-transform:uppercase;font-size:9px;letter-spacing:.5px}
+.mock-sidebar .nav-item{padding:6px 14px;color:rgba(255,255,255,.45);display:flex;align-items:center;gap:6px;font-size:11px;cursor:default}
+.mock-sidebar .nav-item.active{background:rgba(37,99,235,.18);color:#93c5fd;border-left:2px solid #2563eb}
+.mock-content{flex:1;padding:18px 20px;overflow-y:auto;position:relative;background:#f8fafc}
+.mock-content::-webkit-scrollbar{width:4px}.mock-content::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:2px}
+
+/* ── Mock UI Components ──────────────────────────────────────── */
+.mock-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.mock-stat{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 10px;text-align:center}
+.mock-stat .val{font-size:20px;font-weight:800;color:#0f172a;line-height:1.1}
+.mock-stat .lbl{font-size:9px;text-transform:uppercase;color:#94a3b8;margin-top:3px;letter-spacing:.2px}
+.mock-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin-bottom:10px}
+.mock-card h3{font-size:12.5px;font-weight:600;color:#0f172a;margin-bottom:10px}
+.mock-card.accent-blue{border-left:3px solid #2563eb}
+.mock-card.accent-green{border-left:3px solid #16a34a}
+.mock-table{width:100%;border-collapse:collapse;font-size:11px}
+.mock-table th{text-align:left;font-size:9px;text-transform:uppercase;color:#94a3b8;padding:5px 8px;border-bottom:1px solid #e2e8f0;background:#f8fafc;font-weight:600}
+.mock-table td{padding:6px 8px;border-bottom:1px solid #f1f5f9;color:#334155}
+.mock-badge{display:inline-block;font-size:9px;font-weight:600;padding:2px 7px;border-radius:99px}
+.mock-badge.green{background:#dcfce7;color:#16a34a}
+.mock-badge.amber{background:#fef3c7;color:#d97706}
+.mock-badge.red{background:#fee2e2;color:#dc2626}
+.mock-badge.blue{background:#eff6ff;color:#2563eb}
+.mock-badge.purple{background:#ede9fe;color:#7c3aed}
+.btn-mock{display:inline-block;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;background:#2563eb;color:#fff;cursor:default}
+.btn-mock.green{background:#16a34a}
+.mock-input{border:1px solid #e2e8f0;border-radius:6px;padding:7px 10px;font-size:11px;width:100%;margin-bottom:6px;color:#334155;font-family:inherit}
+.mock-input:focus{outline:none;border-color:#2563eb}
+.mock-highlight{border:2px solid #2563eb;border-radius:6px;box-shadow:0 0 0 4px rgba(37,99,235,.1)}
+.mock-action-row{display:flex;gap:8px;margin-top:10px;align-items:center}
+
+/* ── Caption Bar ──────────────────────────────────────────────── */
+.caption-bar{background:#fff;border-top:1px solid #e2e8f0;padding:12px 18px;display:flex;align-items:flex-start;gap:12px;flex-shrink:0}
+.caption-step{background:#2563eb;color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;flex-shrink:0;white-space:nowrap;margin-top:1px}
+.caption-text{font-size:13px;color:#475569;flex:1;line-height:1.5}
+
+/* ── Controls ─────────────────────────────────────────────────── */
+.controls{display:flex;align-items:center;gap:8px;padding:8px 24px 14px;justify-content:center;flex-shrink:0}
+.ctrl-btn{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.ctrl-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3)}
+.ctrl-btn.play-btn{width:48px;height:48px;background:#2563eb;border-color:#2563eb;font-size:17px}
+.ctrl-btn.play-btn:hover{background:#1d4ed8}
+.ctrl-btn:active{transform:scale(.95)}
+.progress-track{flex:1;max-width:200px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;cursor:pointer;position:relative;margin:0 8px}
+.progress-fill{height:100%;background:#2563eb;border-radius:2px;transition:width .3s ease}
+.progress-dots{display:flex;gap:5px;margin:0 4px}
+.progress-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.15);cursor:pointer;transition:all .2s}
+.progress-dot.active{background:#2563eb;transform:scale(1.3)}
+.progress-dot.done{background:rgba(37,99,235,.45)}
+
+/* ── Step Content Card ────────────────────────────────────────── */
+.step-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:10px;text-align:center}
+.step-card .sc-icon{font-size:32px;margin-bottom:8px}
+.step-card .sc-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:4px}
+.step-card .sc-desc{font-size:11px;color:#64748b;line-height:1.5}
+
+/* ── CTA Overlay ───────────────────────────────────────────────── */
+.cta-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.85);z-index:20;opacity:0;pointer-events:none;transition:opacity .4s}
+.cta-overlay.show{opacity:1;pointer-events:all}
+.cta-card{background:#fff;border-radius:16px;padding:40px;text-align:center;max-width:460px;box-shadow:0 32px 64px rgba(0,0,0,.5)}
+.cta-card .cta-icon{font-size:48px;margin-bottom:16px}
+.cta-card h2{font-size:24px;font-weight:800;color:#0f172a;margin-bottom:8px}
+.cta-card p{font-size:14px;color:#64748b;margin-bottom:24px;line-height:1.6}
+.cta-card .cta-btns{display:flex;flex-direction:column;gap:10px}
+.cta-card .cta-btn{display:block;padding:13px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;transition:all .15s}
+.cta-card .cta-btn.primary{background:#2563eb;color:#fff}.cta-card .cta-btn.primary:hover{background:#1d4ed8}
+.cta-card .cta-btn.secondary{background:#f8fafc;color:#2563eb;border:1.5px solid #e2e8f0}.cta-card .cta-btn.secondary:hover{background:#eff6ff;border-color:#2563eb}
+.cta-close{position:absolute;top:12px;right:14px;width:32px;height:32px;border-radius:50%;border:1px solid #e2e8f0;background:#fff;color:#94a3b8;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1}
+.cta-close:hover{background:#f1f5f9;color:#475569;border-color:#cbd5e1}
+.cta-card{position:relative}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media(max-width:900px){.app{flex-direction:column}.sidebar{width:100%;max-height:240px;border-right:none;border-bottom:1px solid rgba(255,255,255,.1)}.sidebar-search{display:none}.chapter{font-size:12px;padding:8px 10px}.player-area{padding:12px}.mock-sidebar{display:none}.mock-stat-grid{grid-template-columns:repeat(2,1fr)}.mock-body{min-height:320px;max-height:380px}}
+@media(max-width:500px){.sidebar{max-height:180px}.mock-stat-grid{grid-template-columns:1fr 1fr}.controls{gap:4px;padding:8px 12px 12px}.ctrl-btn{width:30px;height:30px;font-size:12px}.ctrl-btn.play-btn{width:38px;height:38px;font-size:14px}}
+</style></head><body><div class="app">
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SIDEBAR -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="sidebar">
+<div class="sidebar-header"><a href="/" class="logo">Mort<span>acc</span></a><div class="sub">Interactive Product Walkthrough</div></div>
+<div class="chapter-list" id="chapterList"></div>
+<div class="sidebar-footer">
+<a href="{% url 'demo' %}" class="btn btn-demo">🎓 Try Live Demo</a>
+<a href="mailto:support@mortacc.com?subject=Demo%20Request" class="btn btn-book">📅 Book a Demo</a>
+</div></div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- MAIN -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="main">
+<div class="topbar"><span class="step-title" id="currentTitle">Dashboard Overview</span><span class="step-counter" id="stepCounter">1 / 8</span></div>
+<div class="player-area">
+<div class="mock-app" id="mockApp">
+<div class="mock-topbar"><div class="dots"><span></span><span></span><span></span></div><div class="title" id="mockTitle">Mortacc Dashboard</div><div class="badge" id="mockBadge">Demo</div></div>
+<div class="mock-body"><div class="mock-sidebar" id="mockSidebar"></div><div class="mock-content" id="mockContent"></div></div>
+<div class="caption-bar"><span class="caption-step" id="capStep">1/8</span><span class="caption-text" id="capText"></span></div>
+</div>
+<div class="cta-overlay" id="ctaOverlay"><div class="cta-card"><button class="cta-close" onclick="closeCTA()" title="Close">✕</button><div class="cta-icon">🚀</div><h2>Ready to see Mortacc in action?</h2><p>Book a personalized demo with our team, or explore the live platform right now — no signup required.</p><div class="cta-btns"><a href="{% url 'demo' %}" class="cta-btn primary">🎓 Try Live Demo — Free</a><a href="mailto:support@mortacc.com?subject=Book%20a%20Demo" class="cta-btn secondary">📅 Book a Personalized Demo</a><a href="{% url 'accountant_signup' %}" class="cta-btn secondary">⚡ Start Free Trial</a></div></div></div>
+</div>
+<div class="controls">
+<button class="ctrl-btn" onclick="prevScene()" title="Previous (←)">⏮</button>
+<button class="ctrl-btn play-btn" id="playBtn" onclick="togglePlay()" title="Play/Pause (Space)">▶</button>
+<button class="ctrl-btn" onclick="nextScene()" title="Next (→)">⏭</button>
+<div class="progress-dots" id="progressDots"></div>
+<button class="ctrl-btn" onclick="openCTA()" title="Book a Demo" style="font-size:12px;width:auto;padding:0 14px;border-radius:99px">📅 Get Started</button>
+</div></div></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// INTERACTIVE DEMO DATA — 8 walkthrough modules
+// ═══════════════════════════════════════════════════════════════════
+
+var WALKTHROUGHS = [
+  // ── 1. DASHBOARD OVERVIEW ──────────────────────────────────────
+  {
+    id:'dashboard',icon:'📊',title:'Dashboard Overview',duration:'3:30',
+    scenes:[
+      {
+        title:'Welcome to Mortacc',
+        caption:'This is your command center. The dashboard shows every client and their health status at a glance. Color-coded indicators tell you exactly what needs attention — green is complete, amber needs review, red is urgent.',
+        topbarBadge:'Dashboard',
+        sidebar:'<div class="nav-label">Workspace</div><div class="nav-item active">📊 Dashboard</div><div class="nav-item">🔍 Search</div><div class="nav-item">📋 Command Center</div><div class="nav-label">Corporate</div><div class="nav-item">🏢 Entities</div><div class="nav-item">👤 People</div><div class="nav-label">Documents</div><div class="nav-item">📁 Documents</div><div class="nav-item">📚 Minute Books</div>',
+        content:'<div class="mock-stat-grid"><div class="mock-stat"><div class="val" style="color:#2563eb">24</div><div class="lbl">Active Clients</div></div><div class="mock-stat"><div class="val" style="color:#16a34a">85%</div><div class="lbl">Compliance Rate</div></div><div class="mock-stat"><div class="val" style="color:#d97706">$4.2K</div><div class="lbl">Outstanding</div></div><div class="mock-stat"><div class="val" style="color:#dc2626">3</div><div class="lbl">Need Attention</div></div></div><div class="mock-card"><h3>📋 Client Overview</h3><table class="mock-table"><tr><th>Client</th><th>Status</th><th>Health</th><th>Next Action</th></tr><tr><td>Maple Tech Holdings Inc.</td><td><span class="mock-badge green">Active</span></td><td style="color:#16a34a">● Good</td><td>Annual return due Aug 14</td></tr><tr><td>Great Lakes Consulting Ltd.</td><td><span class="mock-badge amber">In Review</span></td><td style="color:#d97706">● Needs Review</td><td>3 missing documents</td></tr><tr style="background:#fff7ed"><td>Pacific Ventures Corp.</td><td><span class="mock-badge blue">New</span></td><td style="color:#dc2626">● Setup Required</td><td style="font-weight:600;color:#dc2626">5 items pending</td></tr></table></div>'
+      },
+      {
+        title:'Client Health Scores',
+        caption:'Every client gets an automatic health score based on compliance status, document completeness, and task progress. 🟢 Green = everything is current. 🟡 Amber = some items need attention. 🔴 Red = critical gaps — act now.',
+        topbarBadge:'Dashboard',
+        sidebar:'<div class="nav-label">Workspace</div><div class="nav-item active">📊 Dashboard</div><div class="nav-item">🔍 Search</div>',
+        content:'<div class="mock-card"><h3>⚡ Priority Actions Today</h3><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fef2f2;border-left:3px solid #dc2626;border-radius:6px"><span style="font-size:10px;font-weight:700;color:#dc2626">OVERDUE</span><span style="font-size:12px;color:#0f172a">Pacific Ventures — Annual Return (3 days overdue)</span></div><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fffbeb;border-left:3px solid #d97706;border-radius:6px"><span style="font-size:10px;font-weight:700;color:#d97706">DUE SOON</span><span style="font-size:12px;color:#0f172a">Great Lakes — T2 Corporate Return (due in 5 days)</span></div><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#eff6ff;border-left:3px solid #2563eb;border-radius:6px"><span style="font-size:10px;font-weight:700;color:#2563eb">OPPORTUNITY</span><span style="font-size:12px;color:#0f172a">Maple Tech — CDA balance $15K available</span></div></div></div><div class="mock-card"><h3>Health Score Breakdown</h3><table class="mock-table"><tr><th>Client</th><th>Compliance</th><th>Documents</th><th>Billing</th><th>Overall</th></tr><tr><td>Maple Tech</td><td style="color:#16a34a">✓</td><td style="color:#16a34a">✓</td><td style="color:#d97706">1 unpaid</td><td><span class="mock-badge green">Good</span></td></tr><tr><td>Great Lakes</td><td style="color:#d97706">1 overdue</td><td style="color:#dc2626">3 missing</td><td style="color:#16a34a">✓</td><td><span class="mock-badge amber">Review</span></td></tr></table></div>'
+      },
+      {
+        title:'Quick Actions',
+        caption:'The quick-action cards let you jump to common tasks instantly: add a new client, start an incorporation, check compliance, generate minute books — all one click from the dashboard.',
+        topbarBadge:'Dashboard',
+        content:'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="step-card" style="border-top:3px solid #2563eb"><div class="sc-icon">➕</div><div class="sc-title">Add New Client</div><div class="sc-desc">Create a complete entity profile in under 2 minutes</div></div><div class="step-card" style="border-top:3px solid #7c3aed"><div class="sc-icon">🏢</div><div class="sc-title">New Incorporation</div><div class="sc-desc">Guided wizard — generate all documents automatically</div></div><div class="step-card" style="border-top:3px solid #16a34a"><div class="sc-icon">📅</div><div class="sc-title">Compliance Check</div><div class="sc-desc">View all deadlines across every entity and jurisdiction</div></div><div class="step-card" style="border-top:3px solid #d97706"><div class="sc-icon">📚</div><div class="sc-title">Minute Book Builder</div><div class="sc-desc">Generate 15+ documents in under 2 minutes</div></div></div>'
+      }
+    ]
+  },
+  // ── 2. CLIENT ONBOARDING ───────────────────────────────────────
+  {
+    id:'onboarding',icon:'📋',title:'Client Onboarding',duration:'3:00',
+    scenes:[
+      {
+        title:'Onboarding Portal',
+        caption:'Each client gets a unique secure onboarding link — no password needed. Send it via email with one click. The client sees a clean, branded portal to fill in details and upload documents.',
+        topbarBadge:'Onboarding',
+        sidebar:'<div class="nav-label">Clients</div><div class="nav-item active">📋 Onboarding</div><div class="nav-item">📊 Dashboard</div><div class="nav-item">🔗 Portal Links</div>',
+        content:'<div class="mock-card"><h3>Client Onboarding — Maple Tech</h3><div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px;margin-bottom:10px"><strong>🔗 Secure Link:</strong> <code style="font-size:11px;background:#fff;padding:2px 6px;border-radius:3px">/onboarding/a3f72b9c8d1e...</code> <span class="btn-mock" style="font-size:10px;padding:3px 8px;margin-left:8px">📋 Copy</span></div><div style="font-size:12px;color:#64748b">✅ Sent: Jun 14, 2026 · ⏳ Status: Awaiting documents · 🔄 Auto-reminders: Every 7 days</div></div><div class="mock-card"><h3>Client View</h3><div class="mock-input">Legal Full Name: Maple Tech Holdings Inc.</div><div class="mock-input">Contact Email: contact@mapletech.ca</div><div class="mock-input">Phone: 416-555-0101</div><div style="font-size:10px;color:#94a3b8;margin:8px 0 4px">Required Documents</div><div style="display:flex;flex-direction:column;gap:4px"><div style="border:1px dashed #94a3b8;border-radius:6px;padding:8px;text-align:center;font-size:11px;color:#94a3b8">📎 Upload Government ID</div><div style="border:1px dashed #94a3b8;border-radius:6px;padding:8px;text-align:center;font-size:11px;color:#94a3b8">📎 Upload Tax Document (CRA Confirmation)</div></div><div style="margin-top:10px"><span class="btn-mock">Submit Documents</span></div></div>'
+      },
+      {
+        title:'Reviewing Submissions',
+        caption:'Back in your firm dashboard, review submitted documents. Approve or reject each one with notes. Green checkmark = approved, red X = needs re-upload. Auto-reminders chase clients who haven\'t submitted.',
+        topbarBadge:'Review',
+        sidebar:'<div class="nav-label">Onboarding</div><div class="nav-item active">📋 Review</div><div class="nav-item">📄 Documents</div><div class="nav-item">📨 Reminders</div>',
+        content:'<div class="mock-card"><h3>Submission Review — Maple Tech</h3><table class="mock-table"><tr><th>Document</th><th>Category</th><th>Uploaded</th><th>Status</th></tr><tr><td>Certificate_of_Incorporation.pdf</td><td>Corporate</td><td>Jun 14</td><td><span class="mock-badge green">Approved ✓</span></td></tr><tr><td>Directors_Register.pdf</td><td>Corporate</td><td>Jun 14</td><td><span class="mock-badge green">Approved ✓</span></td></tr><tr style="background:#fff7ed"><td>CRA_Business_Number.pdf</td><td>Tax</td><td>Jun 15</td><td><span class="mock-badge amber">Pending Review</span></td></tr></table></div><div class="mock-card"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center"><div style="padding:12px;background:#f0fdf4;border-radius:8px"><div style="font-size:20px;font-weight:800;color:#16a34a">12</div><div style="font-size:10px;color:#166534">Completed Today</div></div><div style="padding:12px;background:#fef3c7;border-radius:8px"><div style="font-size:20px;font-weight:800;color:#d97706">5</div><div style="font-size:10px;color:#92400e">Pending Review</div></div><div style="padding:12px;background:#fee2e2;border-radius:8px"><div style="font-size:20px;font-weight:800;color:#dc2626">3</div><div style="font-size:10px;color:#991b1b">Overdue</div></div></div></div>'
+      },
+      {
+        title:'Automated Follow-ups',
+        caption:'Mortacc automatically sends reminder emails to clients who haven\'t completed their onboarding. You set the schedule — 7 days, 14 days, whatever works. Escalation rules notify you when manual follow-up is needed.',
+        topbarBadge:'Automation',
+        content:'<div class="mock-card accent-blue"><h3>⚡ Automated Chasing — Active Campaigns</h3><table class="mock-table"><tr><th>Client</th><th>Sent</th><th>Reminders</th><th>Response</th><th>Next Action</th></tr><tr><td>Atlantic Ventures</td><td>Jun 14</td><td>2 sent</td><td style="color:#dc2626">No response</td><td style="color:#dc2626">Escalate to staff</td></tr><tr><td>Coastal Advisory</td><td>Jun 16</td><td>1 sent</td><td style="color:#16a34a">Responded</td><td>Review docs</td></tr><tr><td>Northern Holdings</td><td>Jun 17</td><td>0 sent</td><td style="color:#94a3b8">Waiting</td><td>First reminder Jun 24</td></tr></table></div><div style="text-align:center;margin-top:10px"><span class="btn-mock">+ Send Bulk Reminder to All Pending</span></div>'
+      }
+    ]
+  },
+  // ── 3. CORPORATE RECORDS ───────────────────────────────────────
+  {
+    id:'corporate-records',icon:'🏢',title:'Corporate Records',duration:'4:00',
+    scenes:[
+      {
+        title:'Entity Records Dashboard',
+        caption:'The Entities page shows every corporation your firm manages. Each row displays the entity name, jurisdiction, status, and director count. Click any entity to open its complete corporate profile.',
+        topbarBadge:'Entities',
+        sidebar:'<div class="nav-label">Corporate</div><div class="nav-item active">🏢 Entities</div><div class="nav-item">👤 People & KYC</div><div class="nav-item">📈 Cap Tables</div><div class="nav-item">🗺 Structure Charts</div>',
+        content:'<div class="mock-stat-grid" style="grid-template-columns:repeat(3,1fr)"><div class="mock-stat"><div class="val">24</div><div class="lbl">Total Entities</div></div><div class="mock-stat"><div class="val">4</div><div class="lbl">Jurisdictions</div></div><div class="mock-stat"><div class="val">🇨🇦</div><div class="lbl">Federal & Provincial</div></div></div><div class="mock-card"><table class="mock-table"><tr><th>Entity Name</th><th>Jurisdiction</th><th>Status</th><th>Directors</th></tr><tr style="cursor:pointer"><td style="color:#2563eb;font-weight:500">Maple Tech Holdings Inc.</td><td>Federal (CBCA)</td><td><span class="mock-badge green">Active</span></td><td>3</td></tr><tr><td>Great Lakes Consulting Ltd.</td><td>Ontario (OBCA)</td><td><span class="mock-badge green">Active</span></td><td>2</td></tr><tr><td>Pacific Ventures Corp.</td><td>BC (BCA)</td><td><span class="mock-badge blue">New</span></td><td>1</td></tr><tr><td>Gestion Tremblay S.E.N.C.</td><td>Québec (LSAQ)</td><td><span class="mock-badge green">Active</span></td><td>2</td></tr></table></div><div style="margin-top:8px"><span class="btn-mock">+ New Entity</span> <span style="font-size:11px;color:#64748b;margin-left:8px">or import CSV</span></div>'
+      },
+      {
+        title:'Entity Detail — Complete Profile',
+        caption:'Every entity has a full corporate profile: jurisdiction, incorporation date, business number, HST number, fiscal year end, and registered address. This data auto-populates all generated documents and drives the compliance calendar.',
+        topbarBadge:'Maple Tech',
+        sidebar:'<div class="nav-label">Entity</div><div class="nav-item active">📋 Overview</div><div class="nav-item">👥 Directors</div><div class="nav-item">📈 Shares</div><div class="nav-item">📅 Compliance</div><div class="nav-item">📄 Documents</div>',
+        content:'<div class="mock-card"><h3>Corporate Profile — Maple Tech Holdings Inc.</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px"><div><strong>Jurisdiction:</strong> Federal (CBCA)</div><div><strong>Status:</strong> Active</div><div><strong>Incorporated:</strong> June 14, 2024</div><div><strong>Business Number:</strong> 123456789 RC0001</div><div><strong>HST Number:</strong> 123456789 RT0001</div><div><strong>Fiscal Year End:</strong> December 31</div><div><strong>Registered Office:</strong> 123 King St W, Toronto, ON M5V 2T6</div><div><strong>Annual Return Due:</strong> Aug 14, 2026 (60 days)</div></div></div><div class="mock-card"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center"><div style="padding:10px;background:#f0fdf4;border-radius:8px"><div style="font-size:16px;font-weight:800;color:#16a34a">3</div><div style="font-size:9px;color:#166534">Directors</div></div><div style="padding:10px;background:#f0fdf4;border-radius:8px"><div style="font-size:16px;font-weight:800;color:#16a34a">2</div><div style="font-size:9px;color:#166534">Shareholders</div></div><div style="padding:10px;background:#f0fdf4;border-radius:8px"><div style="font-size:16px;font-weight:800;color:#16a34a">2</div><div style="font-size:9px;color:#166534">Share Classes</div></div><div style="padding:10px;background:#f0fdf4;border-radius:8px"><div style="font-size:16px;font-weight:800;color:#16a34a">0</div><div style="font-size:9px;color:#166534">Missing Docs</div></div></div></div>'
+      },
+      {
+        title:'Directors, Officers & Shareholders',
+        caption:'Track directors with appointment and resignation dates. Mark officers by title (President, Secretary, CFO). Record shareholders with share class, number of shares, and ownership percentage. The cap table updates automatically.',
+        topbarBadge:'Maple Tech',
+        content:'<div class="mock-card"><h3>Directors & Officers</h3><table class="mock-table"><tr><th>Name</th><th>Position</th><th>Appointed</th><th>Status</th></tr><tr><td>John Smith</td><td>President & Director</td><td>Jun 14, 2024</td><td><span class="mock-badge green">Active</span></td></tr><tr><td>Jane Doe</td><td>Secretary & Director</td><td>Jun 14, 2024</td><td><span class="mock-badge green">Active</span></td></tr><tr><td>Robert Chen</td><td>Director</td><td>Jun 14, 2024</td><td><span class="mock-badge green">Active</span></td></tr></table></div><div class="mock-card"><h3>Shareholders</h3><table class="mock-table"><tr><th>Name</th><th>Class</th><th>Shares</th><th>Ownership</th></tr><tr><td>John Smith</td><td>Common Voting</td><td>100</td><td style="font-weight:600">71.4%</td></tr><tr><td>Jane Doe</td><td>Common Voting</td><td>40</td><td style="font-weight:600">28.6%</td></tr></table></div>'
+      }
+    ]
+  },
+  // ── 4. MINUTE BOOK MANAGEMENT ──────────────────────────────────
+  {
+    id:'minute-books',icon:'📚',title:'Minute Book Management',duration:'4:00',
+    scenes:[
+      {
+        title:'Minute Book Builder',
+        caption:'The Minute Book Builder generates a complete corporate minute book in minutes. Select an entity, choose which document types you need, and Mortacc creates professional PDFs using your entity data — directors, shareholders, and corporate details are auto-filled.',
+        topbarBadge:'Minute Books',
+        sidebar:'<div class="nav-label">Documents</div><div class="nav-item active">📚 Minute Books</div><div class="nav-item">📁 All Documents</div><div class="nav-item">📄 Templates</div>',
+        content:'<div class="mock-card"><h3>📚 Minute Book Builder — Maple Tech Holdings Inc.</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px"><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" checked> Directors Register</label><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" checked> Officers Register</label><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" checked> Shareholders Register</label><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" checked> Securities Register</label><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox"> Shareholder Ledger</label><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox"> Share Transfer Register</label><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox"> Directors Resolutions</label><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox"> Shareholders Resolutions</label><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox"> Banking Resolution</label><label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox"> By-Law No. 1</label></div><div style="margin-top:10px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;font-weight:600">Language:</span><span class="mock-badge blue">EN</span><span class="mock-badge purple">FR</span><span class="mock-badge blue">EN + FR</span></div><div style="margin-top:12px"><span class="btn-mock">Generate Selected PDFs</span> <span style="font-size:11px;color:#2563eb;cursor:pointer;margin-left:8px">Download as ZIP →</span></div></div>'
+      },
+      {
+        title:'15+ Document Types — Bilingual',
+        caption:'Mortacc generates over 15 professional PDF document types. Every document is available in English and French. Data auto-populates from entity records — no manual typing required. Each document is formatted to professional standards.',
+        topbarBadge:'Documents',
+        content:'<div class="mock-card"><table class="mock-table"><tr><th>Document Type</th><th>Languages</th><th>Auto-Filled From</th><th>Format</th></tr><tr><td>Directors Register</td><td>EN / FR</td><td>Director records</td><td>PDF</td></tr><tr><td>Officers Register</td><td>EN / FR</td><td>Appointment records</td><td>PDF</td></tr><tr><td>Shareholders Register</td><td>EN / FR</td><td>Shareholder records</td><td>PDF</td></tr><tr><td>Securities Register</td><td>EN / FR</td><td>Share class data</td><td>PDF</td></tr><tr><td>Share Certificates</td><td>EN / FR</td><td>Shareholder + class data</td><td>PDF</td></tr><tr><td>Banking Resolution</td><td>EN / FR</td><td>Directors + officers</td><td>PDF</td></tr><tr><td>By-Law No. 1</td><td>EN / FR</td><td>Entity profile</td><td>PDF</td></tr><tr><td>AGM Minutes</td><td>EN / FR</td><td>Meeting data</td><td>PDF</td></tr></table></div><div style="margin-top:8px"><span class="btn-mock green">📥 Download All as ZIP (3.2 MB)</span></div>'
+      },
+      {
+        title:'Annual Minute Book Updates',
+        caption:'Annual maintenance packages are generated in one click: AGM minutes, director resolutions, register updates. Mortacc tracks what each entity needs based on its jurisdiction and incorporation date — then generates everything automatically.',
+        topbarBadge:'Annual Package',
+        content:'<div class="mock-card accent-green"><h3>✅ Annual Package Generated — Maple Tech (2026)</h3><table class="mock-table"><tr><th>Document</th><th>Status</th><th>Data Source</th></tr><tr><td>AGM Minutes 2026</td><td><span class="mock-badge green">Generated ✓</span></td><td>Entity + Director data</td></tr><tr><td>Director Re-Election Resolution</td><td><span class="mock-badge green">Generated ✓</span></td><td>Current directors list</td></tr><tr><td>Updated Directors Register</td><td><span class="mock-badge green">Generated ✓</span></td><td>Latest appointments</td></tr><tr><td>Updated Officers Register</td><td><span class="mock-badge green">Generated ✓</span></td><td>Latest appointments</td></tr><tr><td>Annual Return Data</td><td><span class="mock-badge green">Ready ✓</span></td><td>File with Corporations Canada</td></tr></table></div><div style="text-align:center;margin-top:10px"><span class="btn-mock">📥 Download Package</span> <span style="font-size:11px;color:#16a34a;font-weight:600;margin-left:8px">5 documents ready</span></div>'
+      }
+    ]
+  },
+  // ── 5. COMPLIANCE TRACKING ─────────────────────────────────────
+  {
+    id:'compliance',icon:'⚖️',title:'Compliance Tracking',duration:'3:30',
+    scenes:[
+      {
+        title:'Compliance Dashboard',
+        caption:'The compliance dashboard shows every deadline across every entity. Filter by status (Pending, Overdue, Completed), search by client, and switch between table view, timeline, and calendar view. Never miss a filing deadline again.',
+        topbarBadge:'Compliance',
+        sidebar:'<div class="nav-label">Compliance</div><div class="nav-item active">⚖️ Dashboard</div><div class="nav-item">📅 Calendar</div><div class="nav-item">📨 Reminders</div><div class="nav-item">📋 Reports</div>',
+        content:'<div class="mock-stat-grid"><div class="mock-stat"><div class="val">48</div><div class="lbl">Total Tasks</div></div><div class="mock-stat"><div class="val" style="color:#dc2626">3</div><div class="lbl">Overdue</div></div><div class="mock-stat"><div class="val">15</div><div class="lbl">Upcoming</div></div><div class="mock-stat"><div class="val" style="color:#16a34a">30</div><div class="lbl">Completed</div></div></div><div class="mock-card"><table class="mock-table"><tr><th>Client</th><th>Task</th><th>Due</th><th>Status</th></tr><tr style="background:#fef2f2"><td>Maple Tech</td><td>Annual Return (CBCA)</td><td style="color:#dc2626;font-weight:600">Overdue by 3d</td><td><span class="mock-badge red">Urgent</span></td></tr><tr style="background:#fffbeb"><td>Great Lakes</td><td>T2 Corporate Tax Return</td><td>In 5 days</td><td><span class="mock-badge amber">Due Soon</span></td></tr><tr><td>Pacific Ventures</td><td>AGM Resolution</td><td>Aug 30, 2026</td><td><span class="mock-badge blue">Scheduled</span></td></tr><tr><td>Gestion Tremblay</td><td>Déclaration annuelle (REQ)</td><td>Sep 15, 2026</td><td><span class="mock-badge blue">Scheduled</span></td></tr></table></div>'
+      },
+      {
+        title:'Jurisdiction-Aware Deadlines',
+        caption:'Mortacc auto-calculates deadlines based on each entity\'s jurisdiction and incorporation date. Federal (CBCA) entities get different deadlines than Ontario (OBCA), BC (BCA), or Québec (LSAQ) entities. All four jurisdictions are supported.',
+        topbarBadge:'Deadlines',
+        content:'<div class="mock-card"><h3>Deadline Rules by Jurisdiction</h3><table class="mock-table"><tr><th>Jurisdiction</th><th>Annual Return</th><th>AGM</th><th>T2 Filing</th><th>Fee</th></tr><tr><td>🇨🇦 Federal (CBCA)</td><td>60 days from anniversary</td><td>15 months</td><td>6 months after FYE</td><td>$12</td></tr><tr><td>🇨🇦 Ontario (OBCA)</td><td>15 days for changes</td><td>15 months</td><td>6 months after FYE</td><td>—</td></tr><tr><td>🇨🇦 BC (BCA)</td><td>2 months from anniversary</td><td>15 months</td><td>6 months after FYE</td><td>$43.39</td></tr><tr><td>🇨🇦 Québec (LSAQ)</td><td>1 month from anniversary</td><td>15 months</td><td>6 months after FYE</td><td>$89</td></tr></table></div><div class="mock-card accent-blue"><h3>⚡ Auto-Generated Tasks for New Entity</h3><div style="font-size:12px;color:#334155">When you create an entity, Mortacc automatically generates: annual returns, AGM reminders, T2 deadlines, GST/HST filings, minute book updates, and jurisdiction-specific tasks — all with correct due dates.</div></div>'
+      },
+      {
+        title:'Bulk Operations & iCal Export',
+        caption:'Select multiple tasks with checkboxes for bulk actions: mark complete, update status, reassign, or change due dates. Export your compliance calendar to iCal for Outlook/Google Calendar sync.',
+        topbarBadge:'Actions',
+        content:'<div class="mock-card"><table class="mock-table"><tr><th><input type="checkbox" checked></th><th>Task</th><th>Entity</th><th>Due</th></tr><tr style="background:#eff6ff"><td><input type="checkbox" checked></td><td>Annual Return</td><td>Maple Tech</td><td>Jun 14</td></tr><tr style="background:#eff6ff"><td><input type="checkbox" checked></td><td>AGM Resolution</td><td>Maple Tech</td><td>Jun 14</td></tr><tr style="background:#eff6ff"><td><input type="checkbox" checked></td><td>Minute Book Update</td><td>Maple Tech</td><td>Jun 14</td></tr></table></div><div style="display:flex;gap:8px;margin-top:8px"><span class="btn-mock">✓ Mark Complete</span><span class="btn-mock" style="background:#475569">📤 Reassign</span><span style="font-size:11px;color:#2563eb;font-weight:600;padding:6px 14px;cursor:pointer">📅 Export to iCal</span></div></div>'
+      }
+    ]
+  },
+  // ── 6. AI CORPORATE ASSISTANT ──────────────────────────────────
+  {
+    id:'ai-assistant',icon:'🤖',title:'AI Corporate Assistant',duration:'4:00',
+    scenes:[
+      {
+        title:'AI Document Extraction',
+        caption:'Upload any corporate document — Articles of Incorporation, director registers, shareholder ledgers — and Claude AI extracts entity data automatically. Director names, shareholder details, dates, and share structures are identified and ready to review. Apply with one click.',
+        topbarBadge:'AI Extract',
+        sidebar:'<div class="nav-label">AI Tools</div><div class="nav-item active">🤖 AI Extract</div><div class="nav-item">💬 AI Assistant</div><div class="nav-item">📄 AI Documents</div>',
+        content:'<div class="mock-card"><div style="border:2px dashed #94a3b8;border-radius:8px;padding:16px;text-align:center;margin-bottom:10px"><div style="font-size:28px">📄</div><div style="font-size:12px;color:#64748b">Drop Articles of Incorporation PDF here</div><div style="font-size:10px;color:#94a3b8">or click to browse</div></div><div class="mock-card" style="background:#f0fdf4;border-color:#bbf7d0"><strong>✅ AI Extracted from "Articles of Incorporation.pdf":</strong><div style="font-size:11px;margin-top:6px;line-height:1.6">• Entity: Maple Tech Holdings Inc.<br>• Jurisdiction: Federal (CBCA)<br>• Incorporation Date: June 14, 2024<br>• Directors: John Smith, Jane Doe, Robert Chen<br>• Share Classes: Common Voting (unlimited)<br>• Registered Office: 123 King St W, Toronto, ON</div><div style="margin-top:8px"><span class="btn-mock green">✓ Apply All to Entity Record</span></div></div></div>'
+      },
+      {
+        title:'Corporate Change AI',
+        caption:'Type a corporate change in plain English and Mortacc handles everything. "Appoint Sarah Wilson as CFO" — it identifies the change type, generates the board resolution, updates registers, and prepares filing documents. No forms, no manual drafting.',
+        topbarBadge:'AI Assistant',
+        content:'<div class="mock-card"><h3>💬 Corporate Change AI</h3><div style="background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:8px"><strong>You type:</strong> "John Smith resigned as director effective today. Appoint Sarah Wilson as new director."</div><div style="background:#f0fdf4;padding:10px;border-radius:8px;margin-bottom:8px;border:1px solid #bbf7d0"><strong>🤖 AI Identified:</strong><div style="font-size:11px;margin-top:4px;line-height:1.6">• Director Resignation — John Smith<br>• Director Appointment — Sarah Wilson<br>• Resignation effective: Today<br>• Appointment effective: Today</div></div><div style="background:#eff6ff;padding:10px;border-radius:8px"><strong>📄 Documents Auto-Generated:</strong><div style="font-size:11px;margin-top:4px">• Board Resolution — Accepting Resignation & Appointing Director<br>• Updated Directors Register<br>• Updated Officers Register (if applicable)<br>• Notice of Change — Corporations Canada (draft)<br>• Consent to Act as Director — Sarah Wilson</div></div><div style="margin-top:10px"><span class="btn-mock green">Execute All Documents →</span></div></div>'
+      },
+      {
+        title:'AI Tax & Compliance Advisor',
+        caption:'Ask the AI Assistant any Canadian corporate law or tax question. It answers from a built-in knowledge base of CBCA, OBCA, BCA, and LSAQ rules. Tax planning: CDA, LCGE, income splitting, SBD optimization — all auto-detected and flagged.',
+        topbarBadge:'Knowledge',
+        content:'<div class="mock-card"><h3>💡 AI Tax Opportunity Detection</h3><div style="display:flex;flex-direction:column;gap:8px"><div style="background:#fef3c7;padding:10px;border-radius:6px;font-size:11px;border:1px solid #fde68a"><strong>💰 CDA Balance: $15,000 available</strong><br>Capital Dividend Account — pay tax-free dividends to shareholders. Estimated savings: $4,500</div><div style="background:#eff6ff;padding:10px;border-radius:6px;font-size:11px;border:1px solid #bfdbfe"><strong>🏢 LCGE Eligibility</strong><br>Qualified Small Business Corporation — $1.25M lifetime capital gains exemption available</div><div style="background:#ede9fe;padding:10px;border-radius:6px;font-size:11px;border:1px solid #c4b5fd"><strong>📊 Income Splitting</strong><br>3 shareholders — model salary vs dividend optimization. SBD rate 9% on first $500K</div></div></div><div class="mock-card"><h3>📚 Corporate Knowledge Base</h3><div style="background:#f8fafc;padding:10px;border-radius:8px"><strong>Q:</strong> "What are the annual filing requirements for a federal corporation?"</div><div style="background:#eff6ff;padding:10px;border-radius:8px;margin-top:6px;font-size:12px;line-height:1.6"><strong>A:</strong> Annual Return within 60 days of anniversary ($12 online). AGM within 15 months. T2 within 6 months of fiscal year-end. Maintain up-to-date minute books. File director/officer changes within 15 days.</div></div>'
+      }
+    ]
+  },
+  // ── 7. WORKFLOW AUTOMATION ─────────────────────────────────────
+  {
+    id:'workflows',icon:'⚡',title:'Workflow Automation',duration:'3:00',
+    scenes:[
+      {
+        title:'Automated Workflows',
+        caption:'Create workflows that trigger automatically when events happen. New client created? Auto-generate compliance tasks, send engagement letter, schedule welcome email. Annual maintenance due? Generate all documents and notify the engagement partner.',
+        topbarBadge:'Workflows',
+        sidebar:'<div class="nav-label">Automation</div><div class="nav-item active">⚡ Workflows</div><div class="nav-item">🤖 Auto-Pilots</div><div class="nav-item">📋 Run History</div>',
+        content:'<div class="mock-card"><h3>Active Workflows</h3><table class="mock-table"><tr><th>Name</th><th>Trigger</th><th>Steps</th><th>Status</th></tr><tr><td>New Client Onboarding</td><td>Client Created</td><td>4 steps</td><td><span class="mock-badge green">Active</span></td></tr><tr><td>Annual Maintenance</td><td>Anniversary Date</td><td>5 steps</td><td><span class="mock-badge green">Active</span></td></tr><tr><td>Payment Follow-up</td><td>Invoice Overdue 30d</td><td>3 steps</td><td><span class="mock-badge green">Active</span></td></tr></table></div><div style="margin-top:8px"><span class="btn-mock">+ Create Workflow</span> <span style="font-size:11px;color:#64748b;margin-left:8px">or use template</span></div>'
+      },
+      {
+        title:'Workflow Builder',
+        caption:'Each workflow has configurable steps with conditions and delays. For example: when a client is created → wait 1 day → send engagement letter → create compliance tasks → send welcome email with portal link. All automated.',
+        topbarBadge:'Builder',
+        content:'<div class="mock-card accent-blue"><h3>New Client Onboarding Workflow</h3><div style="font-size:12px"><div style="display:flex;align-items:center;gap:10px;padding:10px;border-left:3px solid #2563eb;margin-bottom:8px;background:#f8fafc;border-radius:0 6px 6px 0"><span style="font-weight:700;color:#2563eb">1</span><div><strong>Trigger:</strong> New client created<div style="font-size:10px;color:#64748b">Fires when any new entity is added</div></div></div><div style="display:flex;align-items:center;gap:10px;padding:10px;border-left:3px solid #7c3aed;margin-bottom:8px;background:#f8fafc;border-radius:0 6px 6px 0"><span style="font-weight:700;color:#7c3aed">2</span><div><strong>Create Compliance Tasks</strong><div style="font-size:10px;color:#64748b">Generate jurisdiction-specific deadlines</div></div></div><div style="display:flex;align-items:center;gap:10px;padding:10px;border-left:3px solid #d97706;margin-bottom:8px;background:#f8fafc;border-radius:0 6px 6px 0"><span style="font-weight:700;color:#d97706">3</span><div><strong>Send Engagement Letter</strong><div style="font-size:10px;color:#64748b">Email via DocuSign/e-signature with 7-day expiry</div></div></div><div style="display:flex;align-items:center;gap:10px;padding:10px;border-left:3px solid #16a34a;background:#f8fafc;border-radius:0 6px 6px 0"><span style="font-weight:700;color:#16a34a">4</span><div><strong>Send Welcome Email + Portal Link</strong><div style="font-size:10px;color:#64748b">Delay 24h, then send onboarding portal link with instructions</div></div></div></div></div>'
+      }
+    ]
+  },
+  // ── 8. BILLING & INVOICES ──────────────────────────────────────
+  {
+    id:'billing',icon:'💰',title:'Billing & Invoices',duration:'3:00',
+    scenes:[
+      {
+        title:'Billing Dashboard',
+        caption:'Track all revenue, invoices, and payments in one place. See total revenue YTD, outstanding amounts, paid-this-month, and collection rates. Stripe integration for online payments.',
+        topbarBadge:'Billing',
+        sidebar:'<div class="nav-label">Billing</div><div class="nav-item active">💰 Dashboard</div><div class="nav-item">📄 Invoices</div><div class="nav-item">💳 Payments</div><div class="nav-item">📊 Reports</div>',
+        content:'<div class="mock-stat-grid"><div class="mock-stat"><div class="val">$32.5K</div><div class="lbl">Revenue YTD</div></div><div class="mock-stat"><div class="val" style="color:#d97706">$5.7K</div><div class="lbl">Outstanding</div></div><div class="mock-stat"><div class="val" style="color:#16a34a">$8.1K</div><div class="lbl">Paid This Month</div></div><div class="mock-stat"><div class="val">88%</div><div class="lbl">Collection Rate</div></div></div><div class="mock-card"><table class="mock-table"><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Date</th><th>Status</th></tr><tr><td>INV-0042</td><td>Maple Tech</td><td>$2,500</td><td>Jun 1</td><td><span class="mock-badge green">Paid</span></td></tr><tr><td>INV-0043</td><td>Great Lakes</td><td>$1,200</td><td>Jun 5</td><td><span class="mock-badge red">Overdue</span></td></tr><tr><td>INV-0044</td><td>Pacific Ventures</td><td>$3,800</td><td>Jun 10</td><td><span class="mock-badge amber">Sent</span></td></tr></table></div>'
+      },
+      {
+        title:'Create & Send Invoices',
+        caption:'Create professional invoices in seconds. Select the client, describe the service, set the amount, and send. Stripe integration lets clients pay online by credit card. Invoice status updates automatically when payment is received.',
+        topbarBadge:'New Invoice',
+        content:'<div class="mock-card"><h3>Create Invoice</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px">Client</div><div class="mock-input">Maple Tech Holdings Inc.</div></div><div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px">Service Type</div><div class="mock-input">Annual Corporate Maintenance</div></div><div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px">Amount</div><div class="mock-input">$1,500.00</div></div><div><div style="font-size:10px;color:#94a3b8;margin-bottom:2px">Due Date</div><div class="mock-input">Jul 14, 2026</div></div></div><div style="margin-top:12px;display:flex;gap:8px"><span class="btn-mock">Create & Send Invoice</span><span style="font-size:11px;color:#64748b;padding:6px 14px;cursor:pointer">Save Draft</span></div></div><div class="mock-card"><h3>Payment History — Maple Tech</h3><table class="mock-table"><tr><th>Date</th><th>Invoice</th><th>Amount</th><th>Method</th></tr><tr><td>Jun 3, 2026</td><td>INV-0042</td><td>$2,500</td><td style="color:#2563eb">💳 Stripe</td></tr><tr><td>Apr 15, 2026</td><td>INV-0038</td><td>$1,800</td><td style="color:#64748b">🏦 E-Transfer</td></tr></table></div>'
+      }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// PLAYER ENGINE
+// ═══════════════════════════════════════════════════════════════════
+var currentWalkthrough = 0;
+var currentScene = 0;
+var isPlaying = false;
+var playTimer = null;
+var totalScenes = 0;
+
+// Count total scenes for progress
+(function(){
+  WALKTHROUGHS.forEach(function(w){
+    totalScenes += w.scenes.length;
+  });
+})();
+
+function init(){
+  var list = document.getElementById('chapterList');
+  WALKTHROUGHS.forEach(function(w,i){
+    var div = document.createElement('div');
+    div.className = 'chapter' + (i===0?' active':'');
+    div.innerHTML = '<span class="ch-num">'+(i+1)+'</span><div class="ch-info"><div class="ch-name">'+w.icon+' '+w.title+'</div><div class="ch-meta">'+w.duration+' · '+w.scenes.length+' steps</div></div>';
+    div.setAttribute('data-index', i);
+    div.onclick = function(){ loadWalkthrough(parseInt(this.getAttribute('data-index'))); };
+    list.appendChild(div);
+  });
+  loadWalkthrough(0);
+}
+
+function loadWalkthrough(idx){
+  if (idx === currentWalkthrough && currentScene !== undefined) return; // Already loaded
+  currentWalkthrough = idx;
+  currentScene = 0;
+  stopPlay();
+  document.querySelectorAll('.chapter').forEach(function(c,i){c.classList.toggle('active',i===idx);});
+  renderScene();
+}
+
+function renderScene(){
+  var w = WALKTHROUGHS[currentWalkthrough];
+  if (!w) return;
+  var s = w.scenes[currentScene];
+  if (!s) return;
+
+  // Top bar
+  document.getElementById('currentTitle').textContent = w.icon + ' ' + w.title;
+  document.getElementById('stepCounter').textContent = (currentScene+1) + ' / ' + w.scenes.length;
+
+  // Mock app
+  document.getElementById('mockTitle').textContent = s.title;
+  document.getElementById('mockBadge').textContent = s.topbarBadge || 'Demo';
+  document.getElementById('mockSidebar').innerHTML = s.sidebar || '';
+  document.getElementById('mockContent').innerHTML = s.content || '';
+  document.getElementById('capStep').textContent = (currentScene+1)+'/'+w.scenes.length;
+  document.getElementById('capText').textContent = s.caption || '';
+
+  // Progress dots
+  var dots = document.getElementById('progressDots');
+  dots.innerHTML = '';
+  w.scenes.forEach(function(_,i){
+    var dot = document.createElement('div');
+    dot.className = 'progress-dot';
+    if (i === currentScene) dot.classList.add('active');
+    if (i < currentScene) dot.classList.add('done');
+    (function(idx){ dot.onclick = function(){ currentScene=idx; stopPlay(); renderScene(); }; })(i);
+    dots.appendChild(dot);
+  });
+
+  // Hide CTA overlay during normal playback
+  document.getElementById('ctaOverlay').classList.remove('show');
+}
+
+function isLastScene(){
+  return currentWalkthrough === WALKTHROUGHS.length - 1 &&
+         currentScene === WALKTHROUGHS[currentWalkthrough].scenes.length - 1;
+}
+
+function nextScene(){
+  stopPlay();
+  var w = WALKTHROUGHS[currentWalkthrough];
+  if (currentScene < w.scenes.length - 1) {
+    currentScene++;
+  } else if (currentWalkthrough < WALKTHROUGHS.length - 1) {
+    // Move to next module, don't show CTA
+    currentWalkthrough++;
+    currentScene = 0;
+    document.querySelectorAll('.chapter').forEach(function(c,i){c.classList.toggle('active',i===currentWalkthrough);});
+  } else {
+    // Only show CTA at the very end of the last module
+    document.getElementById('ctaOverlay').classList.add('show');
+    return;
+  }
+  renderScene();
+}
+
+function prevScene(){
+  stopPlay();
+  if (currentScene > 0) {
+    currentScene--;
+  } else {
+    if (currentWalkthrough > 0) {
+      currentWalkthrough--;
+      currentScene = WALKTHROUGHS[currentWalkthrough].scenes.length - 1;
+      document.querySelectorAll('.chapter').forEach(function(c,i){c.classList.toggle('active',i===currentWalkthrough);});
+    }
+  }
+  document.getElementById('ctaOverlay').classList.remove('show');
+  renderScene();
+}
+
+function togglePlay(){
+  if (isPlaying) { stopPlay(); } else { startPlay(); }
+}
+
+function startPlay(){
+  isPlaying = true;
+  document.getElementById('playBtn').textContent = '⏸';
+  autoAdvance();
+}
+
+function stopPlay(){
+  isPlaying = false;
+  document.getElementById('playBtn').textContent = '▶';
+  if (playTimer) { clearTimeout(playTimer); playTimer = null; }
+}
+
+function autoAdvance(){
+  if (!isPlaying) return;
+  var w = WALKTHROUGHS[currentWalkthrough];
+  if (currentScene < w.scenes.length - 1) {
+    currentScene++;
+    renderScene();
+    playTimer = setTimeout(autoAdvance, 4500);
+  } else if (currentWalkthrough < WALKTHROUGHS.length - 1) {
+    // Auto-advance to next module
+    currentWalkthrough++;
+    currentScene = 0;
+    document.querySelectorAll('.chapter').forEach(function(c,i){c.classList.toggle('active',i===currentWalkthrough);});
+    renderScene();
+    playTimer = setTimeout(autoAdvance, 4500);
+  } else {
+    // Only show CTA at the very end of the last module
+    stopPlay();
+    document.getElementById('ctaOverlay').classList.add('show');
+  }
+}
+
+function openCTA(){
+  document.getElementById('ctaOverlay').classList.add('show');
+}
+
+function closeCTA(){
+  document.getElementById('ctaOverlay').classList.remove('show');
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',function(e){
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); nextScene(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevScene(); }
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+});
+
+// CTA only appears at the end of the LAST module (Billing & Invoices)
+// User can also open it anytime with the "Get Started" button
+// X button dismisses the overlay without interrupting the demo
+
+init();
+</script></body></html>

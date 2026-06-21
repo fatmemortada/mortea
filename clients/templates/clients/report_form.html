@@ -1,0 +1,29 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Report Content | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); display: flex; align-items: center; justify-content: center; }
+.container { max-width: 500px; margin: 0 auto; padding: 40px 24px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.sub { color: var(--ink-3); margin-bottom: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 28px 32px; box-shadow: var(--shadow); }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.field input, .field select, .field textarea { width: 100%; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 14px; border: 1.5px solid var(--border); border-radius: var(--radius); outline: none; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--brand); }
+.field textarea { resize: vertical; min-height: 80px; }
+.btn { width: 100%; padding: 13px; font-size: 15px; font-weight: 600; border-radius: var(--radius-full); border: none; background: var(--brand); color: #fff; cursor: pointer; }
+.btn:hover { background: var(--brand-dark); }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a></div></nav>
+<div class="page"><div class="container">
+<h1>Report Content</h1><p class="sub">Help us keep Mortea safe and trustworthy.</p>
+<div class="card"><form method="POST">{% csrf_token %}
+<div class="field"><label>What are you reporting? *</label><select name="report_type" required><option value="">Select…</option><option value="provider">Provider</option><option value="review">Review</option><option value="photo">Photo</option><option value="spam">Spam</option><option value="fake_review">Fake Review</option><option value="impersonation">Impersonation</option></select></div>
+{% if provider_id %}<div class="field" style="display:none"><input type="hidden" name="provider_id" value="{{ provider_id }}"></div>{% endif %}
+<div class="field"><label>Your name (optional)</label><input type="text" name="name"></div>
+<div class="field"><label>Your email (optional)</label><input type="email" name="email"></div>
+<div class="field"><label>Describe the issue *</label><textarea name="reason" placeholder="Please provide details…" required></textarea></div>
+<button type="submit" class="btn">Submit Report</button>
+</form></div></div></div></body></html>

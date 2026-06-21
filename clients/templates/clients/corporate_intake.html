@@ -1,0 +1,29 @@
+{% extends "clients/base.html" %}
+{% block title %}Corporate Intake — Mortacc{% endblock %}
+{% block nav_corporate %}active{% endblock %}
+{% block topbar_title %}New Corporate Intake{% endblock %}
+
+{% block content %}
+<div style="max-width:640px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title">Start a New Incorporation or Intake</span></div>
+        <div class="card-body">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px;">
+                <a href="{% url 'incorporation_wizard_start' %}" class="card" style="text-align:center;padding:24px;text-decoration:none;">
+                    <div style="font-size:24px;margin-bottom:8px;">🏢</div>
+                    <div style="font-weight:600;font-size:14px;color:var(--ink);">New Incorporation</div>
+                    <div style="font-size:12px;color:var(--ink-4);margin-top:4px;">Guided step-by-step incorporation wizard</div>
+                </a>
+                <a href="{% url 'intake_form_create' %}" class="card" style="text-align:center;padding:24px;text-decoration:none;">
+                    <div style="font-size:24px;margin-bottom:8px;">📋</div>
+                    <div style="font-weight:600;font-size:14px;color:var(--ink);">Client Intake Form</div>
+                    <div style="font-size:12px;color:var(--ink-4);margin-top:4px;">Send a digital intake form to a new client</div>
+                </a>
+            </div>
+            <div class="alert alert-info">
+                <strong>Need help?</strong> Use the <a href="{% url 'ai_assistant' %}">AI Assistant</a> to answer questions about incorporation requirements, jurisdiction selection, or document needs.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

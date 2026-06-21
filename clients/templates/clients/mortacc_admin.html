@@ -1,0 +1,241 @@
+{% extends "clients/base.html" %}
+{% block title %}Mortacc Admin — Platform Overview{% endblock %}
+{% block topbar_title %}Platform Admin{% endblock %}
+
+{% block extra_head %}
+<style>
+    .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .admin-stat {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 20px 22px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    }
+    .admin-stat .label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: var(--gray-500);
+        margin-bottom: 6px;
+    }
+    .admin-stat .value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--gray-900);
+        line-height: 1;
+    }
+    .admin-stat .sub {
+        font-size: 12px;
+        color: var(--gray-400);
+        margin-top: 4px;
+    }
+
+    .section-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        box-shadow: 0 2px 12px rgba(0,0,0,.05);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    .section-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .section-card-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--gray-900);
+    }
+    .section-card-count {
+        font-size: 12px;
+        color: var(--gray-500);
+        background: var(--gray-100);
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    .firms-table { width: 100%; border-collapse: collapse; }
+    .firms-table th {
+        padding: 10px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--gray-500);
+        border-bottom: 1px solid var(--gray-100);
+        background: var(--gray-50);
+    }
+    .firms-table td {
+        padding: 14px 16px;
+        font-size: 13px;
+        border-bottom: 1px solid var(--gray-100);
+        vertical-align: middle;
+    }
+    .firms-table tr:last-child td { border-bottom: none; }
+    .firms-table tr:hover td { background: var(--gray-50); }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-red { background: #fee2e2; color: #dc2626; }
+    .badge-blue { background: #dbeafe; color: #1d4ed8; }
+    .badge-amber { background: #fef3c7; color: #d97706; }
+    .badge-gray { background: var(--gray-100); color: var(--gray-500); }
+
+    .firm-name { font-weight: 600; color: var(--gray-900); }
+    .firm-code { font-size: 11px; color: var(--gray-400); font-family: monospace; }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .search-input {
+        flex: 1;
+        background: #fff;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 10px 14px;
+        font-size: 13px;
+        font-family: inherit;
+        outline: none;
+    }
+    .search-input:focus { border-color: var(--blue); }
+
+    .agreement-detail {
+        font-size: 12px;
+        color: var(--gray-400);
+    }
+    .no-data { padding: 40px; text-align: center; color: var(--gray-400); font-size: 13px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-stats">
+    <div class="admin-stat">
+        <div class="label">Total Firms</div>
+        <div class="value">{{ total_firms }}</div>
+        <div class="sub">Registered</div>
+    </div>
+    <div class="admin-stat">
+        <div class="label">Active Subscriptions</div>
+        <div class="value">{{ active_subscriptions }}</div>
+        <div class="sub">Paying customers</div>
+    </div>
+    <div class="admin-stat">
+        <div class="label">Agreements Signed</div>
+        <div class="value">{{ agreements_signed }}</div>
+        <div class="sub">Platform agreements</div>
+    </div>
+    <div class="admin-stat">
+        <div class="label">Total Clients</div>
+        <div class="value">{{ total_clients }}</div>
+        <div class="sub">Across all firms</div>
+    </div>
+    <div class="admin-stat">
+        <div class="label">Unsigned</div>
+        <div class="value" style="color:{% if unsigned_count > 0 %}#d97706{% else %}var(--gray-900){% endif %}">{{ unsigned_count }}</div>
+        <div class="sub">Pending agreement</div>
+    </div>
+</div>
+
+<div class="search-bar">
+    <input type="text" class="search-input" id="firmSearch" placeholder="Search firms by name, code, or email…" oninput="filterFirms()">
+</div>
+
+<div class="section-card">
+    <div class="section-card-header">
+        <div class="section-card-title">All Registered Firms</div>
+        <div class="section-card-count">{{ total_firms }} firms</div>
+    </div>
+    {% if rows %}
+    <table class="firms-table" id="firmsTable">
+        <thead>
+            <tr>
+                <th>Firm</th>
+                <th>Owner</th>
+                <th>Plan</th>
+                <th>Subscription</th>
+                <th>Platform Agreement</th>
+                <th>Clients</th>
+                <th>Registered</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>
+                    <div class="firm-name">{{ row.firm.name }}</div>
+                    <div class="firm-code">{{ row.firm.code }}</div>
+                </td>
+                <td>
+                    <div>{{ row.owner.get_full_name|default:row.owner.email }}</div>
+                    <div style="font-size:12px;color:var(--gray-400);">{{ row.owner.email }}</div>
+                </td>
+                <td>
+                    {% if row.bundle == "enterprise" %}
+                        <span class="badge badge-blue">Enterprise</span>
+                    {% elif row.bundle == "growth" %}
+                        <span class="badge badge-blue">Professional</span>
+                    {% else %}
+                        <span class="badge badge-gray">Starter</span>
+                    {% endif %}
+                    <div style="font-size:11px;color:var(--gray-400);margin-top:3px;">{{ row.billing_cycle|capfirst }}</div>
+                </td>
+                <td>
+                    {% if row.subscription_active %}
+                        <span class="badge badge-green">Active</span>
+                    {% else %}
+                        <span class="badge badge-red">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row.agreement %}
+                        <span class="badge badge-green">✓ Signed</span>
+                        <div class="agreement-detail">{{ row.agreement.signed_name }}<br>{{ row.agreement.signed_at|date:"M j, Y" }}</div>
+                    {% else %}
+                        <span class="badge badge-amber">Pending</span>
+                    {% endif %}
+                </td>
+                <td>{{ row.client_count }}</td>
+                <td style="font-size:12px;color:var(--gray-400);">{{ row.owner.date_joined|date:"M j, Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="no-data">No firms registered yet.</div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function filterFirms() {
+    const q = document.getElementById('firmSearch').value.toLowerCase();
+    document.querySelectorAll('#firmsTable tbody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

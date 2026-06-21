@@ -1,0 +1,38 @@
+{% extends "clients/base.html" %}
+{% block title %}Document Templates — {{ client.name }}{% endblock %}
+{% block topbar_title %}Document Templates{% endblock %}
+{% block content %}
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Select a template to generate a filled document</p></div></div>
+
+{% if built_in %}
+<div class="card mb-3"><div class="card-header"><span class="card-title">Built-in Templates</span></div><div class="card-body" style="display:grid;gap:8px">
+{% for t in built_in %}
+<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface-2);border-radius:8px;gap:12px">
+    <div><strong>{{ t.name }}</strong><div class="text-small text-muted">{{ t.description }}</div></div>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+        <a href="{% url 'template_fill' client.id t.id %}" class="btn btn-ghost btn-sm" target="_blank">Preview</a>
+        <a href="{% url 'template_fill' client.id t.id %}?format=pdf" class="btn btn-primary btn-sm">Download PDF</a>
+    </div>
+</div>
+{% endfor %}
+</div></div>
+{% endif %}
+
+{% if firm_templates %}
+<div class="card mb-3"><div class="card-header"><span class="card-title">Your Firm Templates</span></div><div class="card-body" style="display:grid;gap:8px">
+{% for t in firm_templates %}
+<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface-2);border-radius:8px">
+    <div><strong>{{ t.name }}</strong><div class="text-small text-muted">{{ t.description|default:t.get_category_display }}</div></div>
+    <div style="display:flex;gap:8px">
+        <a href="{% url 'template_fill' client.id t.id %}" class="btn btn-ghost btn-sm" target="_blank">Preview</a>
+        <a href="{% url 'template_fill' client.id t.id %}?format=pdf" class="btn btn-primary btn-sm">Download PDF</a>
+    </div>
+</div>
+{% endfor %}
+</div></div>
+{% endif %}
+
+{% if not built_in and not firm_templates %}
+<div class="empty-state"><p>No templates available.</p></div>
+{% endif %}
+{% endblock %}

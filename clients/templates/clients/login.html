@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — Mortacc</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --navy:#2f2a26; --blue:#b8956a; --gray-100:#f6f1ea; --gray-200:#e9dfd2;
+            --gray-300:#d8cab8; --gray-500:#7b6f64; --gray-700:#4b4037; --gray-900:#2f2a26;
+            --red:#dc2626; --red-light:#fee2e2;
+        }
+        body { font-family:'DM Sans',sans-serif; min-height:100vh; display:grid; grid-template-columns:1fr 1fr; }
+
+        .left-panel {
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: -100px; right: -100px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(96,165,250,.15) 0%, transparent 70%);
+        }
+
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -60px; left: -60px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(52,211,153,.1) 0%, transparent 70%);
+        }
+
+        .brand { margin-bottom: 48px; }
+        .wordmark { font-family:'DM Serif Display',serif; font-size:28px; color:#fff; }
+        .wordmark span { color: #d6b48a; }
+        .tagline { font-size:13px; color:rgba(255,255,255,.4); margin-top:4px; text-transform:uppercase; letter-spacing:.5px; }
+
+        .hero-text h1 { font-size:36px; font-weight:600; color:#fff; line-height:1.25; margin-bottom:16px; }
+        .hero-text h1 em { font-style:normal; color:#d6b48a; }
+        .hero-text p { font-size:15px; color:rgba(255,255,255,.55); line-height:1.7; max-width:380px; }
+
+        .feature-list { margin-top:40px; display:flex; flex-direction:column; gap:12px; }
+        .feature-item { display:flex; align-items:center; gap:12px; color:rgba(255,255,255,.7); font-size:14px; }
+        .feature-dot { width:6px; height:6px; border-radius:50%; background:#34d399; flex-shrink:0; }
+
+        .right-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 40px;
+            background: #fdfbf8;
+        }
+
+        .login-box { width:100%; max-width:400px; }
+        .login-box h2 { font-size:24px; font-weight:600; color:var(--gray-900); margin-bottom:6px; }
+        .login-box .sub { font-size:14px; color:var(--gray-500); margin-bottom:32px; }
+
+        .form-group { margin-bottom:16px; }
+        .form-label { display:block; font-size:13px; font-weight:500; color:var(--gray-700); margin-bottom:6px; }
+        .form-control { width:100%; padding:10px 14px; border:1.5px solid var(--gray-200); border-radius:8px; font-family:inherit; font-size:14px; color:var(--gray-900); background:#fff; outline:none; transition:border-color .15s, box-shadow .15s; }
+        .form-control:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+
+        .btn-submit { width:100%; padding:11px; background:var(--blue); color:#fff; border:none; border-radius:8px; font-family:inherit; font-size:15px; font-weight:500; cursor:pointer; transition:background .15s; margin-top:4px; }
+        .btn-submit:hover { background:#1d4ed8; }
+
+        .alt-links { margin-top:20px; display:flex; flex-direction:column; gap:8px; text-align:center; font-size:13px; color:var(--gray-500); }
+        .alt-links a { color:var(--blue); text-decoration:none; font-weight:500; }
+        .alt-links a:hover { text-decoration:underline; }
+
+        .error-box { background:var(--red-light); color:var(--red); padding:10px 14px; border-radius:8px; font-size:14px; margin-bottom:18px; border:1px solid #fecaca; }
+
+        .password-wrap { position:relative; }
+        .password-wrap .form-control { padding-right:44px; }
+        .toggle-pw { position:absolute; top:50%; right:12px; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--gray-500); font-size:16px; padding:2px; }
+
+        @media (max-width:768px) {
+            body { grid-template-columns:1fr; }
+            .left-panel { display:none; }
+            .right-panel { padding:40px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="left-panel">
+    <div class="brand">
+        <div class="wordmark">Mort<span>acc</span></div>
+        <div class="tagline">Practice Management</div>
+    </div>
+    <div class="hero-text">
+        <h1>Your firm,<br><em>fully organized.</em></h1>
+        <p>Onboard clients, collect documents, and manage your entire practice — all in one secure platform.</p>
+    </div>
+    <div class="feature-list">
+        <div class="feature-item"><div class="feature-dot"></div>Secure client onboarding portal</div>
+        <div class="feature-item"><div class="feature-dot"></div>Automated email notifications</div>
+        <div class="feature-item"><div class="feature-dot"></div>Document collection &amp; review</div>
+        <div class="feature-item"><div class="feature-dot"></div>Designed for Canadian accounting firms</div>
+    </div>
+</div>
+
+<div class="right-panel">
+    <div class="login-box">
+        <h2>Welcome back</h2>
+        <p class="sub">Sign in to your firm workspace</p>
+
+        {% if error_message %}
+        <div class="error-box">{{ error_message }}</div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Email address</label>
+                <input type="email" name="username" class="form-control" placeholder="you@firm.com" required autofocus>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="password-wrap">
+                    <input type="password" name="password" id="pw" class="form-control" placeholder="••••••••" required>
+                    <button type="button" class="toggle-pw" onclick="togglePw()">👁</button>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">Sign In</button>
+        </form>
+
+        <div class="alt-links">
+            <div>Don't have an account? <a href="{% url 'accountant_signup' %}">Create one free</a></div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePw() {
+    const pw = document.getElementById('pw');
+    pw.type = pw.type === 'password' ? 'text' : 'password';
+}
+</script>
+</body>
+</html>

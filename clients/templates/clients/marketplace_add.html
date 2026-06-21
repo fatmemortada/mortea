@@ -1,0 +1,19 @@
+{% extends "clients/base.html" %}{% block title %}List Service — Mortacc{% endblock %}{% block topbar_title %}List Your Services{% endblock %}{% block content %}
+<div style="max-width:600px"><div class="card"><div class="card-header"><span class="card-title">Add Service Listing</span></div><div class="card-body">
+<form method="POST">{% csrf_token %}
+<div class="form-group"><label class="form-label">Business/Provider Name *</label><input type="text" name="name" class="form-control" required></div>
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Category *</label><select name="category" class="form-control" required>{% for k,v in categories %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></div>
+<div class="form-group"><label class="form-label">Jurisdictions</label><div style="display:flex;flex-wrap:wrap;gap:8px;padding-top:6px">{% for k,v in jurisdictions %}<label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" name="jurisdictions" value="{{ k }}">{{ v }}</label>{% endfor %}</div></div>
+</div>
+<div class="form-group"><label class="form-label">Description *</label><textarea name="description" class="form-control" required rows="3"></textarea></div>
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Email *</label><input type="email" name="email" class="form-control" required></div>
+<div class="form-group"><label class="form-label">Phone</label><input type="text" name="phone" class="form-control"></div>
+<div class="form-group"><label class="form-label">Website</label><input type="url" name="website" class="form-control"></div>
+<div class="form-group"><label class="form-label">City</label><input type="text" name="city" class="form-control"></div>
+<div class="form-group"><label class="form-label">Province</label><input type="text" name="province" class="form-control"></div>
+<div class="form-group"><label class="form-label">Rate</label><input type="text" name="hourly_rate" class="form-control" placeholder="$150-300/hr"></div>
+</div>
+<button type="submit" class="btn btn-primary">List Service</button>
+</form></div></div></div>{% endblock %}

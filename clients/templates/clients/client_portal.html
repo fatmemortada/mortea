@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Portal — Mortacc</title>
+    <style>
+        :root{
+            --navy:#2f2a26;
+            --blue:#b8956a;
+            --blue-soft:#f8f2ea;
+            --bg:#fdfbf8;
+            --card:#ffffff;
+            --border:#e9dfd2;
+            --text:#2f2a26;
+            --muted:#7b6f64;
+            --green:#16a34a;
+            --green-soft:#ecfdf5;
+            --amber:#d97706;
+            --amber-soft:#fff7ed;
+            --red:#ef4444;
+            --shadow:0 10px 30px rgba(15,23,42,.06);
+        }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);}
+        .topbar{background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;}
+        .topbar-inner{max-width:1100px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+        .logo{font-size:28px;font-weight:700;color:var(--text);text-decoration:none;}
+        .logo span{color:var(--blue);}
+        .topbar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+        .topbar-email{font-size:13px;color:var(--muted);}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;border:none;cursor:pointer;}
+        .btn-primary{background:var(--blue);color:#fff;}
+        .btn-ghost{background:#fff;color:var(--text);border:1px solid var(--border);}
+        .btn-sm{padding:6px 12px;font-size:13px;}
+        .wrap{max-width:1100px;margin:28px auto;padding:0 24px 60px;}
+        .hero{background:linear-gradient(135deg,#2f2a26 0%,#1e3a8a 100%);border-radius:20px;padding:28px;color:#fff;box-shadow:var(--shadow);margin-bottom:24px;}
+        .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;}
+        .hero h1{margin:0 0 8px;font-size:30px;}
+        .hero p{margin:0;color:#d8cab8;line-height:1.6;}
+        .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid transparent;white-space:nowrap;}
+        .pill.ok{background:var(--green-soft);color:var(--green);border-color:#bbf7d0;}
+        .pill.progress{background:var(--amber-soft);color:var(--amber);border-color:#fed7aa;}
+        .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px;}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:22px;}
+        .col-4{grid-column:span 4;}
+        .col-8{grid-column:span 8;}
+        .col-12{grid-column:span 12;}
+        .section-title{margin:0 0 16px;font-size:18px;font-weight:800;}
+        .meta-list{display:grid;gap:14px;}
+        .meta-row{display:flex;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+        .meta-row:last-child{border-bottom:none;padding-bottom:0;}
+        .meta-label{color:var(--muted);font-size:13px;font-weight:700;min-width:120px;}
+        .meta-value{text-align:right;font-size:14px;}
+        .progress-wrap{display:grid;gap:14px;}
+        .progress-step{display:flex;align-items:flex-start;gap:12px;}
+        .progress-dot{width:28px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;margin-top:2px;}
+        .progress-dot.done{background:var(--green-soft);color:var(--green);border:1px solid #bbf7d0;}
+        .progress-dot.pending{background:#fff;color:var(--muted);border:1px solid var(--border);}
+        .progress-content h3{margin:0 0 4px;font-size:15px;}
+        .progress-content p{margin:0;color:var(--muted);font-size:13px;line-height:1.55;}
+        .engagement-box{border:1px solid var(--border);border-radius:14px;background:#fff;padding:18px;max-height:540px;overflow:auto;}
+        .engagement-meta{margin-bottom:14px;color:var(--muted);font-size:13px;}
+        .helper{color:var(--muted);font-size:14px;line-height:1.65;}
+        .empty{border:1px dashed var(--border);border-radius:14px;padding:22px;text-align:center;color:var(--muted);background:#fff;}
+
+        /* Bookkeeping */
+        .bk-month{border:1px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:hidden;}
+        .bk-month-header{background:#fdfbf8;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);}
+        .bk-month-title{font-weight:700;font-size:15px;}
+        .bk-status{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;}
+        .bk-status.not_started{background:#f6f1ea;color:#7b6f64;}
+        .bk-status.documents_requested{background:#fef3c7;color:#92400e;}
+        .bk-status.documents_received{background:#dbeafe;color:#1d4ed8;}
+        .bk-status.in_progress{background:#fef9c3;color:#854d0e;}
+        .bk-status.completed{background:#dcfce7;color:#15803d;}
+        .bk-month-body{padding:16px 18px;}
+        .bk-docs-list{margin-bottom:14px;}
+        .bk-doc-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #f6f1ea;font-size:13px;}
+        .bk-doc-row:last-child{border-bottom:none;}
+        .bk-doc-name{color:var(--blue);text-decoration:none;font-weight:500;}
+        .bk-doc-cat{font-size:11px;color:var(--muted);background:#f6f1ea;padding:2px 8px;border-radius:99px;}
+        .bk-doc-by{font-size:11px;color:var(--muted);}
+        .upload-form{background:#fdfbf8;border:1px dashed var(--border);border-radius:10px;padding:14px;}
+        .upload-form-title{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;}
+        .upload-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;}
+        select,input[type=file],input[type=text],input[type=email]{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;color:var(--text);background:#fff;outline:none;}
+        select:focus,input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08);}
+        label.form-label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px;}
+
+        /* Tasks */
+        .task-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+        .task-row:last-child{border-bottom:none;}
+        .task-icon{width:32px;height:32px;border-radius:8px;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+        .task-title{font-weight:600;font-size:14px;margin-bottom:3px;}
+        .task-desc{font-size:13px;color:var(--muted);}
+        .task-due{font-size:12px;margin-top:4px;}
+        .task-due.overdue{color:var(--red);font-weight:600;}
+        .task-due.ok{color:var(--muted);}
+
+        @media(max-width:900px){
+            .col-4,.col-8,.col-12{grid-column:span 12;}
+            .meta-row{flex-direction:column;}
+            .meta-value{text-align:left;}
+            .upload-row{grid-template-columns:1fr;}
+        }
+        .doc-link-row{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;text-decoration:none;color:var(--text);transition:border-color .15s,background .15s;}
+        .doc-link-row:hover{border-color:#93c5fd;background:#f8f2ea;}
+        .doc-icon{font-size:16px;flex-shrink:0;}
+        .doc-name{flex:1;font-size:13.5px;font-weight:600;}
+        .doc-dl{font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-soft);padding:4px 10px;border-radius:6px;white-space:nowrap;flex-shrink:0;}
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-inner">
+        <a href="/" class="logo">Mort<span>acc</span></a>
+        <div class="topbar-right">
+            <div class="topbar-email">{{ client.email }}</div>
+            <a href="/logout/" class="btn btn-ghost">Logout</a>
+        </div>
+    </div>
+</div>
+
+<div class="wrap">
+
+    <div class="hero">
+        <div class="hero-top">
+            <div>
+                <h1>Welcome, {{ client.name }}</h1>
+                <p>Track your file, upload your bookkeeping documents, and stay updated on your account status.</p>
+            </div>
+            {% if client.status == "completed" %}
+                <div class="pill ok">✓ Completed</div>
+            {% else %}
+                <div class="pill progress">In Progress</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid">
+
+        <!-- Client Details -->
+        <div class="card col-4">
+            <h2 class="section-title">Client Details</h2>
+            <div class="meta-list">
+                <div class="meta-row">
+                    <div class="meta-label">Name</div>
+                    <div class="meta-value">{{ client.name }}</div>
+                </div>
+                <div class="meta-row">
+                    <div class="meta-label">Email</div>
+                    <div class="meta-value">{{ client.email }}</div>
+                </div>
+                <div class="meta-row">
+                    <div class="meta-label">Phone</div>
+                    <div class="meta-value">{{ client.phone|default:"Not provided" }}</div>
+                </div>
+                <div class="meta-row">
+                    <div class="meta-label">Client ID</div>
+                    <div class="meta-value">{{ client.client_token }}</div>
+                </div>
+                <div class="meta-row">
+                    <div class="meta-label">Status</div>
+                    <div class="meta-value">{{ client.get_status_display }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="card col-8">
+            <h2 class="section-title">Progress</h2>
+            <div class="progress-wrap">
+                <div class="progress-step">
+                    <div class="progress-dot done">✓</div>
+                    <div class="progress-content">
+                        <h3>Portal Access Created</h3>
+                        <p>Your client portal is active and ready to use.</p>
+                    </div>
+                </div>
+                <div class="progress-step">
+                    <div class="progress-dot {% if engagement %}done{% else %}pending{% endif %}">
+                        {% if engagement %}✓{% else %}2{% endif %}
+                    </div>
+                    <div class="progress-content">
+                        <h3>Engagement Letter</h3>
+                        <p>{% if engagement %}Signed on {{ engagement.signed_at|date:"F j, Y" }}.{% else %}Waiting for engagement letter completion.{% endif %}</p>
+                    </div>
+                </div>
+                <div class="progress-step">
+                    <div class="progress-dot {% if client.status == 'completed' %}done{% else %}pending{% endif %}">
+                        {% if client.status == 'completed' %}✓{% else %}3{% endif %}
+                    </div>
+                    <div class="progress-content">
+                        <h3>File Processing</h3>
+                        <p>{% if client.status == 'completed' %}Your file has been completed.{% else %}Your file is currently being reviewed and processed.{% endif %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Required Tasks -->
+        {% if visible_tasks %}
+        <div class="card col-12">
+            <h2 class="section-title">⚡ Action Required</h2>
+            {% for task in visible_tasks %}
+            <div class="task-row">
+                <div class="task-icon">📋</div>
+                <div>
+                    <div class="task-title">{{ task.title }}</div>
+                    {% if task.description %}<div class="task-desc">{{ task.description }}</div>{% endif %}
+                    {% if task.due_date %}
+                    <div class="task-due {% if task.due_date < today %}overdue{% else %}ok{% endif %}">
+                        Due: {{ task.due_date|date:"F j, Y" }}
+                        {% if task.due_date < today %} — Overdue ⚠️{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Bookkeeping -->
+        {% if bookkeeping_tasks %}
+        <div class="card col-12">
+            <h2 class="section-title">📒 Bookkeeping Documents</h2>
+            <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">Upload your monthly bank statements, receipts, and other documents for each period below.</p>
+
+            {% for task in bookkeeping_tasks %}
+            <div class="bk-month">
+                <div class="bk-month-header">
+                    <div class="bk-month-title">{{ task.month }} {{ task.year }}</div>
+                    <span class="bk-status {{ task.status }}">
+                        {% if task.status == "not_started" %}Not Started
+                        {% elif task.status == "documents_requested" %}Documents Requested
+                        {% elif task.status == "documents_received" %}Documents Received
+                        {% elif task.status == "in_progress" %}In Progress
+                        {% elif task.status == "completed" %}✓ Completed
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="bk-month-body">
+
+                    {% if task.documents.all %}
+                    <div class="bk-docs-list">
+                        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;">UPLOADED DOCUMENTS</div>
+                        {% for doc in task.documents.all %}
+                        <div class="bk-doc-row">
+                            📄
+                            <a href="{{ doc.file.url }}" target="_blank" class="bk-doc-name">{{ doc.document_name }}</a>
+                            <span class="bk-doc-cat">{{ doc.get_category_display }}</span>
+                            <span class="bk-doc-by">by {{ doc.uploaded_by }}</span>
+                            <span style="font-size:11px;color:var(--muted);">{{ doc.uploaded_at|date:"M d" }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if task.status != "completed" %}
+                    <div class="upload-form">
+                        <div class="upload-form-title">Upload a document for {{ task.month }} {{ task.year }}</div>
+                        <form method="post" enctype="multipart/form-data" action="/client/portal/">
+                            {% csrf_token %}
+                            <input type="hidden" name="upload_bk_doc" value="1">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <div class="upload-row">
+                                <div>
+                                    <label class="form-label">Category</label>
+                                    <select name="bk_category">
+                                        <option value="bank_statement">Bank Statement</option>
+                                        <option value="credit_card">Credit Card Statement</option>
+                                        <option value="receipts">Receipts</option>
+                                        <option value="invoices">Invoices</option>
+                                        <option value="payroll">Payroll</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">File</label>
+                                    <input type="file" name="bk_file" required>
+                                </div>
+                                <div style="padding-top:20px;">
+                                    <button type="submit" class="btn btn-primary btn-sm">Upload</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    {% else %}
+                    <p style="font-size:13px;color:var(--green);font-weight:600;">✓ This month has been completed by your accountant.</p>
+                    {% endif %}
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Corporate Minute Book — Individual Documents -->
+        {% if corporate_profile %}{% with corp=corporate_profile %}
+        <div class="card col-12" style="border-color:#bae6fd;">
+            <h2 class="section-title" style="margin-bottom:4px;">📁 Corporate Minute Book</h2>
+            <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">Your corporate documents are ready to download individually.</p>
+
+            <!-- Registers -->
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px;">Registers</div>
+            <div style="display:grid;gap:8px;margin-bottom:20px;">
+                <a href="{% url 'pdf_directors_register' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Directors Register</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                <a href="{% url 'pdf_shareholders_register' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Shareholders Register</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                <a href="{% url 'pdf_officers_register' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Officers Register</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                <a href="{% url 'pdf_central_securities_register' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Central Securities Register</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                <a href="{% url 'pdf_shareholder_ledger' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Shareholder Ledger</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                <a href="{% url 'pdf_share_transfer_register' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Register of Share Transfers</span><span class="doc-dl">↓ PDF</span>
+                </a>
+            </div>
+
+            <!-- Resolutions & By-Laws -->
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px;">Resolutions & By-Laws</div>
+            <div style="display:grid;gap:8px;margin-bottom:20px;">
+                <a href="{% url 'pdf_directors_resolutions' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Organizational Resolutions of Directors</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                <a href="{% url 'pdf_shareholders_resolutions' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Organizational Resolutions of Shareholders</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                <a href="{% url 'pdf_banking_resolution' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Banking Resolution</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                <a href="{% url 'pdf_bylaw_no1' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">General By-Law No. 1</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                <a href="{% url 'pdf_waiver_notice_directors' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Waiver of Notice — Directors</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                <a href="{% url 'pdf_waiver_notice_shareholders' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Waiver of Notice — Shareholders</span><span class="doc-dl">↓ PDF</span>
+                </a>
+            </div>
+
+            <!-- Share Documents -->
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px;">Share Documents</div>
+            <div style="display:grid;gap:8px;margin-bottom:20px;">
+                <a href="{% url 'pdf_subscription_for_shares' client.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Subscription for Shares</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                {% for sh in client.shareholders.all %}
+                <a href="{% url 'pdf_share_certificate' client.id sh.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Share Certificate — {{ sh.full_name }}</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                {% endfor %}
+            </div>
+
+            <!-- Per-Person Documents -->
+            {% if client.directors.exists %}
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px;">Director Documents</div>
+            <div style="display:grid;gap:8px;">
+                {% for d in client.directors.all %}
+                <a href="{% url 'pdf_consent_director' client.id d.id %}" target="_blank" class="doc-link-row">
+                    <span class="doc-icon">📄</span><span class="doc-name">Consent to Act as Director — {{ d.full_name }}</span><span class="doc-dl">↓ PDF</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+        {% endwith %}{% endif %}
+
+        <!-- Invoices -->
+        {% if invoices %}
+        <div class="card col-12">
+            <h2 class="section-title">💳 Your Invoices</h2>
+            <div style="display:grid;gap:10px;">
+                {% for inv in invoices %}
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:#fff;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0;">
+                        <div style="font-size:22px;flex-shrink:0;">🧾</div>
+                        <div>
+                            <div style="font-weight:700;font-size:14px;">{{ inv.description|truncatechars:60 }}</div>
+                            <div style="font-size:12px;color:var(--muted);margin-top:2px;">
+                                Invoice #{{ inv.invoice_number|default:"—" }}
+                                &nbsp;·&nbsp; {{ inv.invoice_date|date:"M j, Y" }}
+                                {% if inv.due_date %}&nbsp;·&nbsp; Due {{ inv.due_date|date:"M j, Y" }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;flex-shrink:0;">
+                        <div style="font-size:16px;font-weight:800;color:var(--text);">${{ inv.amount }}</div>
+                        {% if inv.status == 'paid' %}
+                            <span style="background:#dcfce7;color:#16a34a;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;">✓ Paid</span>
+                        {% elif inv.status == 'overdue' %}
+                            <span style="background:#fee2e2;color:#dc2626;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;">Overdue</span>
+                        {% else %}
+                            <span style="background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;">Sent</span>
+                        {% endif %}
+                        <a href="{% url 'pdf_invoice' client.id inv.id %}" target="_blank"
+                           style="background:var(--blue-soft);color:var(--blue);font-size:12px;font-weight:700;padding:6px 12px;border-radius:8px;text-decoration:none;white-space:nowrap;">
+                            ↓ PDF
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Engagement Letter -->
+        <div class="card col-12">
+            <h2 class="section-title">Signed Engagement Letter</h2>
+            {% if engagement %}
+                <div class="engagement-meta">Signed by <strong>{{ engagement.full_name }}</strong> on {{ engagement.signed_at|date:"F j, Y" }}</div>
+                <div class="engagement-box">{{ engagement.content_html|safe }}</div>
+            {% else %}
+                <div class="empty">No signed engagement letter is available yet.</div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "clients/base.html" %}{% block title %}Due Diligence — {{ client.name }}{% endblock %}{% block topbar_title %}Acquisition Due Diligence Room{% endblock %}{% block content %}<div style="max-width:760px">
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Secure due diligence room — checklist tracking and deficiency management</p></div></div>
+
+{% if projects %}
+{% for proj in projects %}
+<div class="card mb-3"><div class="card-header"><span class="card-title">{{ proj.title }}</span><span class="text-small text-muted">Created {{ proj.created_at|date:"M d, Y" }}</span></div>
+<div class="card-body">
+{% if proj.checklist_items.all %}
+<table><thead><tr><th>Item</th><th>Category</th><th>Status</th></tr></thead><tbody>
+{% for item in proj.checklist_items.all %}
+<tr><td>{{ item.item }}</td><td>{{ item.category }}</td><td><span class="badge {% if item.status == 'complete' %}badge-completed{% elif item.status == 'received' %}badge-in-progress{% elif item.status == 'deficient' %}badge-needs-attention{% else %}badge-not-started{% endif %}">{{ item.get_status_display }}</span></td></tr>
+{% endfor %}
+</tbody></table>
+{% endif %}
+</div></div>
+{% endfor %}
+{% else %}
+<div class="empty-state"><p>No due diligence projects yet. Create one from the client detail page.</p></div>
+{% endif %}
+</div>{% endblock %}

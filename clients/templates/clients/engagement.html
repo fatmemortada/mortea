@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corporate Services — Engagement Letter | Mortacc Solutions Inc.</title>
+    <meta name="description" content="Read and sign the Mortacc Solutions Inc. engagement letter for corporate incorporation services.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --navy:#0a0f1e; --blue:#3b82f6; --blue-2:#b8956a;
+            --white:#fff; --light:#fdfbf8; --border:#e9dfd2;
+            --text:#1e293b; --text-2:#475569; --text-3:#94a3b8;
+            --green:#22c55e; --green-bg:#f0fdf4; --blue-bg:#f8f2ea;
+            --red:#ef4444;
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Sora', sans-serif; background: var(--light); color: var(--text); overflow-x: hidden; }
+
+        nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 40px; display: flex; align-items: center; justify-content: space-between; background: rgba(10,15,30,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .nav-logo { font-family: 'DM Serif Display', serif; font-size: 22px; color: #fff; text-decoration: none; }
+        .nav-logo span { color: var(--blue); }
+        .nav-back { color: #94a3b8; text-decoration: none; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; transition: color 0.2s; }
+        .nav-back:hover { color: #fff; }
+
+        .page-wrap { max-width: 860px; margin: 0 auto; padding: 100px 24px 60px; }
+
+        .steps-bar { display: flex; align-items: center; gap: 0; margin-bottom: 40px; }
+        .step-item { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; }
+        .step-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+        .step-item.active .step-num { background: linear-gradient(135deg,#c7a27c,#b58b63); color: #fff; }
+        .step-item.inactive .step-num { background: var(--border); color: var(--text-3); }
+        .step-item.done .step-num { background: var(--green); color: #fff; }
+        .step-item.active .step-label { color: var(--text); }
+        .step-item.inactive .step-label { color: var(--text-3); }
+        .step-item.done .step-label { color: var(--green); }
+        .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 12px; }
+        .step-line.done { background: var(--green); }
+
+        .doc-card { background: var(--white); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+
+        .letter-header { background: var(--navy); padding: 32px 48px; }
+        .letter-header-inner { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+        .lh-logo { font-family: 'DM Serif Display', serif; font-size: 28px; color: #fff; margin-bottom: 8px; }
+        .lh-logo span { color: var(--blue); }
+        .lh-company { font-size: 13px; color: #94a3b8; font-weight: 500; }
+        .lh-address { font-size: 12px; color: #7b6f64; margin-top: 4px; line-height: 1.6; }
+        .lh-right { text-align: right; }
+        .lh-doc-type { font-size: 11px; font-weight: 700; color: #7b6f64; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 6px; }
+        .lh-doc-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #fff; line-height: 1.2; }
+        .lh-doc-title-fr { font-family: 'DM Serif Display', serif; font-size: 16px; color: #94a3b8; font-style: italic; margin-top: 4px; }
+        .lh-date { font-size: 12px; color: #7b6f64; margin-top: 8px; }
+        .letter-divider { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 24px 0 0; }
+
+        .scroll-notice { background: var(--blue-bg); border-bottom: 1px solid #bfdbfe; padding: 10px 48px; font-size: 12px; color: var(--blue); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .letter-text-wrap { padding: 40px 48px; max-height: 580px; overflow-y: auto; border-bottom: 1px solid var(--border); }
+        .letter-text-wrap::-webkit-scrollbar { width: 5px; }
+        .letter-text-wrap::-webkit-scrollbar-thumb { background: #d8cab8; border-radius: 3px; }
+
+        .letter-body-text { font-family: 'EB Garamond', Georgia, serif; font-size: 15px; color: var(--text); line-height: 1.9; }
+        .letter-date-line { text-align: right; color: var(--text-2); margin-bottom: 32px; font-size: 14px; }
+        .letter-parties { background: var(--light); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; margin-bottom: 28px; font-size: 14px; }
+        .letter-parties strong { color: var(--text); }
+        .letter-parties .party-row { display: flex; gap: 12px; margin-bottom: 8px; }
+        .letter-parties .party-row:last-child { margin-bottom: 0; }
+        .party-label { font-weight: 600; color: var(--text-3); min-width: 80px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding-top: 2px; }
+        .letter-section { margin-bottom: 28px; }
+        .letter-section h3 { font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-3); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .letter-section h3 .fr { font-size: 11px; font-style: italic; color: var(--text-3); margin-left: 8px; font-weight: 400; text-transform: none; letter-spacing: 0; }
+        .letter-section p { margin-bottom: 12px; }
+        .letter-section p:last-child { margin-bottom: 0; }
+        .letter-section ul { margin: 8px 0 12px 20px; }
+        .letter-section ul li { margin-bottom: 6px; }
+        .fee-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-family: 'Sora', sans-serif; font-size: 13px; }
+        .fee-table th { background: var(--light); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-3); border-bottom: 2px solid var(--border); }
+        .fee-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text-2); }
+        .fee-table tr:last-child td { border-bottom: none; }
+        .disbursements-note { font-family: 'Sora', sans-serif; font-size: 12px; color: var(--text-3); font-style: italic; margin-top: 8px; }
+        .lang-divider { text-align: center; color: var(--text-3); font-size: 13px; margin: 36px 0; display: flex; align-items: center; gap: 12px; }
+        .lang-divider::before, .lang-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .signature-line { border-top: 1px solid var(--text); width: 260px; margin-top: 40px; padding-top: 6px; font-size: 12px; color: var(--text-2); }
+
+        .sign-section { padding: 36px 48px; background: var(--light); border-top: 1px solid var(--border); }
+        .sign-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .sign-sub { font-size: 13px; color: var(--text-2); margin-bottom: 24px; }
+        .sign-form { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+        .fg { display: flex; flex-direction: column; gap: 6px; }
+        .fl { font-size: 11px; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px; }
+        .fl span { color: var(--red); }
+        .fi { background: var(--white); border: 1.5px solid var(--border); border-radius: 20px; padding: 12px 14px; font-size: 14px; color: var(--text); font-family: 'Sora', sans-serif; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+        .fi:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .fi::placeholder { color: var(--text-3); }
+        .agree-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; cursor: pointer; }
+        .agree-row input { width: 18px; height: 18px; accent-color: var(--blue); margin-top: 2px; cursor: pointer; flex-shrink: 0; }
+        .agree-lbl { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+        .agree-lbl strong { color: var(--text); }
+        .btn-sign { width: 100%; background: linear-gradient(135deg,#c7a27c,#b58b63); color: #fff; border: none; border-radius: 24px; padding: 16px; font-size: 16px; font-weight: 700; font-family: 'Sora', sans-serif; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(59,130,246,0.3); display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-sign:hover:not(:disabled) { background: var(--blue-2); transform: translateY(-2px); }
+        .btn-sign:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+        .sign-note { text-align: center; font-size: 11px; color: var(--text-3); margin-top: 12px; }
+        .letter-footer { padding: 20px 48px; background: var(--navy); border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+        .lf-company { font-size: 12px; color: #7b6f64; }
+        .lf-company strong { color: #94a3b8; }
+        .lf-page { font-size: 11px; color: #475569; }
+
+        .intake-wrap { display: none; }
+        .intake-header { background: var(--navy); padding: 28px 48px; }
+        .intake-header-inner { display: flex; align-items: center; gap: 16px; }
+        .intake-title { font-family: 'DM Serif Display', serif; font-size: 22px; color: #fff; }
+        .intake-sub { font-size: 13px; color: #7b6f64; margin-top: 4px; }
+        .intake-body { padding: 40px 48px; }
+        .f-section { font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 1.5px; margin: 32px 0 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+        .f-section:first-child { margin-top: 0; }
+        .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .fi-sel { appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; }
+        .company-type-row { display: flex; gap: 12px; margin-bottom: 16px; }
+        .type-option { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border: 1.5px solid var(--border); border-radius: 20px; cursor: pointer; flex: 1; transition: border-color 0.2s, background 0.2s; }
+        .type-option:hover { border-color: var(--blue); background: var(--blue-bg); }
+        .type-option input { accent-color: var(--blue); width: 16px; height: 16px; }
+        .type-option-title { font-size: 14px; font-weight: 600; color: var(--text); }
+        .type-option-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+        .qc-notice { background: #fefce8; border: 1px solid #fde047; border-radius: 20px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #713f12; }
+        .btn-submit { width: 100%; background: linear-gradient(135deg,#c7a27c,#b58b63); color: #fff; border: none; border-radius: 24px; padding: 16px; font-size: 16px; font-weight: 700; font-family: 'Sora', sans-serif; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(59,130,246,0.3); margin-top: 8px; }
+        .btn-submit:hover:not(:disabled) { background: var(--blue-2); transform: translateY(-2px); }
+        .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .page-footer { background: var(--navy); padding: 28px 40px; margin-top: 48px; }
+        .page-footer-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+        .pf-logo { font-family: 'DM Serif Display', serif; font-size: 18px; color: #fff; text-decoration: none; }
+        .pf-logo span { color: var(--blue); }
+        .pf-info { font-size: 12px; color: #475569; text-align: right; }
+
+        @media (max-width: 640px) {
+            nav { padding: 14px 16px; }
+            .page-wrap { padding: 80px 12px 40px; }
+            .letter-header, .scroll-notice, .letter-text-wrap, .sign-section, .letter-footer, .intake-header, .intake-body { padding-left: 20px; padding-right: 20px; }
+            .sign-form, .f-row { grid-template-columns: 1fr; }
+            .company-type-row { flex-direction: column; }
+            .letter-header-inner { flex-direction: column; }
+            .lh-right { text-align: left; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="nav-logo">Mort<span>acc</span></a>
+    <a href="/corporate/" class="nav-back">← Back to Corporate Services</a>
+</nav>
+
+<div class="page-wrap">
+    <div class="steps-bar" id="steps-bar">
+        <div class="step-item active" id="step1-item">
+            <div class="step-num">1</div>
+            <div class="step-label">Engagement Letter</div>
+        </div>
+        <div class="step-line" id="step-line-1"></div>
+        <div class="step-item inactive" id="step2-item">
+            <div class="step-num">2</div>
+            <div class="step-label">Intake Form</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item inactive" id="step3-item">
+            <div class="step-num">3</div>
+            <div class="step-label">Submitted</div>
+        </div>
+    </div>
+
+    <div class="doc-card" id="engagement-wrap">
+        <div class="letter-header">
+            <div class="letter-header-inner">
+                <div class="lh-left">
+                    <div class="lh-logo">Mort<span>acc</span></div>
+                    <div class="lh-company">Mortacc Solutions Inc.</div>
+                    <div class="lh-address">
+                        1110 Elizabeth St<br>
+                        Sharbot Lake, ON K0H 2P0<br>
+                        support@mortacc.com · mortacc.com
+                    </div>
+                </div>
+                <div class="lh-right">
+                    <div class="lh-doc-type">Engagement Letter / Lettre de mandat</div>
+                    <div class="lh-doc-title">Corporate Services</div>
+                    <div class="lh-doc-title-fr">Services aux entreprises</div>
+                    <div class="lh-date" id="letter-date"></div>
+                </div>
+            </div>
+            <hr class="letter-divider">
+        </div>
+
+        <div class="scroll-notice">
+            ↓ Please scroll to read the complete engagement letter before signing · Veuillez faire défiler pour lire la lettre de mandat complète avant de signer
+        </div>
+
+        <div id="engagement-letter-content">
+            <div class="letter-text-wrap">
+                <div class="letter-body-text">
+                    <div class="letter-date-line" id="letter-date-display"></div>
+
+                    <div class="letter-parties">
+                        <div class="party-row">
+                            <div class="party-label">From / De</div>
+                            <div><strong>Mortacc Solutions Inc.</strong><br>1110 Elizabeth St, Sharbot Lake, ON K0H 2P0<br>support@mortacc.com</div>
+                        </div>
+                        <div class="party-row">
+                            <div class="party-label">To / À</div>
+                            <div id="client-name-display"><em style="color:var(--text-3);">Client name will appear here once you fill in your details below.</em></div>
+                        </div>
+                    </div>
+
+                    <p>Dear Client,</p>
+                    <p>We are pleased to confirm our engagement to provide corporate incorporation services on your behalf. This letter sets out the terms and conditions of our engagement. Please read it carefully in its entirety before signing.</p>
+
+                    <div class="letter-section">
+                        <h3>1. Nature of Services</h3>
+                        <p>Mortacc Solutions Inc. ("Mortacc", "we", "us") agrees to provide the following services to you ("Client", "you") in connection with the incorporation of your company:</p>
+                        <ul>
+                            <li>Assessment and recommendation of the appropriate jurisdiction of incorporation;</li>
+                            <li>Preparation and submission of the articles of incorporation;</li>
+                            <li>Preparation of initial organizational resolutions;</li>
+                            <li>Preparation of initial by-laws;</li>
+                            <li>Preparation of share certificates for initial shareholders;</li>
+                            <li>Digital delivery of all incorporation documents upon completion; and</li>
+                            <li>Automated annual return reminders.</li>
+                        </ul>
+                        <p>These services are administrative in nature. Mortacc Solutions Inc. is not a law firm and does not provide legal advice.</p>
+                    </div>
+
+                    <div class="letter-section">
+                        <h3>2. Professional Fees and Disbursements</h3>
+                        <p>Our professional fees for corporate services are flat-rate and billed per engagement as follows:</p>
+                        <table class="fee-table">
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Professional Fee</th>
+                                    <th>What's Included</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Corporate — Incorporation</td><td>C$500</td><td>Articles, by-laws, resolutions, share certificates</td></tr>
+                                <tr><td>Corporate Pro — Incorporation + Minute Book</td><td>C$750</td><td>Full incorporation + complete digital minute book</td></tr>
+                                <tr><td>Minute Book Preparation Only</td><td>C$250</td><td>Minute book update for existing corporations</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="disbursements-note">Fees are exclusive of applicable taxes (HST/GST/QST). Government filing fees and registry disbursements are billed separately at cost.</p>
+                    </div>
+
+                    <div class="letter-section">
+                        <h3>3. Client Responsibilities</h3>
+                        <p>You agree to provide complete and accurate information, review all draft documents promptly, and notify Mortacc of any errors or changes immediately.</p>
+                    </div>
+
+                    <div class="letter-section">
+                        <h3>4. Confidentiality</h3>
+                        <p>Mortacc agrees to maintain the confidentiality of the information you provide, except where disclosure is required by law or necessary to complete the incorporation.</p>
+                    </div>
+
+                    <div class="letter-section">
+                        <h3>5. Governing Law</h3>
+                        <p>This Engagement Letter is governed by the laws of the Province of Ontario and the federal laws of Canada applicable therein.</p>
+                    </div>
+
+                    <div class="lang-divider">⚜️ Version française / French Version ⚜️</div>
+
+                    <p><em>Chère cliente / Cher client,</em></p>
+                    <p><em>Nous confirmons par la présente notre mandat pour vous fournir des services d'incorporation. Veuillez lire cette lettre attentivement avant de signer.</em></p>
+
+                    <div class="letter-section">
+                        <h3>1. Nature des services <span class="fr">/ Nature of Services</span></h3>
+                        <p><em>Mortacc Solutions Inc. fournit des services administratifs d'incorporation, y compris la préparation et le dépôt des documents constitutifs, les résolutions initiales, les règlements, les certificats d'actions et la remise numérique des documents.</em></p>
+                    </div>
+
+                    <div class="letter-section">
+                        <h3>2. Honoraires et débours <span class="fr">/ Fees and Disbursements</span></h3>
+                        <p><em>Nos honoraires professionnels sont forfaitaires par mandat : C$500 pour l'incorporation, C$750 pour l'incorporation avec livre de minutes complet, et C$250 pour la préparation du livre de minutes seulement. Les frais gouvernementaux et les taxes applicables sont facturés en sus.</em></p>
+                    </div>
+
+                    <div class="letter-section">
+                        <h3>3. Responsabilités du client <span class="fr">/ Client Responsibilities</span></h3>
+                        <p><em>Vous devez fournir des renseignements complets et exacts, examiner les documents préparés et signaler toute correction nécessaire sans délai.</em></p>
+                    </div>
+
+                    <p style="margin-top:32px;">Yours sincerely / Cordialement,</p>
+                    <div class="signature-line">
+                        Mortacc Solutions Inc.<br>
+                        1110 Elizabeth St, Sharbot Lake, ON K0H 2P0<br>
+                        support@mortacc.com
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sign-section">
+            <div class="sign-title">Sign this Engagement Letter / Signer cette lettre de mandat</div>
+            <div class="sign-sub">Please provide your information and sign below to proceed to the intake form.</div>
+            <div class="sign-form">
+                <div class="fg">
+                    <label class="fl">First Name / Prénom <span>*</span></label>
+                    <input type="text" class="fi" id="s-first" placeholder="Jane" oninput="updateClient()">
+                </div>
+                <div class="fg">
+                    <label class="fl">Last Name / Nom de famille <span>*</span></label>
+                    <input type="text" class="fi" id="s-last" placeholder="Smith" oninput="updateClient()">
+                </div>
+                <div class="fg">
+                    <label class="fl">Email Address / Courriel <span>*</span></label>
+                    <input type="email" class="fi" id="s-email" placeholder="jane@company.ca" oninput="updateClient()">
+                </div>
+                <div class="fg">
+                    <label class="fl">Phone / Téléphone <span>*</span></label>
+                    <input type="tel" class="fi" id="s-phone" placeholder="514-555-0123" oninput="updateClient()">
+                </div>
+            </div>
+            <label class="agree-row">
+                <input type="checkbox" id="agree-cb" onchange="checkSign()">
+                <span class="agree-lbl">I, <strong id="signer-display">the undersigned</strong>, confirm that I have read and understood this Engagement Letter and agree to be bound by its terms and conditions.</span>
+            </label>
+            <button class="btn-sign" id="sign-btn" onclick="proceedToIntake()" disabled>
+                ✍️ Sign & Proceed to Intake Form
+            </button>
+            <p class="sign-note">🔒 Your information is encrypted</p>
+        </div>
+
+        <div class="letter-footer">
+            <div class="lf-company"><strong>Mortacc Solutions Inc.</strong> · 1110 Elizabeth St, Sharbot Lake, ON K0H 2P0 · support@mortacc.com</div>
+            <div class="lf-page">Engagement Letter — Corporate Services</div>
+        </div>
+    </div>
+
+    <div class="doc-card intake-wrap" id="intake-wrap">
+        <div class="intake-header">
+            <div class="intake-header-inner">
+                <div>
+                    <div class="intake-title">Incorporation Intake Form</div>
+                    <div class="intake-sub">Signed by: <span id="signed-by-display"></span> · Please complete all required fields</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="intake-body">
+            <div class="f-section">Personal Details</div>
+            <div class="f-row">
+                <div class="fg"><label class="fl">First Name <span>*</span></label><input type="text" class="fi" id="i-first" placeholder="Jane" oninput="checkIntake()"></div>
+                <div class="fg"><label class="fl">Last Name <span>*</span></label><input type="text" class="fi" id="i-last" placeholder="Smith" oninput="checkIntake()"></div>
+            </div>
+            <div class="f-row" style="margin-top:16px;">
+                <div class="fg"><label class="fl">Email <span>*</span></label><input type="email" class="fi" id="i-email" placeholder="jane@company.ca" oninput="checkIntake()"></div>
+                <div class="fg"><label class="fl">Phone <span>*</span></label><input type="tel" class="fi" id="i-phone" placeholder="514-555-0123" oninput="checkIntake()"></div>
+            </div>
+
+            <div class="f-section">Incorporation Details</div>
+            <div class="f-row">
+                <div class="fg">
+                    <label class="fl">Jurisdiction <span>*</span></label>
+                    <select class="fi fi-sel" id="i-jurisdiction" onchange="toggleQC(); checkIntake();">
+                        <option value="">Select...</option>
+                        <option value="Federal">Federal</option>
+                        <option value="Ontario">Ontario</option>
+                        <option value="British Columbia">British Columbia</option>
+                        <option value="Quebec">Québec</option>
+                    </select>
+                </div>
+                <div class="fg">
+                    <label class="fl">Business Activity <span>*</span></label>
+                    <input type="text" class="fi" id="i-activity" placeholder="Accounting, consulting, IT..." oninput="checkIntake()">
+                </div>
+            </div>
+
+            <div class="fg" style="margin-top:16px;">
+                <label class="fl">Registered Office Address <span>*</span></label>
+                <input type="text" class="fi" id="i-address" placeholder="123 Main St, Toronto, ON M5V 1A1" oninput="checkIntake()">
+            </div>
+
+            <div class="f-section">Company Name</div>
+            <div class="company-type-row">
+                <label class="type-option" id="named-opt" style="border-color:var(--blue);background:var(--blue-bg);">
+                    <input type="radio" name="co-type" value="named" id="co-named" checked onchange="toggleCompanyType()">
+                    <div><div class="type-option-title">Named Company</div><div class="type-option-sub">e.g. Smith Holdings Inc.</div></div>
+                </label>
+                <label class="type-option" id="numbered-opt">
+                    <input type="radio" name="co-type" value="numbered" id="co-numbered" onchange="toggleCompanyType()">
+                    <div><div class="type-option-title">Numbered Company</div><div class="type-option-sub">e.g. 1234567 Canada Inc.</div></div>
+                </label>
+            </div>
+
+            <div id="named-fields">
+                <div class="fg" style="margin-bottom:16px;">
+                    <label class="fl">1st Choice — Preferred Name <span>*</span></label>
+                    <input type="text" class="fi" id="i-name1" placeholder="Smith Holdings Inc." oninput="checkIntake()">
+                </div>
+                <div class="fg" style="margin-bottom:16px;">
+                    <label class="fl">2nd Choice</label>
+                    <input type="text" class="fi" id="i-name2" placeholder="Smith Ventures Inc.">
+                </div>
+                <div class="fg" style="margin-bottom:16px;">
+                    <label class="fl">3rd Choice</label>
+                    <input type="text" class="fi" id="i-name3" placeholder="Smith Group Inc.">
+                </div>
+
+                <div id="french-fields" style="display:none;">
+                    <div class="qc-notice">Québec incorporations require a French company name. Please provide the French version below.</div>
+                    <div class="fg" style="margin-bottom:16px;">
+                        <label class="fl">French Name — 1st Choice <span>*</span></label>
+                        <input type="text" class="fi" id="i-fname1" placeholder="Groupe Smith Inc." oninput="checkIntake()">
+                    </div>
+                    <div class="fg" style="margin-bottom:16px;">
+                        <label class="fl">French Name — 2nd Choice</label>
+                        <input type="text" class="fi" id="i-fname2" placeholder="Entreprises Smith Inc.">
+                    </div>
+                    <div class="fg" style="margin-bottom:16px;">
+                        <label class="fl">French Name — 3rd Choice</label>
+                        <input type="text" class="fi" id="i-fname3" placeholder="Placements Smith Inc.">
+                    </div>
+                </div>
+            </div>
+
+            <div class="f-section">Directors & Officers</div>
+            <div style="margin-bottom:12px;font-size:13px;color:var(--text-2);">Add all directors and indicate if they hold an officer position.</div>
+            <div id="directors-list"></div>
+            <button type="button" onclick="addDirector()" style="display:flex;align-items:center;gap:8px;background:var(--blue-bg);border:1.5px dashed var(--blue);color:var(--blue);padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;transition:all 0.2s;margin-bottom:8px;">
+                + Add Director
+            </button>
+
+            <div class="f-section">Shareholders</div>
+            <div style="margin-bottom:12px;font-size:13px;color:var(--text-2);">Add all shareholders with their ownership percentage. Total must equal 100%.</div>
+            <div id="shareholders-list"></div>
+            <button type="button" onclick="addShareholder()" style="display:flex;align-items:center;gap:8px;background:var(--blue-bg);border:1.5px dashed var(--blue);color:var(--blue);padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;transition:all 0.2s;margin-bottom:8px;">
+                + Add Shareholder
+            </button>
+
+            <div id="share-total-wrap" style="margin-top:8px;display:none;">
+                <div id="share-total" style="font-size:13px;font-weight:600;padding:10px 14px;border-radius:8px;"></div>
+            </div>
+
+            <div class="fg" style="margin-top:16px;">
+                <label class="fl">Additional Notes</label>
+                <textarea class="fi" id="i-notes" rows="4" placeholder="Any specific requirements..." style="resize:vertical;"></textarea>
+            </div>
+
+            <div style="margin-top:32px;">
+                <button class="btn-submit" id="submit-btn" onclick="submitIntake()" disabled>
+                    📋 Submit Incorporation Request
+                </button>
+            </div>
+        </div>
+
+        <div class="letter-footer">
+            <div class="lf-company"><strong>Mortacc Solutions Inc.</strong> · 1110 Elizabeth St, Sharbot Lake, ON K0H 2P0 · support@mortacc.com</div>
+            <div class="lf-page">Incorporation Intake Form</div>
+        </div>
+    </div>
+</div>
+
+<div class="page-footer">
+    <div class="page-footer-inner">
+        <a href="/" class="pf-logo">Mort<span>acc</span></a>
+        <div class="pf-info">Mortacc Solutions Inc. · 1110 Elizabeth St, Sharbot Lake, ON K0H 2P0 · support@mortacc.com</div>
+    </div>
+</div>
+
+<script>
+const now = new Date();
+const dateStr = now.toLocaleDateString('en-CA', { year:'numeric', month:'long', day:'numeric' });
+document.getElementById('letter-date').textContent = dateStr;
+document.getElementById('letter-date-display').textContent = dateStr;
+
+function updateClient() {
+    const first = document.getElementById('s-first').value.trim();
+    const last = document.getElementById('s-last').value.trim();
+    const full = [first, last].filter(Boolean).join(' ');
+    document.getElementById('signer-display').textContent = full || 'the undersigned';
+    if (full) {
+        document.getElementById('client-name-display').innerHTML = '<strong>' + full + '</strong>';
+    } else {
+        document.getElementById('client-name-display').innerHTML = '<em style="color:var(--text-3);">Client name will appear here once you fill in your details below.</em>';
+    }
+    checkSign();
+}
+
+function checkSign() {
+    const first = document.getElementById('s-first').value.trim();
+    const last = document.getElementById('s-last').value.trim();
+    const email = document.getElementById('s-email').value.trim();
+    const phone = document.getElementById('s-phone').value.trim();
+    const agreed = document.getElementById('agree-cb').checked;
+    document.getElementById('sign-btn').disabled = !(first && last && email && phone && agreed);
+}
+
+function proceedToIntake() {
+    const first = document.getElementById('s-first').value.trim();
+    const last = document.getElementById('s-last').value.trim();
+    const email = document.getElementById('s-email').value.trim();
+    const phone = document.getElementById('s-phone').value.trim();
+
+    document.getElementById('i-first').value = first;
+    document.getElementById('i-last').value = last;
+    document.getElementById('i-email').value = email;
+    document.getElementById('i-phone').value = phone;
+    document.getElementById('signed-by-display').textContent = first + ' ' + last + ' (' + email + ')';
+
+    document.getElementById('engagement-wrap').style.display = 'none';
+    document.getElementById('intake-wrap').style.display = 'block';
+
+    document.getElementById('step1-item').className = 'step-item done';
+    document.getElementById('step1-item').querySelector('.step-num').textContent = '✓';
+    document.getElementById('step-line-1').className = 'step-line done';
+    document.getElementById('step2-item').className = 'step-item active';
+    document.getElementById('step3-item').className = 'step-item inactive';
+
+    if (document.querySelectorAll('[id^="dir-"][id$="-name"]').length === 0) {
+        addDirector({ name: first + ' ' + last });
+    }
+    if (document.querySelectorAll('[id^="sh-"][id$="-name"]').length === 0) {
+        addShareholder({ name: first + ' ' + last, pct: '100' });
+    }
+
+    checkIntake();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleCompanyType() {
+    const isNumbered = document.getElementById('co-numbered').checked;
+    document.getElementById('named-fields').style.display = isNumbered ? 'none' : 'block';
+    document.getElementById('named-opt').style.borderColor = !isNumbered ? 'var(--blue)' : 'var(--border)';
+    document.getElementById('named-opt').style.background = !isNumbered ? 'var(--blue-bg)' : 'var(--white)';
+    document.getElementById('numbered-opt').style.borderColor = isNumbered ? 'var(--blue)' : 'var(--border)';
+    document.getElementById('numbered-opt').style.background = isNumbered ? 'var(--blue-bg)' : 'var(--white)';
+    toggleQC();
+    checkIntake();
+}
+
+function toggleQC() {
+    const isQC = document.getElementById('i-jurisdiction').value === 'Quebec';
+    const isNumbered = document.getElementById('co-numbered').checked;
+    document.getElementById('french-fields').style.display = (isQC && !isNumbered) ? 'block' : 'none';
+    checkIntake();
+}
+
+let dirCount = 0;
+function addDirector(prefill = {}) {
+    dirCount++;
+    const id = 'dir-' + dirCount;
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = 'background:var(--light);border:1.5px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;position:relative;';
+    div.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);">Director ${dirCount}</div>
+            ${dirCount > 1 ? `<button type="button" onclick="removeDirector('${id}')" style="background:none;border:none;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;">✕ Remove</button>` : ''}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div class="fg">
+                <label class="fl">Full Name <span>*</span></label>
+                <input type="text" class="fi" id="${id}-name" placeholder="Jane Smith" oninput="updateDirectorSolo(); checkIntake();" style="background:#fff;">
+            </div>
+            <div class="fg">
+                <label class="fl">Address</label>
+                <input type="text" class="fi" id="${id}-addr" placeholder="123 Main St, Toronto, ON" style="background:#fff;">
+            </div>
+        </div>
+        <div class="fg" style="margin-bottom:14px;">
+            <label class="fl">Officer Role</label>
+            <select class="fi fi-sel" id="${id}-officer" onchange="checkIntake();" style="background:#fff;">
+                <option value="">Director only</option>
+                <option value="President">President</option>
+                <option value="Secretary">Secretary</option>
+                <option value="Treasurer">Treasurer</option>
+                <option value="President & Secretary">President & Secretary</option>
+                <option value="President, Secretary & Treasurer">President, Secretary & Treasurer</option>
+            </select>
+        </div>
+        <div id="${id}-solo-notice" style="display:none;background:#f8f2ea;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;font-size:13px;color:#1d4ed8;">
+            You have only one director. Usually the sole director is also appointed as President and Secretary.
+        </div>
+    `;
+    document.getElementById('directors-list').appendChild(div);
+    if (prefill.name) document.getElementById(id + '-name').value = prefill.name;
+    if (prefill.addr) document.getElementById(id + '-addr').value = prefill.addr;
+    if (prefill.officer) document.getElementById(id + '-officer').value = prefill.officer;
+    updateDirectorSolo();
+    checkIntake();
+}
+
+function removeDirector(id) {
+    document.getElementById(id).remove();
+    updateDirectorSolo();
+    checkIntake();
+}
+
+function updateDirectorSolo() {
+    const dirs = document.querySelectorAll('[id^="dir-"][id$="-name"]');
+    const isSolo = dirs.length === 1;
+    dirs.forEach(inp => {
+        const base = inp.id.replace('-name', '');
+        const notice = document.getElementById(base + '-solo-notice');
+        if (notice) notice.style.display = isSolo ? 'block' : 'none';
+    });
+}
+
+function getDirectorsData() {
+    const result = [];
+    document.querySelectorAll('[id^="dir-"][id$="-name"]').forEach(inp => {
+        const base = inp.id.replace('-name', '');
+        const name = inp.value.trim();
+        if (name) {
+            const officer = document.getElementById(base + '-officer').value;
+            const addr = document.getElementById(base + '-addr').value.trim();
+            result.push({ name, officer, addr });
+        }
+    });
+    return result;
+}
+
+let shCount = 0;
+function addShareholder(prefill = {}) {
+    shCount++;
+    const id = 'sh-' + shCount;
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.cssText = 'background:var(--light);border:1.5px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;';
+    div.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-size:13px;font-weight:700;color:var(--text);">Shareholder ${shCount}</div>
+            ${shCount > 1 ? `<button type="button" onclick="removeShareholder('${id}')" style="background:none;border:none;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;">✕ Remove</button>` : ''}
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
+            <div class="fg">
+                <label class="fl">Full Name <span>*</span></label>
+                <input type="text" class="fi" id="${id}-name" placeholder="Jane Smith" oninput="updateShareTotal(); checkIntake();" style="background:#fff;">
+            </div>
+            <div class="fg">
+                <label class="fl">Ownership % <span>*</span></label>
+                <div style="position:relative;">
+                    <input type="number" class="fi" id="${id}-pct" placeholder="50" min="0" max="100" step="0.01" oninput="updateShareTotal(); checkIntake();" style="background:#fff;padding-right:36px;">
+                    <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-3);font-weight:600;">%</span>
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('shareholders-list').appendChild(div);
+    if (prefill.name) document.getElementById(id + '-name').value = prefill.name;
+    if (prefill.pct) document.getElementById(id + '-pct').value = prefill.pct;
+    updateShareTotal();
+    checkIntake();
+}
+
+function removeShareholder(id) {
+    document.getElementById(id).remove();
+    updateShareTotal();
+    checkIntake();
+}
+
+function updateShareTotal() {
+    const pcts = document.querySelectorAll('[id^="sh-"][id$="-pct"]');
+    let total = 0;
+    pcts.forEach(inp => { total += parseFloat(inp.value) || 0; });
+    const wrap = document.getElementById('share-total-wrap');
+    const totalEl = document.getElementById('share-total');
+    if (pcts.length > 0) {
+        wrap.style.display = 'block';
+        const rounded = Math.round(total * 100) / 100;
+        if (rounded === 100) {
+            totalEl.style.background = 'var(--green-bg)';
+            totalEl.style.color = 'var(--green)';
+            totalEl.style.border = '1px solid #bbf7d0';
+            totalEl.textContent = '✓ Total: 100% — Correct';
+        } else {
+            totalEl.style.background = '#fef2f2';
+            totalEl.style.color = 'var(--red)';
+            totalEl.style.border = '1px solid #fecaca';
+            totalEl.textContent = '⚠ Total: ' + rounded + '% — Must equal 100%';
+        }
+    } else {
+        wrap.style.display = 'none';
+    }
+}
+
+function getShareholdersData() {
+    const result = [];
+    document.querySelectorAll('[id^="sh-"][id$="-name"]').forEach(inp => {
+        const base = inp.id.replace('-name', '');
+        const name = inp.value.trim();
+        const pct = document.getElementById(base + '-pct').value.trim();
+        if (name && pct) result.push({ name, pct });
+    });
+    return result;
+}
+
+function checkIntake() {
+    const isNumbered = document.getElementById('co-numbered').checked;
+    const isQC = document.getElementById('i-jurisdiction').value === 'Quebec';
+    const baseRequired = ['i-first','i-last','i-email','i-phone','i-jurisdiction','i-activity','i-address'];
+    if (!isNumbered) baseRequired.push('i-name1');
+    if (!isNumbered && isQC) baseRequired.push('i-fname1');
+    const baseOk = baseRequired.every(id => document.getElementById(id).value.trim() !== '');
+
+    const dirs = getDirectorsData();
+    const dirsOk = dirs.length > 0 && dirs.every(d => d.name);
+
+    const shareholders = getShareholdersData();
+    const shOk = shareholders.length > 0 && shareholders.every(s => s.name && s.pct);
+
+    let total = 0;
+    document.querySelectorAll('[id^="sh-"][id$="-pct"]').forEach(inp => { total += parseFloat(inp.value) || 0; });
+    const totalOk = Math.round(total * 100) / 100 === 100;
+
+    document.getElementById('submit-btn').disabled = !(baseOk && dirsOk && shOk && totalOk);
+}
+
+function submitIntake() {
+    const v = id => document.getElementById(id).value.trim();
+    const isNumbered = document.getElementById('co-numbered').checked;
+    const isQC = v('i-jurisdiction') === 'Quebec';
+
+    const letterContent = document.getElementById('engagement-letter-content').innerHTML;
+    const directorsData = getDirectorsData();
+    const shareholdersData = getShareholdersData();
+
+    const directorsText = directorsData.map((d,i) =>
+        'Director ' + (i+1) + ': ' + d.name +
+        (d.addr ? ' | Address: ' + d.addr : '') +
+        (d.officer ? ' | Role: ' + d.officer : '')
+    ).join('\\n');
+
+    const officersText = directorsData
+        .filter(d => d.officer && d.officer !== 'Director only')
+        .map((d,i) => 'Officer ' + (i+1) + ': ' + d.name + ' | Position: ' + d.officer + (d.addr ? ' | Address: ' + d.addr : ''))
+        .join('\\n');
+
+    const shareholdersText = shareholdersData
+        .map((s,i) => 'Shareholder ' + (i+1) + ': ' + s.name + ' | ' + s.pct + '%')
+        .join('\\n');
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/engagement/submit/';
+
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = 'csrfmiddlewaretoken';
+    csrf.value = '{{ csrf_token }}';
+    form.appendChild(csrf);
+
+    const payload = {
+        first_name: v('i-first'),
+        last_name: v('i-last'),
+        email: v('i-email'),
+        phone: v('i-phone'),
+        company_type: isNumbered ? 'numbered' : 'named',
+        company_name_1: isNumbered ? '' : v('i-name1'),
+        company_name_2: isNumbered ? '' : v('i-name2'),
+        company_name_3: isNumbered ? '' : v('i-name3'),
+        french_name_1: (isQC && !isNumbered) ? v('i-fname1') : '',
+        french_name_2: (isQC && !isNumbered) ? v('i-fname2') : '',
+        french_name_3: (isQC && !isNumbered) ? v('i-fname3') : '',
+        jurisdiction: v('i-jurisdiction'),
+        business_activity: v('i-activity'),
+        registered_address: v('i-address'),
+        authorized_representative_name: v('i-first') + ' ' + v('i-last'),
+        authorized_representative_address: v('i-address'),
+        authorized_representative_email: v('i-email'),
+        authorized_representative_phone: v('i-phone'),
+        directors: directorsText,
+        officers: officersText,
+        shareholders: shareholdersText,
+        notes: v('i-notes'),
+        content_html: letterContent,
+        engagement_signed: 'yes'
+    };
+
+    Object.entries(payload).forEach(([key, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+
+</body>
+</html>

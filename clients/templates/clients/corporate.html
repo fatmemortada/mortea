@@ -1,0 +1,318 @@
+{% extends "clients/base.html" %}
+{% block title %}Incorporations — Mortacc{% endblock %}
+{% block nav_corporate %}active{% endblock %}
+{% block topbar_title %}Incorporations{% endblock %}
+
+{% block extra_head %}
+<style>
+    .corp-hero {
+        background: linear-gradient(135deg, #0a0f1e 0%, #1e3a5f 100%);
+        border-radius: var(--radius);
+        padding: 48px 40px;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+    }
+    .corp-hero::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 300px; height: 300px;
+        background: radial-gradient(circle, rgba(59,130,246,.15) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .corp-hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(59,130,246,.2);
+        border: 1px solid rgba(59,130,246,.3);
+        color: #93c5fd;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        margin-bottom: 18px;
+    }
+    .corp-hero h1 {
+        font-size: 32px;
+        font-weight: 800;
+        color: #fff;
+        margin: 0 0 12px;
+        line-height: 1.2;
+    }
+    .corp-hero p {
+        font-size: 15px;
+        color: #94a3b8;
+        margin: 0 0 28px;
+        max-width: 560px;
+        line-height: 1.7;
+    }
+    .corp-hero-btns {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .btn-hero-primary {
+        background: #3b82f6;
+        color: #fff;
+        padding: 13px 28px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all .2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-hero-primary:hover { background: #1d4ed8; color: #fff; transform: translateY(-1px); }
+    .btn-hero-ghost {
+        background: rgba(255,255,255,.08);
+        border: 1px solid rgba(255,255,255,.15);
+        color: #e2e8f0;
+        padding: 13px 28px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all .2s;
+    }
+    .btn-hero-ghost:hover { background: rgba(255,255,255,.14); color: #fff; }
+
+    .juris-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .juris-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 22px 20px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.04);
+        transition: all .2s;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .juris-card:hover {
+        border-color: var(--blue);
+        box-shadow: 0 4px 20px rgba(59,130,246,.12);
+        transform: translateY(-2px);
+    }
+    .juris-flag { font-size: 28px; margin-bottom: 10px; }
+    .juris-name { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+    .juris-law { font-size: 11px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+    .juris-desc { font-size: 12px; color: var(--gray-500); line-height: 1.6; }
+    .juris-time {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--gray-500);
+        background: var(--gray-100);
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    .section-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        box-shadow: 0 2px 12px rgba(0,0,0,.04);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    .section-card-header {
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .section-card-title { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+
+    .steps-list { padding: 0; margin: 0; list-style: none; }
+    .step-item {
+        display: flex;
+        gap: 16px;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--gray-100);
+    }
+    .step-item:last-child { border-bottom: none; }
+    .step-num {
+        width: 28px; height: 28px;
+        background: var(--blue);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+    .step-title { font-size: 14px; font-weight: 600; color: var(--gray-900); margin-bottom: 3px; }
+    .step-desc { font-size: 13px; color: var(--gray-500); line-height: 1.6; }
+
+    .faq-item {
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--gray-100);
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { font-size: 14px; font-weight: 600; color: var(--gray-900); margin-bottom: 6px; }
+    .faq-a { font-size: 13px; color: var(--gray-500); line-height: 1.7; }
+
+    .cta-strip {
+        background: linear-gradient(135deg, #1e40af, #1d4ed8);
+        border-radius: var(--radius);
+        padding: 32px 36px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+    .cta-strip h3 { font-size: 20px; font-weight: 700; color: #fff; margin: 0 0 4px; }
+    .cta-strip p { font-size: 13px; color: #bfdbfe; margin: 0; }
+    .btn-cta-white {
+        background: #fff;
+        color: #1d4ed8;
+        padding: 13px 28px;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all .2s;
+        flex-shrink: 0;
+    }
+    .btn-cta-white:hover { background: #f0f9ff; color: #1d4ed8; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<div class="corp-hero">
+    <div class="corp-hero-tag">🇨🇦 Canadian Incorporations</div>
+    <h1>Incorporate a company in minutes,<br>not days.</h1>
+    <p>Federal, Ontario, BC, and Québec incorporations — fully digital, bilingual, and connected directly to your clients' entity records and minute books.</p>
+    <div class="corp-hero-btns">
+        <a href="{% url 'engagement' %}" class="btn-hero-primary">Start Incorporation →</a>
+        <a href="#how-it-works" class="btn-hero-ghost">How it works</a>
+    </div>
+</div>
+
+<!-- Jurisdictions -->
+<div class="juris-grid">
+    <a href="{% url 'engagement' %}" class="juris-card">
+        <div class="juris-flag">🍁</div>
+        <div class="juris-name">Federal Corporation</div>
+        <div class="juris-law">CBCA</div>
+        <div class="juris-desc">Operate anywhere in Canada. Ideal for national businesses and holding companies.</div>
+        <div class="juris-time">⏱ 1–2 business days</div>
+    </a>
+    <a href="{% url 'engagement' %}" class="juris-card">
+        <div class="juris-flag">🏙️</div>
+        <div class="juris-name">Ontario Corporation</div>
+        <div class="juris-law">OBCA</div>
+        <div class="juris-desc">Ontario-based operations. Most common for small to mid-size Ontario businesses.</div>
+        <div class="juris-time">⏱ Same day</div>
+    </a>
+    <a href="{% url 'engagement' %}" class="juris-card">
+        <div class="juris-flag">🌲</div>
+        <div class="juris-name">BC Corporation</div>
+        <div class="juris-law">BCA</div>
+        <div class="juris-desc">British Columbia incorporation with BC Registries. Flexible for western Canada operations.</div>
+        <div class="juris-time">⏱ Same day</div>
+    </a>
+    <a href="{% url 'engagement' %}" class="juris-card">
+        <div class="juris-flag">⚜️</div>
+        <div class="juris-name">Québec Corporation</div>
+        <div class="juris-law">QCA · Bilingue</div>
+        <div class="juris-desc">Incorporated under Québec law. Full French-language compliance included.</div>
+        <div class="juris-time">⏱ 1–2 business days</div>
+    </a>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+
+    <!-- How it works -->
+    <div class="section-card" id="how-it-works">
+        <div class="section-card-header">
+            <div class="section-card-title">How it works</div>
+        </div>
+        <ul class="steps-list">
+            <li class="step-item">
+                <div class="step-num">1</div>
+                <div>
+                    <div class="step-title">Sign the engagement letter</div>
+                    <div class="step-desc">Your client reviews and signs the digital engagement letter — no printing required.</div>
+                </div>
+            </li>
+            <li class="step-item">
+                <div class="step-num">2</div>
+                <div>
+                    <div class="step-title">Fill the intake form</div>
+                    <div class="step-desc">Directors, shareholders, share structure, registered address — collected in one clean form.</div>
+                </div>
+            </li>
+            <li class="step-item">
+                <div class="step-num">3</div>
+                <div>
+                    <div class="step-title">We prepare the documents</div>
+                    <div class="step-desc">Articles of incorporation, minute books, resolutions, and all corporate registers generated automatically.</div>
+                </div>
+            </li>
+            <li class="step-item">
+                <div class="step-num">4</div>
+                <div>
+                    <div class="step-title">Entity added to your dashboard</div>
+                    <div class="step-desc">The new corporation is linked to the client in Mortacc with compliance tracking active from day one.</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- FAQ -->
+    <div class="section-card">
+        <div class="section-card-header">
+            <div class="section-card-title">Common questions</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">What's included in the incorporation fee?</div>
+            <div class="faq-a">Articles of incorporation, minute book setup, resolutions, share certificates, and all corporate registers — ready to download as PDF.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Do I need to file anything with the government?</div>
+            <div class="faq-a">Yes — government filing fees are separate and paid directly to the registry. Mortacc prepares the documents; your firm handles the filing.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Can my client sign the engagement letter remotely?</div>
+            <div class="faq-a">Yes. The engagement letter is a digital form your client completes online — no in-person meeting required.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Is there French support for Québec incorporations?</div>
+            <div class="faq-a">All documents are available in French. The client intake form and engagement letter are fully bilingual.</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- CTA Strip -->
+<div class="cta-strip">
+    <div>
+        <h3>Ready to start an incorporation?</h3>
+        <p>Takes about 2 minutes to complete the intake form.</p>
+    </div>
+    <a href="{% url 'engagement' %}" class="btn-cta-white">Start Incorporation →</a>
+</div>
+
+{% endblock %}

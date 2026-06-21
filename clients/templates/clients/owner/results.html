@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Results — {{ provider.name }} | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.panel { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; }
+.sidebar { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 88px; }
+.sidebar a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; color: var(--ink-2); text-decoration: none; }
+.sidebar a:hover, .sidebar a.active { background: var(--brand-light); color: var(--brand-dark); }
+.sidebar a .si { font-size: 16px; width: 24px; text-align: center; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; }
+.inline-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.field { margin: 0; }
+.field input, .field select, .field textarea { padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 14px; border: 1.5px solid var(--border); border-radius: var(--radius); outline: none; }
+.field input:focus, .field select:focus { border-color: var(--brand); }
+.btn { padding: 10px 22px; font-size: 14px; font-weight: 600; border-radius: var(--radius-full); border: none; background: var(--brand); color: #fff; cursor: pointer; }
+.btn-sm { padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: var(--radius-full); border: 1px solid var(--border); background: var(--surface); cursor: pointer; }
+.btn-sm.danger { color: #dc2626; border-color: #fecaca; }
+.btn-sm.danger:hover { background: #fef2f2; }
+.result-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-light); gap: 12px; }
+.result-row:last-child { border-bottom: none; }
+.result-info { font-size: 14px; }
+.result-badge { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 3px 10px; border-radius: var(--radius-full); background: var(--brand-light); color: var(--brand-dark); }
+.result-published { color: var(--success); font-size: 12px; }
+.result-draft { color: var(--ink-4); font-size: 12px; }
+@media (max-width:700px){ .panel{grid-template-columns:1fr;} .sidebar{position:static;flex-direction:row;overflow-x:auto;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><div class="panel">
+<div class="sidebar">
+<a href="{% url 'owner_dashboard' provider.slug %}"><span class="si">📊</span> Overview</a>
+<a href="{% url 'owner_edit_profile' provider.slug %}"><span class="si">✏️</span> Edit Profile</a>
+<a href="{% url 'owner_services' provider.slug %}"><span class="si">💰</span> Services</a>
+<a href="{% url 'owner_photos' provider.slug %}"><span class="si">📸</span> Photos & Videos</a>
+<a href="{% url 'owner_social' provider.slug %}"><span class="si">📱</span> Social Links</a>
+<a href="{% url 'owner_bookings' provider.slug %}"><span class="si">📋</span> Bookings</a>
+<a href="{% url 'owner_analytics' provider.slug %}"><span class="si">📈</span> Analytics</a>
+<a href="{% url 'owner_results' provider.slug %}" class="active"><span class="si">🔄</span> Results</a>
+<a href="{% url 'provider_profile' provider.slug %}" target="_blank"><span class="si">👁</span> View Profile</a>
+</div>
+<div class="main"><h1>Before & After Results</h1>
+<div class="card"><h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:16px">Add Result</h3>
+<form method="POST" class="inline-form">{% csrf_token %}<input type="hidden" name="action" value="add">
+<div class="field"><select name="procedure_type" required><option value="">Procedure…</option>{% for val, label in procedure_choices %}<option value="{{ val }}">{{ label }}</option>{% endfor %}</select></div>
+<div class="field"><input type="date" name="date"></div>
+<div class="field"><input type="text" name="description" placeholder="Description (optional)"></div>
+<label style="display:flex;align-items:center;gap:6px;font-size:13px"><input type="checkbox" name="is_published" checked> Published</label>
+<button type="submit" class="btn">Add Result</button></form></div>
+<div class="card"><h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:16px">Your Results ({{ results.count }})</h3>
+{% if results %}
+{% for r in results %}
+<div class="result-row">
+<div class="result-info"><span class="result-badge">{{ r.get_procedure_type_display }}</span> {% if r.date %}{{ r.date|date:"M Y" }}{% endif %}{% if r.description %} — {{ r.description|truncatechars:50 }}{% endif %}</div>
+<div style="display:flex;gap:8px;align-items:center">
+{% if r.is_published %}<span class="result-published">● Live</span>{% else %}<span class="result-draft">○ Draft</span>{% endif %}
+<form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="toggle"><input type="hidden" name="result_id" value="{{ r.id }}"><button type="submit" class="btn-sm" style="color:#2563eb;border-color:#bfdbfe">{% if r.is_published %}Unpublish{% else %}Publish{% endif %}</button></form>
+<form method="POST" style="display:inline" onsubmit="return confirm('Delete this result?')">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="result_id" value="{{ r.id }}"><button type="submit" class="btn-sm danger">Delete</button></form>
+</div></div>{% endfor %}
+{% else %}<p style="color:var(--ink-3)">No results yet. Add your first before-and-after transformation.</p>{% endif %}
+</div></div></div></div>
+</body></html>

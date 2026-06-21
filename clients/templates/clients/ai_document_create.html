@@ -1,0 +1,90 @@
+{% extends "clients/base.html" %}
+{% block title %}Generate AI Document — Mortacc{% endblock %}
+{% block nav_ai %}active{% endblock %}
+{% block topbar_title %}Generate AI Document{% endblock %}
+
+{% block extra_head %}
+<style>
+    .doc-form { max-width:700px; }
+    .field-hint { font-size:11px; color:var(--ink-4); margin-top:3px; }
+    .preview-box { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:16px; font-size:12px; color:var(--ink-3); min-height:100px; white-space:pre-wrap; font-family:monospace; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="doc-form">
+    <div class="card">
+        <div class="card-header"><span class="card-title">New AI-Generated Corporate Document</span></div>
+        <div class="card-body">
+            <form method="POST" id="generate-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Client</label>
+                    <select class="form-control" name="client_id" required>
+                        <option value="">Select a client…</option>
+                        {% for c in clients %}
+                        <option value="{{ c.id }}" {% if client and c.id == client.id %}selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Document Type</label>
+                    <select class="form-control" name="document_type" required id="doc-type-select">
+                        <option value="">Select document type…</option>
+                        {% for key, info in registry.items %}
+                        <option value="{{ key }}">{{ info.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="field-hint" id="doc-desc"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Document Title</label>
+                    <input class="form-control" name="title" placeholder="e.g., Articles of Incorporation for Maple Tech Inc.">
+                </div>
+                <div id="context-fields" style="display:none;">
+                    <div class="card-header" style="margin-top:16px;"><span class="card-title">Required Context</span></div>
+                    <div id="dynamic-fields"></div>
+                </div>
+                <div class="form-group" style="margin-top:16px;">
+                    <p class="field-hint" style="background:var(--brand-soft);padding:10px;border-radius:6px;">
+                        <strong>💡 AI-Powered:</strong> Mortacc uses Claude AI to generate professional corporate documents. All documents should be reviewed by a qualified professional before execution.
+                    </p>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg">Generate Document</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const registry = {{ registry|safe }};
+    const docSelect = document.getElementById('doc-type-select');
+    const docDesc = document.getElementById('doc-desc');
+    const ctxDiv = document.getElementById('context-fields');
+    const dynFields = document.getElementById('dynamic-fields');
+
+    docSelect.addEventListener('change', function(){
+        const key = this.value;
+        if (registry[key]) {
+            docDesc.textContent = registry[key].description || '';
+            const fields = registry[key].required_context || [];
+            if (fields.length > 0) {
+                ctxDiv.style.display = 'block';
+                dynFields.innerHTML = fields.map(f => `
+                    <div class="form-group">
+                        <label class="form-label">${f.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</label>
+                        <input class="form-control" name="ctx_${f}" placeholder="Enter ${f.replace(/_/g, ' ')}">
+                    </div>
+                `).join('');
+            } else {
+                ctxDiv.style.display = 'none';
+            }
+        } else {
+            docDesc.textContent = '';
+            ctxDiv.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

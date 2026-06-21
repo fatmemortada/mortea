@@ -1,0 +1,27 @@
+{% extends "clients/base.html" %}{% block title %}Document Generator — {{ client.name }}{% endblock %}{% block topbar_title %}Document Generator{% endblock %}{% block content %}
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>One-click document generation — all corporate documents in one place</p></div>
+{% if has_data %}<a href="{% url 'pdf_minute_book_zip' client.id %}" class="btn btn-primary">Download Full Minute Book (ZIP)</a>{% endif %}</div>
+
+{% if not has_data %}
+<div class="alert alert-warning mb-3">Add directors, shareholders, and a corporate profile to unlock all documents.</div>
+{% endif %}
+
+<div class="stat-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+<div class="stat-card"><div class="stat-label">Directors</div><div class="stat-value">{{ director_count }}</div></div>
+<div class="stat-card"><div class="stat-label">Shareholders</div><div class="stat-value">{{ shareholder_count }}</div></div>
+<div class="stat-card"><div class="stat-label">Document Types</div><div class="stat-value">25+</div></div>
+<div class="stat-card"><div class="stat-label">Languages</div><div class="stat-value">EN / FR</div></div>
+</div>
+
+{% for cat in categories %}
+<div class="card mb-3"><div class="card-header"><span class="card-title">{{ cat.icon }} {{ cat.name }}</span></div>
+<div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;padding:16px">
+{% for doc in cat.docs %}
+<a href="{{ doc.url }}" target="_blank" class="doc-card" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:{% if doc.featured %}var(--brand-soft){% else %}var(--surface-2){% endif %};border:1px solid {% if doc.featured %}var(--brand-muted){% else %}var(--border){% endif %};border-radius:8px;text-decoration:none;color:inherit;transition:all var(--transition);{% if not doc.ready %}opacity:.4;pointer-events:none{% endif %}" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-sm)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+<span style="font-size:13px;font-weight:500">{{ doc.name }}</span>
+<span style="font-size:11px;color:var(--brand);font-weight:600">{% if doc.ready %}PDF →{% else %}No data{% endif %}</span>
+</a>
+{% endfor %}
+</div></div>
+{% endfor %}
+{% endblock %}

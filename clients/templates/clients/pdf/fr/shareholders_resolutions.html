@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: letter; margin: 2cm 2.2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; font-size: 10.5pt; color: #1a1a1a; line-height: 1.7; }
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 24px; }
+  .doc-logo { font-size: 20pt; font-weight: bold; } .doc-logo span { color: #b8956a; }
+  .doc-meta { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.6; }
+  .doc-title { text-align: center; margin: 20px 0 28px; }
+  .doc-title h1 { font-size: 14pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .doc-title h2 { font-size: 12pt; font-weight: normal; margin-bottom: 4px; }
+  .doc-title .corp-name { font-size: 13pt; font-style: italic; font-weight: bold; }
+  .doc-title .jurisdiction { font-size: 9pt; color: #666; margin-top: 4px; }
+  .section { margin-bottom: 24px; }
+  .section-label { font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #b8956a; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 14px; }
+  .resolution { margin-bottom: 20px; padding: 14px 18px; border-left: 3px solid #b8956a; background: #f8faff; }
+  .resolution .res-title { font-weight: bold; font-size: 10pt; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; color: #b8956a; }
+  .resolved { font-weight: bold; font-style: italic; }
+  p { margin-bottom: 10px; }
+  .small { font-size: 8.5pt; color: #666; }
+  .mt { margin-top: 16px; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px; }
+  .sig-item .line { border-bottom: 1px solid #1a1a1a; margin-bottom: 6px; height: 45px; }
+  .sig-item .name { font-size: 9pt; font-weight: bold; }
+  .sig-item .label { font-size: 8.5pt; color: #555; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="doc-logo">Mort<span>acc</span></div>
+  <div class="doc-meta">{{ client.name }}<br>Résolutions des actionnaires<br>{{ today|date:"j F Y" }}</div>
+</div>
+
+<div class="doc-title">
+  <h1>Résolutions Organisationnelles des Actionnaires</h1>
+  <h2>de</h2>
+  <div class="corp-name">{{ client.name }}</div>
+  <div class="jurisdiction">
+    Constituée en vertu des lois de {{ jurisdiction_display|default:"Canada" }}
+    {% if incorporation_date %} le {{ incorporation_date|date:"j F Y" }}{% endif %}
+  </div>
+</div>
+
+<div class="section">
+  <p>Les soussignés, étant tous les actionnaires de <strong>{{ client.name }}</strong> (la « Société »), consentent à l'adoption des résolutions suivantes par écrit en lieu et place d'une réunion, conformément à la législation applicable.</p>
+</div>
+
+<div class="section">
+  <div class="section-label">Résolutions</div>
+
+  <div class="resolution">
+    <div class="res-title">1. Confirmation des règlements</div>
+    <p><span class="resolved">IL EST RÉSOLU QUE</span> le Règlement no 1, étant un règlement général régissant les activités et les affaires de la Société, tel qu'adopté par les administrateurs, est par les présentes confirmé et approuvé.</p>
+  </div>
+
+  {% if directors %}
+  <div class="resolution">
+    <div class="res-title">2. Élection des administrateurs</div>
+    <p><span class="resolved">IL EST RÉSOLU QUE</span> les personnes suivantes sont par les présentes élues à titre d'administrateurs de la Société pour exercer leurs fonctions jusqu'à la prochaine assemblée annuelle des actionnaires ou jusqu'à l'élection ou la nomination de leurs successeurs :</p>
+    <ul style="margin: 8px 0 0 20px;">
+      {% for d in directors %}
+      <li><strong>{{ d.full_name }}</strong></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="resolution">
+    <div class="res-title">3. Dispense de vérificateur</div>
+    <p><span class="resolved">IL EST RÉSOLU QUE</span> la nomination d'un vérificateur pour la Société est par les présentes dispensée pour l'exercice financier en cours, tel que le permet la législation applicable, et que les états financiers de la Société n'ont pas à être vérifiés.</p>
+  </div>
+
+  <div class="resolution">
+    <div class="res-title">4. Approbation des états financiers</div>
+    <p><span class="resolved">IL EST RÉSOLU QUE</span> tous les états financiers de la Société approuvés par les administrateurs et présentés aux actionnaires sont par les présentes approuvés et adoptés.</p>
+  </div>
+</div>
+
+<div class="section">
+  <p>Les résolutions qui précèdent sont par les présentes consenties et adoptées en date du <strong>{{ incorporation_date|date:"j F Y"|default:today|date:"j F Y" }}</strong>, comme en témoignent les signatures de tous les actionnaires de la Société ci-dessous.</p>
+</div>
+
+<div class="section">
+  <div class="section-label">Signatures des actionnaires</div>
+  <div class="sig-grid">
+    {% for s in shareholders %}
+    <div class="sig-item">
+      <div class="line"></div>
+      <div class="name">{{ s.full_name }}</div>
+      <div class="label">Actionnaire · {{ s.num_shares }} actions {{ s.share_class|default:"ordinaires" }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<p class="small mt">Préparé par Mortacc Solutions Inc. · support@mortacc.com · mortacc.com</p>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+{% extends "clients/base.html" %}
+{% block title %}Registrations — {{ client.name }}{% endblock %}
+{% block topbar_title %}Jurisdiction Registrations{% endblock %}
+{% block content %}<div style="max-width:1000px">
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Home, extra-provincial and foreign registrations with renewal tracking</p></div>
+<a href="{% url 'entity_detail' client.id %}" class="btn btn-ghost btn-sm">← Entity</a></div>
+
+{% if upcoming_renewals %}
+<div class="alert alert-warning mb-3"><strong>Renewals due within 90 days:</strong>
+{% for r in upcoming_renewals %}<br>• {{ r.jurisdiction }} ({{ r.get_registration_type_display }}) — {{ r.renewal_date|date:"M d, Y" }}{% endfor %}
+</div>
+{% endif %}
+
+<div class="card mb-3"><div class="card-header"><span class="card-title">Registrations ({{ registrations|length }})</span></div>
+<div class="card-body" style="padding:0"><table>
+<thead><tr><th>Jurisdiction</th><th>Type</th><th>Number</th><th>Agent</th><th>Registered</th><th>Renewal</th><th>Status</th><th></th></tr></thead>
+<tbody>
+{% for r in registrations %}
+<tr><td><strong>{{ r.jurisdiction }}</strong></td><td>{{ r.get_registration_type_display }}</td><td>{{ r.registration_number|default:"—" }}</td><td style="font-size:12px">{{ r.agent_name|default:"—" }}</td>
+<td>{{ r.registered_date|date:"M d, Y"|default:"—" }}</td>
+<td>{% if r.renewal_date %}{{ r.renewal_date|date:"M d, Y" }}{% if r.renewal_date < today %} <span style="color:var(--red);font-weight:600">(overdue)</span>{% endif %}{% else %}—{% endif %}</td>
+<td>
+<form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="set_status"><input type="hidden" name="registration_id" value="{{ r.id }}">
+<select name="status" class="form-control" style="width:auto;font-size:12px;padding:4px 8px" onchange="this.form.submit()">
+{% for value, label in status_choices %}<option value="{{ value }}" {% if r.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+</select></form>
+</td>
+<td><form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete_registration"><input type="hidden" name="registration_id" value="{{ r.id }}"><button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remove this registration?')">✕</button></form></td></tr>
+{% empty %}
+<tr><td colspan="8"><div class="empty-state"><p>No registrations recorded. Add the home jurisdiction and any extra-provincial registrations below.</p></div></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+
+<div class="card"><div class="card-header"><span class="card-title">Add Registration</span></div>
+<div class="card-body"><form method="POST">{% csrf_token %}<input type="hidden" name="action" value="add_registration">
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Jurisdiction *</label><input type="text" name="jurisdiction" class="form-control" placeholder="e.g. Ontario, Alberta, Delaware" required></div>
+<div class="form-group"><label class="form-label">Type</label><select name="registration_type" class="form-control">{% for value, label in type_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select></div>
+<div class="form-group"><label class="form-label">Registration Number</label><input type="text" name="registration_number" class="form-control"></div>
+<div class="form-group"><label class="form-label">Agent for Service</label><input type="text" name="agent_name" class="form-control"></div>
+<div class="form-group"><label class="form-label">Registered Date</label><input type="date" name="registered_date" class="form-control"></div>
+<div class="form-group"><label class="form-label">Renewal Date</label><input type="date" name="renewal_date" class="form-control"></div>
+<div class="form-group"><label class="form-label">Status</label><select name="status" class="form-control">{% for value, label in status_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select></div>
+<div class="form-group"><label class="form-label">Notes</label><input type="text" name="notes" class="form-control"></div>
+</div>
+<button type="submit" class="btn btn-primary">Add Registration</button>
+</form></div></div>
+</div>{% endblock %}

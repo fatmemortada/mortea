@@ -1,0 +1,52 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>CSV Import — Mortea Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.container { max-width: 800px; margin: 0 auto; padding: 40px 24px 80px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+.sub { color: var(--ink-3); margin-bottom: 28px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; }
+.upload-zone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 48px; text-align: center; cursor: pointer; transition: all .2s; }
+.upload-zone:hover { border-color: var(--brand); background: var(--brand-light); }
+.upload-zone input { display: none; }
+.upload-zone label { cursor: pointer; font-size: 16px; font-weight: 600; color: var(--brand); }
+.btn { padding: 12px 32px; font-size: 15px; font-weight: 600; border-radius: var(--radius-full); border: none; background: var(--brand); color: #fff; cursor: pointer; }
+.btn:hover { background: var(--brand-dark); }
+.btn-outline { background: var(--surface); color: var(--ink); border: 1.5px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 16px; }
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border-light); }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); font-weight: 600; }
+.success { color: #166534; background: #dcfce7; padding: 12px 16px; border-radius: var(--radius); margin-bottom: 16px; }
+.nav-row { display: flex; gap: 12px; margin-bottom: 28px; }
+.nav-row a { padding: 8px 18px; font-size: 13px; font-weight: 600; border-radius: var(--radius-full); border: 1px solid var(--border); color: var(--ink-2); text-decoration: none; }
+.nav-row a:hover, .nav-row a.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><span style="font-size:12px;color:var(--ink-3);font-weight:600">Admin</span></div></nav>
+<div class="page"><div class="container">
+<div class="nav-row">
+<a href="{% url 'csv_import' %}" class="active">📥 CSV Import</a>
+<a href="{% url 'approval_dashboard' %}">✅ Approvals</a>
+<a href="{% url 'email_dashboard' %}">✉️ Emails</a>
+<a href="{% url 'admin:index' %}">⚙ Django Admin</a>
+</div>
+<h1>Import Businesses</h1>
+<p class="sub">Upload a CSV file to bulk-import beauty providers. <a href="{% url 'csv_template' %}" style="color:var(--brand)">Download template CSV</a></p>
+
+{% if messages %}{% for m in messages %}<div class="success">{{ m }}</div>{% endfor %}{% endif %}
+
+{% if step == 'preview' %}
+<div class="card"><h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:12px">Preview: {{ filename }}</h3>
+<p style="color:var(--ink-3);margin-bottom:16px">{{ total_rows }} rows found. Showing first 10.</p>
+<table><thead><tr>{% for col in columns %}<th>{{ col }}</th>{% endfor %}</tr></thead><tbody>
+{% for row in preview %}<tr>{% for key, val in row.items %}<td>{{ val|default:'—'|truncatechars:50 }}</td>{% endfor %}</tr>{% endfor %}
+</tbody></table>
+<form method="POST" style="margin-top:20px">{% csrf_token %}<input type="hidden" name="confirm" value="yes"><button type="submit" class="btn">✅ Confirm Import ({{ total_rows }} rows)</button></form></div>
+{% else %}
+<div class="card">
+<form method="POST" enctype="multipart/form-data">{% csrf_token %}
+<div class="upload-zone"><input type="file" name="csv_file" accept=".csv" id="csvFile" required onchange="document.getElementById('fileName').textContent=this.files[0].name"><label for="csvFile">📁 Click to select CSV file</label><p id="fileName" style="margin-top:8px;font-size:14px;color:var(--ink-3)"></p></div>
+<button type="submit" class="btn" style="margin-top:16px">Preview Import</button>
+</form></div>
+{% endif %}
+</div></div></body></html>

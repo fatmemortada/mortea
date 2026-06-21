@@ -1,0 +1,104 @@
+{% extends "clients/base.html" %}
+{% block title %}Automation Center — Mortacc{% endblock %}
+{% block nav_automation %}active{% endblock %}
+{% block topbar_title %}Automation Center{% endblock %}
+
+{% block extra_head %}<style>
+.engine-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.engine-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;transition:all .15s;text-decoration:none;color:inherit;display:block}
+.engine-card:hover{border-color:var(--brand-muted);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.engine-icon{font-size:32px;margin-bottom:10px}
+.engine-name{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:6px}
+.engine-desc{font-size:13px;color:var(--ink-3);line-height:1.5;margin-bottom:12px}
+.engine-cta{font-size:12px;color:var(--brand);font-weight:600}
+.engine-card.needs-action{border-left:3px solid var(--amber)}
+.engine-card.needs-action .engine-cta{color:var(--amber)}
+.alert-row{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#fffbeb;border:1px solid var(--amber-bg,#fef3c7);border-radius:var(--radius);margin-bottom:8px;font-size:12px}
+</style>{% endblock %}
+
+{% block content %}
+<h2 style="font-size:20px;font-weight:800;margin-bottom:4px;">Automation Center</h2>
+<p style="color:var(--ink-3);font-size:13px;margin-bottom:20px;">One-click engines that do the thinking for you. Each engine auto-generates all required documents, checklists, filings, and invoices — then sends for e-signature.</p>
+
+{% if needs_annual %}
+<div class="card" style="margin-bottom:18px;border-left:3px solid var(--amber);background:#fffbeb">
+    <div class="card-body">
+        <strong style="font-size:14px;">⚠ {{ needs_annual|length }} entities need annual maintenance</strong>
+        <div style="margin-top:8px;">
+            {% for item in needs_annual|slice:":5" %}
+            <div class="alert-row">
+                <span>{{ item.client.name }}</span>
+                <span style="color:{% if item.urgency == 'overdue' %}var(--red){% else %}var(--amber){% endif %};font-weight:500;">{% if item.urgency == 'overdue' %}OVERDUE{% else %}Upcoming{% endif %}</span>
+                <span style="color:var(--ink-4);font-size:11px;">{{ item.tasks_count }} tasks</span>
+                <a href="{% url 'annual_autopilot_client' item.client.id %}" style="margin-left:auto;color:var(--brand);font-weight:600;font-size:12px;text-decoration:none;">Run Auto-Pilot →</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="engine-grid">
+    <!-- Corporate Engines -->
+    <a href="{% url 'annual_autopilot' %}" class="engine-card {% if needs_annual %}needs-action{% endif %}">
+        <div class="engine-icon">📅</div>
+        <div class="engine-name">Annual Maintenance Auto-Pilot</div>
+        <div class="engine-desc">Pick an entity → auto-generates AGM minutes, annual return data, updated registers, T2 prep checklist, GST/HST reminder, and invoice. Everything needed for the annual maintenance package.</div>
+        <div class="engine-cta">Run Auto-Pilot →</div>
+    </a>
+
+    <a href="{% url 'incorporation_autopilot' %}" class="engine-card">
+        <div class="engine-icon">🏢</div>
+        <div class="engine-name">Auto-Incorporation Package</div>
+        <div class="engine-desc">Enter company name, jurisdiction, directors, shareholders → generates 12-document incorporation package: Articles, By-Law, resolutions, consents, subscriptions, certificates, registers, banking resolution. Client created automatically.</div>
+        <div class="engine-cta">Generate Package →</div>
+    </a>
+
+    <a href="{% url 'change_engine' %}" class="engine-card">
+        <div class="engine-icon">🔄</div>
+        <div class="engine-name">Corporate Change Engine</div>
+        <div class="engine-desc">Select change type (director, share transfer, address, amendment, dividend) → auto-generates all required resolutions, updated registers, filing forms, and certificates. One click, all documents.</div>
+        <div class="engine-cta">Process Change →</div>
+    </a>
+
+    <!-- Tax Engines -->
+    <a href="{% url 'tax_center' %}" class="engine-card">
+        <div class="engine-icon">💰</div>
+        <div class="engine-name">Tax Automation Center</div>
+        <div class="engine-desc">T2 corporate tax prep, GST/HST filing data, T4/T5 payroll slips, tax planning (income splitting, SBD optimization, estate freeze analysis, capital gains exemption planner).</div>
+        <div class="engine-cta">Open Tax Center →</div>
+    </a>
+
+    <!-- Bookkeeping Engine -->
+    <a href="{% url 'bookkeeping_autopilot' %}" class="engine-card">
+        <div class="engine-icon">📊</div>
+        <div class="engine-name">Bookkeeping Auto-Pilot</div>
+        <div class="engine-desc">Monthly reconciliation package, year-end adjusting entries, financial statements (compilation/Notice to Reader), fixed asset schedules, shareholder loan reconciliation, T2 prep data handoff.</div>
+        <div class="engine-cta">Process Books →</div>
+    </a>
+
+    <!-- CRA Engine -->
+    <a href="{% url 'cra_autopilot' %}" class="engine-card">
+        <div class="engine-icon">🏛</div>
+        <div class="engine-name">CRA Correspondence & Audit Support</div>
+        <div class="engine-desc">CRA notice response letters, audit preparation checklists, representation letters, expense substantiation logs, pre-assessment review responses. Full audit support workflow.</div>
+        <div class="engine-cta">Handle CRA →</div>
+    </a>
+
+    <!-- Trust Accounting -->
+    <a href="{% url 'trust_autopilot' %}" class="engine-card">
+        <div class="engine-icon">🔐</div>
+        <div class="engine-name">Trust Accounting Auto-Pilot</div>
+        <div class="engine-desc">Client trust ledgers, bank reconciliations, transfer journals, compliance reports, receipt/withdrawal templates. Law Society compliant.</div>
+        <div class="engine-cta">Manage Trust →</div>
+    </a>
+
+    <!-- Onboarding -->
+    <a href="{% url 'onboarding_autopilot' %}" class="engine-card">
+        <div class="engine-icon">🚀</div>
+        <div class="engine-name">Client Onboarding Auto-Pilot</div>
+        <div class="engine-desc">New client? One form → creates client record, engagement letter, KYC/UBO forms, portal link, tax organizer, bookkeeping setup, payroll package. Everything to start the relationship.</div>
+        <div class="engine-cta">Onboard Client →</div>
+    </a>
+</div>
+{% endblock %}

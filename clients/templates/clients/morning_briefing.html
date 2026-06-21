@@ -1,0 +1,190 @@
+{% extends "clients/base.html" %}{% load static %}
+{% block title %}Morning Briefing — Mortacc{% endblock %}
+{% block topbar_title %}🌅 Morning Briefing — {{ today|date:"F j, Y" }}{% endblock %}
+{% block extra_head %}
+<style>
+.briefing{max-width:1400px;padding:20px;display:grid;grid-template-columns:1fr 380px;gap:20px}
+@media(max-width:900px){.briefing{grid-template-columns:1fr}}
+.card{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e2e8f0);border-radius:12px;padding:20px;margin-bottom:16px}
+.card h3{font-size:15px;font-weight:700;margin-bottom:12px}
+.hero-card{background:linear-gradient(135deg,#1e40af 0%,#2563eb 100%);color:#fff;border:none;border-radius:16px;padding:28px}
+.hero-card h1{font-size:26px;font-weight:800;margin-bottom:4px}
+.hero-card .est{font-size:15px;opacity:.85;margin-bottom:12px}
+.hero-card .stats{display:flex;gap:20px;flex-wrap:wrap}
+.hero-stat{text-align:center}.hero-stat .n{font-size:28px;font-weight:800}.hero-stat .l{font-size:11px;opacity:.7}
+.brief-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9}
+.brief-item:last-child{border-bottom:none}
+.brief-icon{font-size:20px;flex-shrink:0;width:36px;text-align:center}
+.brief-info{flex:1}.brief-title{font-weight:600;font-size:14px}.brief-detail{font-size:12px;color:var(--ink-4,#94a3b8);margin-top:2px}
+.priority-high{border-left:3px solid #dc2626;padding-left:12px}
+.priority-medium{border-left:3px solid #d97706;padding-left:12px}
+.priority-low{border-left:3px solid #2563eb;padding-left:12px}
+.risk-item{display:flex;align-items:center;gap:8px;padding:8px 0;font-size:13px}
+.risk-bar{flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+.risk-fill{height:100%;border-radius:3px}.risk-high{background:#dc2626}.risk-medium{background:#d97706}.risk-low{background:#16a34a}
+.risk-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px}
+.risk-badge.high{background:#fee2e2;color:#dc2626}.risk-badge.medium{background:#fef3c7;color:#d97706}.risk-badge.low{background:#dcfce7;color:#16a34a}
+.tree-node{padding:6px 12px;font-size:12px;border-left:2px solid #e2e8f0;margin-left:16px}
+.tree-node.root{margin-left:0;border-left-color:#2563eb;font-weight:600;font-size:13px}
+.opp-card{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:12px}
+.opp-high{background:#fef3c7;border-left:3px solid #d97706}
+.opp-medium{background:#eff6ff;border-left:3px solid #2563eb}
+.opp-low{background:#f8fafc;border-left:3px solid #e2e8f0}
+.quick-links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ql-btn{display:block;padding:10px;border-radius:8px;text-align:center;font-size:12px;font-weight:600;text-decoration:none;background:#f8fafc;color:#334155;border:1px solid #e2e8f0}
+.ql-btn:hover{background:#eff6ff;border-color:#2563eb;color:#2563eb}
+</style>{% endblock %}
+{% block content %}
+<div class="briefing">
+  <div>
+    <!-- Hero -->
+    <div class="hero-card">
+      <h1>🌅 Good morning</h1>
+      <div class="est">Estimated work today: <strong>{{ est_hours }} hours</strong> across {{ briefing|length }} action areas</div>
+      <div class="stats">
+        <div class="hero-stat"><div class="n">{{ t1_ready.count }}</div><div class="l">T1s Ready</div></div>
+        <div class="hero-stat"><div class="n">{{ t2_ready.count }}</div><div class="l">T2s Ready</div></div>
+        <div class="hero-stat"><div class="n">{{ overdue_tasks.count }}</div><div class="l">Overdue</div></div>
+        <div class="hero-stat"><div class="n">{{ chasing_escalated.count }}</div><div class="l">Escalated</div></div>
+        <div class="hero-stat"><div class="n">{{ tax_opps|length }}</div><div class="l">Tax Opps</div></div>
+      </div>
+    </div>
+
+    <!-- Briefing Items -->
+    <div class="card">
+      <h3>📋 Today's Briefing</h3>
+      {% for item in briefing %}
+      <div class="brief-item priority-{{ item.priority }}">
+        <div class="brief-icon">{{ item.icon }}</div>
+        <div class="brief-info">
+          <div class="brief-title">{{ item.title }}</div>
+          <div class="brief-detail">{{ item.detail|truncatechars:200 }}</div>
+        </div>
+        <a href="{{ item.link }}" style="font-size:12px;font-weight:600;color:#2563eb;text-decoration:none;flex-shrink:0">View →</a>
+      </div>
+      {% empty %}
+      <div style="text-align:center;padding:24px;color:#94a3b8">✅ Nothing urgent today. Great job staying on top of things!</div>
+      {% endfor %}
+    </div>
+
+    <!-- Tax Planning Opportunities -->
+    {% if tax_opps %}
+    <div class="card">
+      <h3>💡 Tax Planning Opportunities</h3>
+      {% for opp in tax_opps %}
+      <div class="opp-card opp-{{ opp.priority }}">
+        <strong>{{ opp.title }}</strong>
+        <div style="margin:2px 0">{{ opp.description|truncatechars:180 }}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+          <span style="font-size:10px;color:#64748b">{{ opp.client_name }} · Savings: {{ opp.estimated_savings }}</span>
+          <a href="/tax-advisor/" style="font-size:11px;color:#2563eb;font-weight:600;text-decoration:none">Explore →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Urgent Deadlines -->
+    {% if urgent_deadlines %}
+    <div class="card">
+      <h3>📅 Urgent Deadlines (14 days)</h3>
+      {% for d in urgent_deadlines %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px;border-bottom:1px solid #f1f5f9">
+        <span><strong>{{ d.entity }}</strong> — {{ d.deadline_name }} <span style="color:#94a3b8;font-size:11px">({{ d.jurisdiction }})</span></span>
+        <span style="color:{% if d.days_remaining <= 0 %}#dc2626{% elif d.days_remaining <= 7 %}#d97706{% else %}#64748b{% endif %};font-weight:700">
+          {% if d.days_remaining <= 0 %}OVERDUE{% else %}{{ d.days_remaining }}d{% endif %}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <!-- Client Risk Scores -->
+    {% if client_risks %}
+    <div class="card">
+      <h3>⚠ Client Risk Scores</h3>
+      {% for risk in client_risks %}
+      <div class="risk-item">
+        <span style="flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ risk.client_name }}</span>
+        <div class="risk-bar" style="width:80px"><div class="risk-fill {% if risk.level == 'high' %}risk-high{% elif risk.level == 'medium' %}risk-medium{% else %}risk-low{% endif %}" style="width:{{ risk.score }}%"></div></div>
+        <span class="risk-badge {{ risk.level }}">{{ risk.level|title }}</span>
+      </div>
+      {% if risk.flags %}<div style="font-size:10px;color:#94a3b8;margin-left:8px">{{ risk.flags|join:' · '|truncatechars:120 }}</div>{% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Entity Relationship Map -->
+    {% if entity_map.nodes %}
+    <div class="card">
+      <h3>🔗 Entity Relationships</h3>
+      {% for node in entity_map.nodes %}
+      <div class="tree-node {% if node.is_parent %}root{% endif %}">
+        <a href="/clients/{{ node.id }}/copilot/" style="color:inherit;text-decoration:none">{{ node.name }}</a>
+        <span style="font-size:10px;color:#94a3b8;margin-left:6px">{{ node.shareholder_count }} shareholder(s)</span>
+        {% if node.shareholders %}
+        <div style="font-size:10px;color:#94a3b8">👥 {{ node.shareholders|join:', ' }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+      {% if entity_map.connections %}
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:11px;color:#64748b">
+        {% for conn in entity_map.connections %}
+        🔗 {{ conn.from }} ↔ {{ conn.to }} — shared: {{ conn.detail }}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Revenue Generator -->
+    {% if revenue.opportunities %}
+    <div class="card" style="background:linear-gradient(135deg,#065f46,#059669);color:#fff;border:none">
+      <h3 style="color:#fff">💰 Revenue Opportunities</h3>
+      {% for opp in revenue.opportunities %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.15);font-size:13px">
+        <span>{{ opp.icon }} {{ opp.category }}</span>
+        <span style="font-weight:700">${{ opp.total|floatformat:0 }}</span>
+      </div>
+      {% endfor %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;font-size:16px;font-weight:800">
+        <span>Total Opportunity</span>
+        <span>${{ revenue.total_opportunity|floatformat:0 }}</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Highest Risk Client -->
+    {% if highest_risk %}
+    <div class="card">
+      <h3>⚠ Highest Risk: {{ highest_risk.name }}</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="flex:1;height:6px;background:#e2e8f0;border-radius:3px"><div style="width:{{ highest_risk.score }}%;height:100%;background:{% if highest_risk.level == 'high' %}#dc2626{% elif highest_risk.level == 'medium' %}#d97706{% else %}#16a34a{% endif %};border-radius:3px"></div></div>
+        <span class="risk-badge {{ highest_risk.level }}">{{ highest_risk.level|title }}</span>
+      </div>
+      {% for flag in highest_risk.flags %}
+      <div style="font-size:11px;color:#64748b">• {{ flag }}</div>
+      {% endfor %}
+      <a href="/clients/{{ highest_risk.id }}/copilot/" style="font-size:11px;color:#2563eb;display:block;margin-top:8px">View Copilot →</a>
+    </div>
+    {% endif %}
+
+    <!-- Quick Links -->
+    <div class="card">
+      <h3>⚡ Quick Actions</h3>
+      <div class="quick-links">
+        <a href="/t1/" class="ql-btn">📋 T1 Organizers</a>
+        <a href="/t2/" class="ql-btn">💰 T2 Dashboard</a>
+        <a href="/corporate-health/" class="ql-btn">💚 Health Scores</a>
+        <a href="/compliance/" class="ql-btn">📅 Compliance</a>
+        <a href="/automation/dashboard/" class="ql-btn">⚡ Auto Jobs</a>
+        <a href="/tax-advisor/" class="ql-btn">💡 Tax Planning</a>
+        <a href="/billing/" class="ql-btn">💳 Billing</a>
+        <a href="/reminders/" class="ql-btn">📨 Reminders</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

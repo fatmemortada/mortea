@@ -1,0 +1,55 @@
+{% extends "clients/base.html" %}
+{% block title %}Document Batches — Mortacc{% endblock %}
+{% block nav_batches %}active{% endblock %}
+{% block topbar_title %}Document Batches{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'batch_create' %}" class="btn btn-primary">+ New Batch</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .batch-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+    .batch-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; transition:var(--transition); }
+    .batch-card:hover { border-color:var(--brand-muted); box-shadow:var(--shadow-sm); }
+    .batch-status { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:99px; }
+    .batch-status.uploading { background:var(--brand-soft); color:var(--brand); }
+    .batch-status.review { background:var(--amber-bg); color:var(--amber); }
+    .batch-status.processing { background:var(--purple-bg); color:var(--purple); }
+    .batch-status.complete { background:var(--green-bg); color:var(--green); }
+    .batch-name { font-size:15px; font-weight:600; color:var(--ink); margin:8px 0; }
+    .batch-meta { font-size:11px; color:var(--ink-4); display:flex; gap:14px; margin-bottom:8px; }
+    .batch-progress { height:6px; background:var(--surface-2); border-radius:3px; overflow:hidden; }
+    .batch-fill { height:100%; background:var(--brand); border-radius:3px; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if batches %}
+<div class="batch-grid">
+    {% for batch in batches %}
+    <a href="{% url 'batch_detail' batch.id %}" style="text-decoration:none;">
+        <div class="batch-card">
+            <span class="batch-status {{ batch.status }}">{{ batch.get_status_display }}</span>
+            <div class="batch-name">{{ batch.name }}</div>
+            <div class="batch-meta">
+                <span>{{ batch.total_files }} files</span>
+                <span>{{ batch.created_at|date:"M d, Y" }}</span>
+                {% if batch.client %}<span>{{ batch.client.name }}</span>{% endif %}
+            </div>
+            <div class="batch-progress">
+                <div class="batch-fill" style="width:{% widthratio batch.classified_count batch.total_files 100 %}%"></div>
+            </div>
+            <div style="font-size:11px;color:var(--ink-4);margin-top:4px;">{{ batch.classified_count }}/{{ batch.total_files }} classified</div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="1.5"><path d="M9 12h6m-3-3v6m-7 4V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+    <p style="margin-top:12px;font-size:15px;font-weight:500;color:var(--ink-3);">No document batches</p>
+    <p style="font-size:13px;color:var(--ink-4);">Upload bulk documents with AI-powered classification against your minute book checklist.</p>
+    <a href="{% url 'batch_create' %}" class="btn btn-primary" style="margin-top:12px;">Upload First Batch</a>
+</div>
+{% endif %}
+{% endblock %}

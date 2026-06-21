@@ -1,0 +1,26 @@
+{% extends "clients/base.html" %}
+{% block title %}Reports Center{% endblock %}
+{% block topbar_title %}Reports{% endblock %}
+{% block nav_reports %}active{% endblock %}
+{% block content %}<div style="max-width:1100px">
+<div class="page-header"><div class="page-header-text"><h1>Reports Center</h1><p>Cross-entity reports across your whole firm — view on screen or export to Excel-ready CSV</p></div>
+<a href="?report={{ current_report }}&export=csv" class="btn btn-primary btn-sm">Export CSV</a></div>
+
+<div class="tab-nav" style="flex-wrap:wrap">
+{% for key, label in reports.items %}
+<a href="?report={{ key }}" class="tab-link {% if key == current_report %}active{% endif %}" style="text-decoration:none">{{ label }}</a>
+{% endfor %}
+</div>
+
+<div class="card"><div class="card-header"><span class="card-title">{{ current_label }}</span>
+<span style="font-size:12px;color:var(--ink-4)">{{ rows|length }} row{{ rows|length|pluralize }}</span></div>
+<div class="card-body" style="padding:0;overflow-x:auto"><table>
+<thead><tr>{% for h in headers %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+<tbody>
+{% for row in rows %}
+<tr>{% for cell in row %}<td{% if forloop.first %} style="font-weight:600"{% endif %}>{{ cell|default:"—" }}</td>{% endfor %}</tr>
+{% empty %}
+<tr><td colspan="{{ headers|length }}"><div class="empty-state"><p>No data for this report yet.</p></div></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+</div>{% endblock %}

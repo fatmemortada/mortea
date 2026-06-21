@@ -1,0 +1,307 @@
+{% extends "clients/base.html" %}
+{% block title %}Reminders — Mortacc{% endblock %}
+{% block nav_reminders %}active{% endblock %}
+{% block topbar_title %}Reminders{% endblock %}
+
+{% block extra_head %}
+<style>
+    .rem-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .rem-stat {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    }
+    .rem-stat .label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: var(--gray-500);
+        margin-bottom: 6px;
+    }
+    .rem-stat .value {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--gray-900);
+        line-height: 1;
+    }
+
+    .rem-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        box-shadow: 0 2px 12px rgba(0,0,0,.04);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    .rem-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .rem-card-title { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+    .rem-card-count {
+        font-size: 12px;
+        color: var(--gray-500);
+        background: var(--gray-100);
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+
+    .rem-table { width: 100%; border-collapse: collapse; }
+    .rem-table th {
+        padding: 10px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--gray-500);
+        border-bottom: 1px solid var(--gray-100);
+        background: var(--gray-50);
+    }
+    .rem-table td {
+        padding: 13px 16px;
+        font-size: 13px;
+        border-bottom: 1px solid var(--gray-100);
+        vertical-align: middle;
+    }
+    .rem-table tr:last-child td { border-bottom: none; }
+    .rem-table tr:hover td { background: var(--gray-50); }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .badge-red    { background: #fee2e2; color: #dc2626; }
+    .badge-amber  { background: #fef3c7; color: #d97706; }
+    .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+    .badge-green  { background: #dcfce7; color: #15803d; }
+    .badge-gray   { background: var(--gray-100); color: var(--gray-500); }
+
+    .task-title { font-weight: 600; color: var(--gray-900); }
+    .task-sub { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all .15s;
+        white-space: nowrap;
+    }
+    .btn-sm-primary { background: var(--blue); color: #fff; border: none; }
+    .btn-sm-primary:hover { background: #1d4ed8; }
+    .btn-sm-ghost { background: var(--gray-50); color: var(--gray-700); border-color: var(--gray-200); }
+    .btn-sm-ghost:hover { background: var(--gray-100); }
+
+    .no-data { padding: 48px; text-align: center; color: var(--gray-400); font-size: 13px; }
+    .no-data .icon { font-size: 32px; margin-bottom: 8px; }
+
+    .flash {
+        background: #dcfce7;
+        border: 1px solid #bbf7d0;
+        color: #15803d;
+        padding: 12px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if sent_message %}
+<div class="flash">✓ {{ sent_message }}</div>
+{% endif %}
+
+<div class="rem-stats">
+    <div class="rem-stat">
+        <div class="label">Overdue</div>
+        <div class="value" style="color:#dc2626;">{{ overdue_count }}</div>
+    </div>
+    <div class="rem-stat">
+        <div class="label">Due This Week</div>
+        <div class="value" style="color:#d97706;">{{ week_count }}</div>
+    </div>
+    <div class="rem-stat">
+        <div class="label">Due This Month</div>
+        <div class="value">{{ month_count }}</div>
+    </div>
+    <div class="rem-stat">
+        <div class="label">Clients Missing Docs</div>
+        <div class="value" style="color:#d97706;">{{ missing_docs_count }}</div>
+    </div>
+</div>
+
+{% if overdue_tasks %}
+<div class="rem-card">
+    <div class="rem-card-header">
+        <div class="rem-card-title">🔴 Overdue Tasks</div>
+        <div class="rem-card-count">{{ overdue_tasks|length }}</div>
+    </div>
+    <table class="rem-table">
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Client</th>
+                <th>Due Date</th>
+                <th>Days Overdue</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in overdue_tasks %}
+            <tr>
+                <td>
+                    <div class="task-title">{{ item.task.title }}</div>
+                    <div class="task-sub">{{ item.task.get_task_type_display }}</div>
+                </td>
+                <td>
+                    <a href="{% url 'client_detail' item.client.id %}?tab=compliance" style="color:var(--blue);font-weight:600;text-decoration:none;">
+                        {{ item.client.name }}
+                    </a>
+                    <div class="task-sub">{{ item.client.email }}</div>
+                </td>
+                <td>{{ item.task.due_date|date:"M j, Y" }}</td>
+                <td><span class="badge badge-red">{{ item.days_overdue }} days</span></td>
+                <td>
+                    <form method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="send_reminder">
+                        <input type="hidden" name="client_id" value="{{ item.client.id }}">
+                        <input type="hidden" name="task_id" value="{{ item.task.id }}">
+                        <button type="submit" class="btn-sm btn-sm-primary">📧 Send Reminder</button>
+                    </form>
+                    <a href="{% url 'client_detail' item.client.id %}?tab=compliance" class="btn-sm btn-sm-ghost">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if upcoming_tasks %}
+<div class="rem-card">
+    <div class="rem-card-header">
+        <div class="rem-card-title">🟡 Upcoming Deadlines (Next 30 Days)</div>
+        <div class="rem-card-count">{{ upcoming_tasks|length }}</div>
+    </div>
+    <table class="rem-table">
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Client</th>
+                <th>Due Date</th>
+                <th>Days Left</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in upcoming_tasks %}
+            <tr>
+                <td>
+                    <div class="task-title">{{ item.task.title }}</div>
+                    <div class="task-sub">{{ item.task.get_task_type_display }}</div>
+                </td>
+                <td>
+                    <a href="{% url 'client_detail' item.client.id %}?tab=compliance" style="color:var(--blue);font-weight:600;text-decoration:none;">
+                        {{ item.client.name }}
+                    </a>
+                    <div class="task-sub">{{ item.client.email }}</div>
+                </td>
+                <td>{{ item.task.due_date|date:"M j, Y" }}</td>
+                <td>
+                    <span class="badge {% if item.days_left <= 7 %}badge-amber{% else %}badge-blue{% endif %}">
+                        {{ item.days_left }} days
+                    </span>
+                </td>
+                <td>
+                    <form method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="send_reminder">
+                        <input type="hidden" name="client_id" value="{{ item.client.id }}">
+                        <input type="hidden" name="task_id" value="{{ item.task.id }}">
+                        <button type="submit" class="btn-sm btn-sm-primary">📧 Send Reminder</button>
+                    </form>
+                    <a href="{% url 'client_detail' item.client.id %}?tab=compliance" class="btn-sm btn-sm-ghost">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if missing_docs_clients %}
+<div class="rem-card">
+    <div class="rem-card-header">
+        <div class="rem-card-title">📂 Clients with Missing Documents</div>
+        <div class="rem-card-count">{{ missing_docs_clients|length }}</div>
+    </div>
+    <table class="rem-table">
+        <thead>
+            <tr>
+                <th>Client</th>
+                <th>Status</th>
+                <th>Missing Items</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in missing_docs_clients %}
+            <tr>
+                <td>
+                    <div class="task-title">{{ item.client.name }}</div>
+                    <div class="task-sub">{{ item.client.email }}</div>
+                </td>
+                <td><span class="badge badge-amber">{{ item.client.get_status_display }}</span></td>
+                <td style="font-size:12px;color:var(--gray-600);">{{ item.missing|join:", " }}</td>
+                <td>
+                    <form method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="send_docs_reminder">
+                        <input type="hidden" name="client_id" value="{{ item.client.id }}">
+                        <button type="submit" class="btn-sm btn-sm-primary">📧 Send Reminder</button>
+                    </form>
+                    <a href="{% url 'client_detail' item.client.id %}" class="btn-sm btn-sm-ghost">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if not overdue_tasks and not upcoming_tasks and not missing_docs_clients %}
+<div class="rem-card">
+    <div class="no-data">
+        <div class="icon">✅</div>
+        All caught up — no overdue tasks or missing documents.
+    </div>
+</div>
+{% endif %}
+{% endblock %}

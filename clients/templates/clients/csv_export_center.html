@@ -1,0 +1,52 @@
+{% extends "clients/base.html" %}
+{% block title %}CSV Export Center — Mortacc{% endblock %}
+{% block nav_data %}active{% endblock %}
+{% block topbar_title %}Data Export Center{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'csv_import_center' %}" class="btn btn-ghost btn-sm">Import Data</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .export-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+    .export-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; }
+    .export-card h3 { font-size:15px; font-weight:600; margin:0 0 4px; }
+    .export-card p { font-size:12px; color:var(--ink-4); margin:0 0 12px; }
+    .export-form { display:flex; gap:8px; align-items:flex-end; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">Export Data</h2>
+<p style="color:var(--ink-3);font-size:13px;margin-bottom:18px;">Download your firm data as CSV files. All exports include UTF-8 BOM for Excel compatibility.</p>
+
+<div class="export-grid">
+    <div class="export-card">
+        <h3>Clients</h3><p>All clients with entity profiles, status, and contact info</p>
+        <a href="{% url 'export_clients_csv' %}" class="btn btn-primary btn-sm">Export Clients CSV</a>
+    </div>
+    <div class="export-card">
+        <h3>Compliance Tasks</h3><p>All compliance tasks with status, due dates, and assignees</p>
+        <a href="{% url 'export_compliance_csv' %}" class="btn btn-primary btn-sm">Export Compliance CSV</a>
+    </div>
+    <div class="export-card">
+        <h3>Invoices</h3><p>All invoices with amounts, status, and payment dates</p>
+        <a href="{% url 'export_invoices_csv' %}" class="btn btn-primary btn-sm">Export Invoices CSV</a>
+    </div>
+    <div class="export-card">
+        <h3>Directors & Officers</h3><p>All director/officer records across all entities</p>
+        <a href="{% url 'export_clients_csv' %}" class="btn btn-ghost btn-sm">Included in Clients Export</a>
+    </div>
+</div>
+
+{% if recent_exports %}
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title">Recent Exports</span></div>
+    <div class="card-body">
+        {% for exp in recent_exports %}
+        <div style="padding:8px 0;border-bottom:1px solid var(--surface-2);font-size:12.5px;">{{ exp.name }} — {{ exp.created_at|date:"M d, Y H:i" }}</div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "clients/base.html" %}
+{% block title %}{{ batch.name }} — Mortacc{% endblock %}
+{% block nav_batches %}active{% endblock %}
+{% block topbar_title %}{{ batch.name }}{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'batch_list' %}" class="btn btn-ghost btn-sm">← All Batches</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .batch-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px; }
+    .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; text-align:center; }
+    .stat-card .val { font-size:24px; font-weight:800; }
+    .doc-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+    .doc-table th { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-4); padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; background:var(--surface-2); }
+    .doc-table td { padding:7px 10px; border-bottom:1px solid var(--surface-2); }
+    .conf-high { background:var(--green-bg); color:var(--green); font-size:10px; font-weight:600; padding:2px 7px; border-radius:99px; }
+    .conf-medium { background:var(--amber-bg); color:var(--amber); font-size:10px; font-weight:600; padding:2px 7px; border-radius:99px; }
+    .conf-low { background:var(--red-bg); color:var(--red); font-size:10px; font-weight:600; padding:2px 7px; border-radius:99px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="batch-stats">
+    <div class="stat-card"><div class="val" style="color:var(--brand);">{{ batch.total_files }}</div><div class="lbl" style="font-size:10px;text-transform:uppercase;color:var(--ink-4);">Total Files</div></div>
+    <div class="stat-card"><div class="val" style="color:var(--green);">{{ batch.classified_count }}</div><div class="lbl" style="font-size:10px;text-transform:uppercase;color:var(--ink-4);">Classified</div></div>
+    <div class="stat-card"><div class="val" style="color:var(--amber);">{{ batch.unclassified_count }}</div><div class="lbl" style="font-size:10px;text-transform:uppercase;color:var(--ink-4);">Unclassified</div></div>
+    <div class="stat-card"><span class="batch-status {{ batch.status }}" style="display:inline-block;font-size:14px;font-weight:600;">{{ batch.get_status_display }}</span><div class="lbl" style="font-size:10px;text-transform:uppercase;color:var(--ink-4);margin-top:4px;">Status</div></div>
+</div>
+
+<div class="card">
+    <div class="card-header"><span class="card-title">Documents</span></div>
+    <div class="card-body" style="padding:0;">
+        <div class="table-wrap">
+            <table class="doc-table">
+                <thead><tr><th>Filename</th><th>Category</th><th>Confidence</th><th>Size</th></tr></thead>
+                <tbody>
+                    {% for doc in classified_docs %}
+                    <tr>
+                        <td>{{ doc.original_filename }}</td>
+                        <td>{{ doc.category|default:"—" }}</td>
+                        <td>{% if doc.confidence_level == 'high' %}<span class="conf-high">High</span>{% elif doc.confidence_level == 'medium' %}<span class="conf-medium">Medium</span>{% else %}<span class="conf-low">Low</span>{% endif %}</td>
+                        <td>{{ doc.file_size|filesizeformat }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align:center;padding:32px;color:var(--ink-4);">No documents in this batch</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if checklist %}
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title">Checklist Progress</span></div>
+    <div class="card-body">
+        {% for item in checklist %}
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--surface-2);font-size:13px;">
+            <span style="color:{% if item.completed %}var(--green){% else %}var(--ink-4){% endif %};">{% if item.completed %}✓{% else %}○{% endif %}</span>
+            <span style="color:var(--ink-2);">{{ item.name }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

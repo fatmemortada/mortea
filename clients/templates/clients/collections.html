@@ -1,0 +1,227 @@
+{% extends "clients/base.html" %}
+{% block title %}Collections — Mortacc{% endblock %}
+{% block nav_collections %}active{% endblock %}
+{% block topbar_title %}Collections{% endblock %}
+{% block topbar_actions %}
+    <form method="POST" style="display:inline">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="mark_overdue_bulk">
+        <button type="submit" class="btn btn-outline">Mark All Overdue</button>
+    </form>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .col-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+    .col-card {
+        background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px;
+    }
+    .col-card.red { border-color:var(--red-muted); background:var(--red-bg); }
+    .col-card.amber { border-color:#fcd34d; background:#fffbeb; }
+    .col-card h3 { font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin:0 0 4px; }
+    .col-card .val { font-size:24px;font-weight:800;color:var(--ink); }
+    .col-card .sub { font-size:11px;color:var(--ink-3); }
+
+    .aging-bar { display:flex; height:40px; border-radius:var(--radius); overflow:hidden; margin-bottom:22px; }
+    .aging-seg { display:flex; align-items:center; justify-content:center; flex-direction:column; color:#fff; font-size:11px; font-weight:600; }
+    .aging-seg.s30 { background:var(--blue); }
+    .aging-seg.s60 { background:#d97706; }
+    .aging-seg.s90 { background:var(--red); }
+    .aging-seg.s90p { background:#991b1b; }
+
+    .inv-table { width:100%; border-collapse:collapse; font-size:12px; }
+    .inv-table th { text-align:left; padding:8px 10px; font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-3); background:var(--surface-2); border-bottom:2px solid var(--border); }
+    .inv-table td { padding:9px 10px; border-bottom:1px solid var(--surface-2); }
+    .inv-table tr:hover td { background:var(--surface-2); }
+    .inv-table tr.overdue td { background:#fff5f5; }
+    .amount-cell { font-weight:600; text-align:right; }
+    .amount-cell.danger { color:var(--red); }
+    .days-badge {
+        display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:99px;
+        background:var(--red-bg); color:var(--red);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="col-stats">
+    <div class="col-card red">
+        <h3>Total Overdue</h3>
+        <div class="val">{{ overdue_invoices.count }}</div>
+        <div class="sub">${{ overdue_invoices|length|default:0 }} invoices</div>
+    </div>
+    <div class="col-card">
+        <h3>30 Days</h3>
+        <div class="val">{{ aging_summary.30.count }}</div>
+        <div class="sub">${{ aging_summary.30.total|floatformat:0 }}</div>
+    </div>
+    <div class="col-card amber">
+        <h3>60 Days</h3>
+        <div class="val">{{ aging_summary.60.count }}</div>
+        <div class="sub">${{ aging_summary.60.total|floatformat:0 }}</div>
+    </div>
+    <div class="col-card red">
+        <h3>90+ Days</h3>
+        <div class="val">{{ aging_summary.90plus.count }}</div>
+        <div class="sub">${{ aging_summary.90plus.total|floatformat:0 }} at risk</div>
+    </div>
+</div>
+
+<!-- Aging Visualization -->
+{% with total_aging=aging_summary.30.count|add:aging_summary.60.count|add:aging_summary.90.count|add:aging_summary.90plus.count %}
+{% if total_aging > 0 %}
+<div class="aging-bar">
+    {% if aging_summary.30.count > 0 %}
+    <div class="aging-seg s30" style="flex:{% widthratio aging_summary.30.total total_aging 100 %}">
+        <span>${{ aging_summary.30.total|floatformat:0 }}</span><span style="font-size:10px">1-30d</span>
+    </div>
+    {% endif %}
+    {% if aging_summary.60.count > 0 %}
+    <div class="aging-seg s60" style="flex:{% widthratio aging_summary.60.total total_aging 100 %}">
+        <span>${{ aging_summary.60.total|floatformat:0 }}</span><span style="font-size:10px">31-60d</span>
+    </div>
+    {% endif %}
+    {% if aging_summary.90.count > 0 %}
+    <div class="aging-seg s90" style="flex:{% widthratio aging_summary.90.total total_aging 100 %}">
+        <span>${{ aging_summary.90.total|floatformat:0 }}</span><span style="font-size:10px">61-90d</span>
+    </div>
+    {% endif %}
+    {% if aging_summary.90plus.count > 0 %}
+    <div class="aging-seg s90p" style="flex:{% widthratio aging_summary.90plus.total total_aging 100 %}">
+        <span>${{ aging_summary.90plus.total|floatformat:0 }}</span><span style="font-size:10px">90+d</span>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endwith %}
+
+{% if overdue_invoices %}
+<div class="section-header">
+    <h2 style="font-size:15px;font-weight:600;color:var(--ink);margin:0">Overdue Invoices</h2>
+</div>
+<table class="inv-table">
+    <thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Due Date</th><th>Days Overdue</th><th>Reminders</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for inv in overdue_invoices %}
+    <tr class="overdue">
+        <td><span class="inv-number">{{ inv.invoice_number }}</span></td>
+        <td>{{ inv.client.name }}</td>
+        <td class="amount-cell danger">${{ inv.total_amount|floatformat:2 }}</td>
+        <td>{{ inv.due_date|date:"M d, Y" }}</td>
+        <td><span class="days-badge">{{ inv.due_date|timesince }}</span></td>
+        <td>{{ inv.reminder_count }}</td>
+        <td>
+            <div class="action-row">
+                <form method="POST" style="display:inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="send_reminder">
+                    <input type="hidden" name="invoice_id" value="{{ inv.id }}">
+                    <button type="submit" class="mark-btn" style="color:var(--red);border-color:var(--red-muted)">Send Reminder</button>
+                </form>
+                <form method="POST" action="{% url 'billing_dashboard' %}" style="display:inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="mark_paid">
+                    <input type="hidden" name="invoice_id" value="{{ inv.id }}">
+                    <button type="submit" class="mark-btn paid">Mark Paid</button>
+                </form>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if past_due_sent %}
+<div class="section-header" style="margin-top:24px">
+    <h2 style="font-size:15px;font-weight:600;color:var(--ink);margin:0">Sent &amp; Past Due</h2>
+</div>
+<table class="inv-table">
+    <thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Due Date</th><th>Days Since</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for inv in past_due_sent %}
+    <tr>
+        <td><span class="inv-number">{{ inv.invoice_number }}</span></td>
+        <td>{{ inv.client.name }}</td>
+        <td class="amount-cell danger">${{ inv.total_amount|floatformat:2 }}</td>
+        <td>{{ inv.due_date|date:"M d, Y" }}</td>
+        <td><span class="days-badge">{{ inv.due_date|timesince }}</span></td>
+        <td>
+            <form method="POST" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="send_reminder">
+                <input type="hidden" name="invoice_id" value="{{ inv.id }}">
+                <button type="submit" class="mark-btn" style="color:var(--red);border-color:var(--red-muted)">Send Reminder</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if not overdue_invoices and not past_due_sent %}
+<div class="empty-state">
+    <h3>All clear! 🎉</h3>
+    <p>No overdue invoices. Your collections are healthy.</p>
+</div>
+{% endif %}
+
+<!-- Collections Settings -->
+<div class="section-header" style="margin-top:32px">
+    <h2 style="font-size:15px;font-weight:600;color:var(--ink);margin:0">Collections Settings</h2>
+</div>
+<form method="POST" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="save_rules">
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin-bottom:3px">1st Reminder (days)</label>
+            <input type="number" name="reminder_day_1" value="{{ rules.reminder_day_1 }}" class="search-bar" style="width:100%;box-sizing:border-box" min="0" max="365">
+        </div>
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin-bottom:3px">2nd Reminder (days)</label>
+            <input type="number" name="reminder_day_2" value="{{ rules.reminder_day_2 }}" class="search-bar" style="width:100%;box-sizing:border-box" min="0" max="365">
+        </div>
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin-bottom:3px">3rd Reminder (days)</label>
+            <input type="number" name="reminder_day_3" value="{{ rules.reminder_day_3 }}" class="search-bar" style="width:100%;box-sizing:border-box" min="0" max="365">
+        </div>
+        <div>
+            <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin-bottom:3px">Final Reminder (days)</label>
+            <input type="number" name="reminder_day_final" value="{{ rules.reminder_day_final }}" class="search-bar" style="width:100%;box-sizing:border-box" min="0" max="365">
+        </div>
+    </div>
+
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)">
+            <input type="checkbox" name="auto_mark_overdue" value="1" {% if rules.auto_mark_overdue %}checked{% endif %}> Auto-mark overdue
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)">
+            <input type="checkbox" name="send_client_emails" value="1" {% if rules.send_client_emails %}checked{% endif %}> Send client emails
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2)">
+            <input type="checkbox" name="auto_escalate_to_firm" value="1" {% if rules.auto_escalate_to_firm %}checked{% endif %}> Escalate to firm
+        </label>
+    </div>
+
+    <div style="margin-bottom:12px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin-bottom:3px">Suspend services after (days, 0=never)</label>
+        <input type="number" name="suspend_services_after_days" value="{{ rules.suspend_services_after_days }}" class="search-bar" style="width:120px" min="0" max="365">
+    </div>
+
+    <div style="margin-bottom:12px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin-bottom:3px">Reminder Email Subject</label>
+        <input type="text" name="reminder_email_subject" value="{{ rules.reminder_email_subject }}" class="search-bar" style="width:100%;box-sizing:border-box">
+    </div>
+
+    <div style="margin-bottom:12px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin-bottom:3px">Reminder Email Body</label>
+        <textarea name="reminder_email_body" rows="5" class="search-bar" style="width:100%;box-sizing:border-box;resize:vertical;font-family:monospace;font-size:12px">{{ rules.reminder_email_body }}</textarea>
+        <p style="font-size:10px;color:var(--ink-3);margin-top:4px">Available variables: {'{{'} client_name {'}}'}, {'{{'} firm_name {'}}'}, {'{{'} invoice_number {'}}'}, {'{{'} amount {'}}'}, {'{{'} due_date {'}}'}, {'{{'} payment_link {'}}'}</p>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Settings</button>
+</form>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends "clients/base.html" %}
+{% block title %}{{ client.name }} — Overview | Mortacc{% endblock %}
+{% block topbar_title %}{{ client.name }} <span class="badge badge-{{ health.grade|lower }}">{{ health.grade }} · {{ health.score }}%</span>{% endblock %}
+
+{% block extra_head %}
+<style>
+  .overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--gap); margin-bottom: var(--gap); }
+  .ov-card { background: var(--card-bg); border: var(--border); border-radius: var(--radius); padding: 1.25rem; }
+  .ov-card h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 0 0 0.75rem; }
+  .ov-stat { font-size: 1.75rem; font-weight: 700; }
+  .ov-stat-sm { font-size: 0.85rem; color: var(--muted); }
+  .ov-row { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid var(--border-light); }
+  .ov-row:last-child { border-bottom: none; }
+  .tag { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+  .tag-red { background: #fef2f2; color: #dc2626; } .tag-amber { background: #fffbeb; color: #d97706; }
+  .tag-green { background: #f0fdf4; color: #16a34a; } .tag-blue { background: #eff6ff; color: #2563eb; }
+  .quick-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+  .quick-actions .btn { font-size: 0.8rem; }
+  .health-bar { height: 8px; border-radius: 4px; background: var(--border-light); margin: 0.5rem 0 0.75rem; overflow: hidden; }
+  .health-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+  .activity-item { padding: 0.35rem 0; font-size: 0.85rem; border-bottom: 1px solid var(--border-light); }
+  .activity-item:last-child { border-bottom: none; }
+  .progress-ring { width: 80px; height: 80px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--gap);">
+  <div>
+    <p style="margin:0; color:var(--muted);">
+      {{ client.client_type|title }} · {{ client.business_type|default:"General" }}
+      {% if profile %}<br>{{ profile.jurisdiction|default:"" }}{% endif %}
+    </p>
+  </div>
+  <div class="quick-actions">
+    <a href="{% url 'client_detail' client.id %}" class="btn btn-ghost btn-sm">Full Profile</a>
+    <a href="{% url 'cap_table' client.id %}" class="btn btn-ghost btn-sm">Cap Table</a>
+    <a href="{% url 'minute_books' %}" class="btn btn-primary btn-sm">Minute Book</a>
+  </div>
+</div>
+
+<!-- ── Health Score ── -->
+<div class="ov-card" style="margin-bottom:var(--gap);">
+  <h3>Entity Health — {{ health.label }}</h3>
+  <div style="display:flex; align-items:center; gap:1.5rem;">
+    <div style="text-align:center;">
+      <div class="ov-stat" style="color:{{ health.color }};">{{ health.score }}%</div>
+      <div class="ov-stat-sm">Grade {{ health.grade }}</div>
+    </div>
+    <div style="flex:1;">
+      <div class="ov-row"><span>Compliance</span><span>{{ health.breakdown.compliance }}/40</span></div>
+      <div class="ov-row"><span>Documents</span><span>{{ health.breakdown.documents }}/30</span></div>
+      <div class="ov-row"><span>Profile</span><span>{{ health.breakdown.profile }}/20</span></div>
+      <div class="ov-row"><span>Billing</span><span>{{ health.breakdown.billing }}/10</span></div>
+    </div>
+  </div>
+  <div class="health-bar"><div class="health-fill" style="width:{{ health.score }}%; background:{{ health.color }};"></div></div>
+</div>
+
+<div class="overview-grid">
+  <!-- Key Dates -->
+  <div class="ov-card">
+    <h3>📅 Key Dates</h3>
+    {% for label, dt in key_dates %}
+      <div class="ov-row">
+        <span>{{ label }}</span>
+        <span class="tag {% if dt < today %}tag-red{% elif dt < soon %}tag-amber{% else %}tag-green{% endif %}">{{ dt|date:"M d, Y" }}</span>
+      </div>
+    {% empty %}
+      <p class="ov-stat-sm">No key dates recorded. <a href="{% url 'client_detail' client.id %}">Add profile dates</a>.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Compliance -->
+  <div class="ov-card">
+    <h3>📋 Compliance</h3>
+    <div style="display:flex; gap:1rem; margin-bottom:0.75rem;">
+      <div><span class="tag tag-red">{{ overdue_tasks|length }} overdue</span></div>
+      <div><span class="tag tag-amber">{{ upcoming_tasks|length }} pending</span></div>
+      <div><span class="tag tag-green">{{ completed_tasks }} done</span></div>
+    </div>
+    {% for task in upcoming_tasks|slice:":5" %}
+      <div class="ov-row">
+        <span>{{ task.task_name }}</span>
+        <span class="ov-stat-sm">{{ task.due_date|date:"M d" }}</span>
+      </div>
+    {% empty %}
+      <p class="ov-stat-sm">No upcoming compliance tasks.</p>
+    {% endfor %}
+    {% if total_tasks > 0 %}
+    <div class="health-bar" style="margin-top:0.75rem;">
+      <div class="health-fill" style="width:{% widthratio completed_tasks total_tasks 100 %}%; background:var(--green);"></div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- People -->
+  <div class="ov-card">
+    <h3>👥 People</h3>
+    <div class="ov-row"><span>Directors</span><span><strong>{{ directors|length }}</strong></span></div>
+    <div class="ov-row"><span>Shareholders</span><span><strong>{{ shareholders|length }}</strong></span></div>
+    <div class="ov-row"><span>Appointments</span><span><strong>{{ appointments|length }}</strong></span></div>
+    <div class="ov-row"><span>UBO Records</span><span><strong>{{ ubo_count }}</strong></span></div>
+    {% if expiring_appointments %}
+      <div style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid var(--border-light);">
+        <span class="tag tag-amber">⚠ {{ expiring_appointments|length }} expiring soon</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Documents -->
+  <div class="ov-card">
+    <h3>📄 Documents</h3>
+    <div class="ov-stat">{{ total_docs }}</div>
+    <div class="ov-stat-sm">Total documents</div>
+    <div class="ov-row" style="margin-top:0.5rem;">
+      <span>Onboarding</span><span>{{ onboarding_docs|length }}</span>
+    </div>
+    <div class="ov-row">
+      <span>Minute Book</span><span>{{ minute_book_docs|length }}</span>
+    </div>
+    <div class="ov-row">
+      <span>Completeness</span>
+      <span>
+        {% if completeness >= 80 %}<span class="tag tag-green">{{ completeness }}%</span>
+        {% elif completeness >= 50 %}<span class="tag tag-amber">{{ completeness }}%</span>
+        {% else %}<span class="tag tag-red">{{ completeness }}%</span>{% endif %}
+      </span>
+    </div>
+    {% if missing %}
+    <div style="margin-top:0.5rem; font-size:0.8rem; color:var(--muted);">
+      Missing: {{ missing|join:", " }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Billing -->
+  <div class="ov-card">
+    <h3>💰 Billing</h3>
+    <div class="ov-stat">${{ total_billed|floatformat:0 }}</div>
+    <div class="ov-stat-sm">Total billed</div>
+    {% if outstanding > 0 %}
+      <div class="ov-row" style="margin-top:0.4rem;">
+        <span>Outstanding</span><span style="color:var(--red);"><strong>${{ outstanding|floatformat:0 }}</strong></span>
+      </div>
+    {% endif %}
+    {% for inv in invoices %}
+      <div class="ov-row">
+        <span>{{ inv.invoice_number|default:"Draft" }}</span>
+        <span class="tag {% if inv.status == 'paid' %}tag-green{% elif inv.status == 'overdue' %}tag-red{% else %}tag-amber{% endif %}">{{ inv.status }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Registrations -->
+  <div class="ov-card">
+    <h3>🏛 Registrations</h3>
+    {% for reg in registrations %}
+      <div class="ov-row">
+        <span>{{ reg.get_registration_type_display }}</span>
+        <span class="tag {% if reg.is_expired %}tag-red{% elif reg.needs_renewal %}tag-amber{% else %}tag-green{% endif %}">
+          {{ reg.status }}
+        </span>
+      </div>
+      {% if reg.renewal_date %}<div class="ov-stat-sm">Renewal: {{ reg.renewal_date|date:"M d, Y" }}</div>{% endif %}
+    {% empty %}
+      <p class="ov-stat-sm">No registrations — <a href="{% url 'registrations' client.id %}">add one</a>.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="ov-card" style="margin-bottom:var(--gap);">
+  <h3>📝 Recent Activity</h3>
+  {% for entry in recent_activity %}
+    <div class="activity-item">
+      <strong>{{ entry.user.email|default:"System" }}</strong>
+      {{ entry.action }} {{ entry.model_name }}
+      {% if entry.object_repr %}"{{ entry.object_repr }}"{% endif %}
+      <span style="float:right; color:var(--muted);">{{ entry.timestamp|timesince }} ago</span>
+    </div>
+  {% empty %}
+    <p class="ov-stat-sm">No activity yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,244 @@
+{% extends "clients/base.html" %}
+{% block title %}Document Manager — Mortacc{% endblock %}
+{% block nav_documents %}active{% endblock %}
+{% block topbar_title %}Document Manager{% endblock %}
+
+{% block extra_head %}
+<style>
+    .doc-stats { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px; }
+
+    .filter-bar { display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap; }
+    .search-bar {
+        width:220px;padding:7px 11px 7px 32px;border:1px solid var(--border);border-radius:var(--radius);
+        font-family:inherit;font-size:13px;color:var(--ink-2);
+        background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z' clip-rule='evenodd'/%3E%3C/svg%3E") 10px center no-repeat;
+        outline:none;transition:var(--transition);
+    }
+    .search-bar:focus { border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .filter-select {
+        padding:7px 26px 7px 10px;border:1px solid var(--border);border-radius:var(--radius);
+        font-family:inherit;font-size:13px;color:var(--ink-2);background:var(--surface);
+        cursor:pointer;outline:none;appearance:none;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2394a3b8' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+        background-repeat:no-repeat;background-position:right 9px center;
+    }
+
+    .doc-type-icon { width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0; }
+    .doc-type-icon.pdf   { background:#fee2e2; }
+    .doc-type-icon.image { background:#ede9fe; }
+    .doc-type-icon.doc   { background:#dbeafe; }
+    .doc-type-icon.other { background:var(--surface-2); }
+
+    .doc-name { font-size:13.5px;font-weight:500;color:var(--ink); }
+    .doc-meta { font-size:12px;color:var(--ink-3);margin-top:2px; }
+
+    .cat-badge { font-size:11px;font-weight:500;padding:2px 8px;border-radius:99px; }
+    .cat-badge.id       { background:#dbeafe;color:#1d4ed8; }
+    .cat-badge.bank     { background:var(--green-bg);color:var(--green); }
+    .cat-badge.tax      { background:#fef3c7;color:#92400e; }
+    .cat-badge.corporate{ background:#ede9fe;color:#6d28d9; }
+    .cat-badge.additional{ background:var(--surface-2);color:var(--ink-3); }
+
+    .client-section { margin-bottom:28px; }
+    .client-section-header {
+        display:flex;align-items:center;justify-content:space-between;
+        padding:10px 14px;background:var(--surface-2);
+        border:1px solid var(--border);border-radius:var(--radius);
+        margin-bottom:8px;cursor:pointer;
+    }
+    .client-section-header:hover { background:#f1f5f9; }
+    .client-section-name { font-size:14px;font-weight:600;color:var(--ink); }
+    .client-section-count { font-size:12px;color:var(--ink-3); }
+    .client-docs { display:none; }
+    .client-docs.open { display:block; }
+
+    .view-toggle { display:flex;gap:2px;background:var(--surface-2);border-radius:var(--radius);padding:2px; }
+    .view-btn { padding:5px 10px;border-radius:5px;font-size:12px;font-weight:500;color:var(--ink-3);cursor:pointer;border:none;background:none;font-family:inherit;transition:var(--transition);display:flex;align-items:center;gap:5px; }
+    .view-btn.active { background:var(--surface);color:var(--ink);box-shadow:var(--shadow-xs); }
+
+    .grid-view { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px; }
+    .doc-grid-card {
+        background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+        padding:16px;transition:box-shadow var(--transition);
+    }
+    .doc-grid-card:hover { box-shadow:var(--shadow-sm); }
+    .doc-grid-icon { font-size:28px;margin-bottom:10px; }
+    .doc-grid-name { font-size:13px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .doc-grid-meta { font-size:11.5px;color:var(--ink-3);margin-top:3px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Stats -->
+<div class="doc-stats">
+    <div class="stat-card" style="border-top:2px solid var(--brand)">
+        <div class="stat-label">Total Documents</div>
+        <div class="stat-value">{{ total_docs }}</div>
+        <div class="stat-sub">Across all clients</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">ID Documents</div>
+        <div class="stat-value" style="color:var(--brand)">{{ id_count }}</div>
+        <div class="stat-sub">Passports, driver's licenses</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Corporate Docs</div>
+        <div class="stat-value" style="color:var(--purple)">{{ corporate_count }}</div>
+        <div class="stat-sub">Minute books, resolutions</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Clients with Docs</div>
+        <div class="stat-value" style="color:var(--green)">{{ clients_with_docs }}</div>
+        <div class="stat-sub">Have at least one file</div>
+    </div>
+</div>
+
+<!-- Filter bar -->
+<div class="filter-bar">
+    <input type="text" class="search-bar" id="doc-search" placeholder="Search documents or clients…" oninput="filterDocs()">
+    <select class="filter-select" id="cat-filter" onchange="filterDocs()">
+        <option value="">All categories</option>
+        <option value="id">ID Documents</option>
+        <option value="bank">Bank Documents</option>
+        <option value="tax">Tax Documents</option>
+        <option value="corporate">Corporate Documents</option>
+        <option value="additional">Additional</option>
+    </select>
+    <div style="margin-left:auto">
+        <div class="view-toggle">
+            <button class="view-btn active" id="btn-list" onclick="switchView('list')">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 000 2h14a1 1 0 100-2H3zm0 6a1 1 0 000 2h14a1 1 0 100-2H3zm0 6a1 1 0 000 2h14a1 1 0 100-2H3z" clip-rule="evenodd"/></svg>
+                List
+            </button>
+            <button class="view-btn" id="btn-grid" onclick="switchView('grid')">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                Grid
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- List view -->
+<div id="view-list">
+{% for group in doc_groups %}
+<div class="client-section" data-client="{{ group.client_name|lower }}">
+    <div class="client-section-header" onclick="toggleClient(this)">
+        <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:30px;height:30px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">{{ group.client_name|slice:":2"|upper }}</div>
+            <div class="client-section-name">{{ group.client_name }}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+            <div class="client-section-count">{{ group.docs|length }} document{{ group.docs|length|pluralize }}</div>
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="color:var(--ink-4);transition:transform .2s" class="chevron"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </div>
+    </div>
+    <div class="client-docs card">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>File</th>
+                        <th>Category</th>
+                        <th>Uploaded</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for doc in group.docs %}
+                <tr data-cat="{{ doc.category }}" data-name="{{ doc.name|lower }}">
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px">
+                            <div class="doc-type-icon {{ doc.icon_type }}">{{ doc.icon }}</div>
+                            <div>
+                                <div class="doc-name">{{ doc.name }}</div>
+                                <div class="doc-meta">{{ doc.size }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="cat-badge {{ doc.category }}">{{ doc.category_label }}</span></td>
+                    <td><span class="text-small text-muted">{{ doc.uploaded }}</span></td>
+                    <td>
+                        <div style="display:flex;gap:6px">
+                            <a href="{{ doc.url }}" target="_blank" class="btn btn-ghost btn-sm">View</a>
+                            <a href="{{ doc.url }}" download class="btn btn-ghost btn-sm">↓</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="empty-state" style="padding:80px 20px">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+    <p>No documents uploaded yet. Documents appear here when clients submit their onboarding portal.</p>
+</div>
+{% endfor %}
+</div>
+
+<!-- Grid view -->
+<div id="view-grid" style="display:none">
+    <div class="grid-view">
+        {% for group in doc_groups %}
+        {% for doc in group.docs %}
+        <div class="doc-grid-card" data-cat="{{ doc.category }}" data-name="{{ doc.name|lower }} {{ group.client_name|lower }}">
+            <div class="doc-grid-icon">{{ doc.icon }}</div>
+            <div class="doc-grid-name">{{ doc.name }}</div>
+            <div class="doc-grid-meta">{{ group.client_name }}</div>
+            <div class="doc-grid-meta" style="margin-top:6px">
+                <span class="cat-badge {{ doc.category }}">{{ doc.category_label }}</span>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:6px">
+                <a href="{{ doc.url }}" target="_blank" class="btn btn-ghost btn-sm" style="flex:1;justify-content:center">View</a>
+                <a href="{{ doc.url }}" download class="btn btn-ghost btn-sm">↓</a>
+            </div>
+        </div>
+        {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function toggleClient(header) {
+    const docs = header.nextElementSibling;
+    const chevron = header.querySelector('.chevron');
+    docs.classList.toggle('open');
+    chevron.style.transform = docs.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+function filterDocs() {
+    const q = document.getElementById('doc-search').value.toLowerCase();
+    const cat = document.getElementById('cat-filter').value;
+    document.querySelectorAll('.client-section').forEach(section => {
+        const clientMatch = section.dataset.client.includes(q);
+        let anyVisible = false;
+        section.querySelectorAll('tbody tr').forEach(row => {
+            const nameMatch = row.dataset.name.includes(q) || clientMatch;
+            const catMatch  = !cat || row.dataset.cat === cat;
+            row.style.display = (nameMatch && catMatch) ? '' : 'none';
+            if (nameMatch && catMatch) anyVisible = true;
+        });
+        section.style.display = anyVisible ? '' : 'none';
+        if (anyVisible) section.querySelector('.client-docs').classList.add('open');
+    });
+    document.querySelectorAll('.doc-grid-card').forEach(card => {
+        const nm = card.dataset.name.includes(q);
+        const cm = !cat || card.dataset.cat === cat;
+        card.style.display = (nm && cm) ? '' : 'none';
+    });
+}
+
+function switchView(view) {
+    document.getElementById('view-list').style.display = view === 'list' ? '' : 'none';
+    document.getElementById('view-grid').style.display = view === 'grid' ? '' : 'none';
+    document.getElementById('btn-list').classList.toggle('active', view === 'list');
+    document.getElementById('btn-grid').classList.toggle('active', view === 'grid');
+}
+</script>
+{% endblock %}

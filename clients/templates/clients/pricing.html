@@ -1,0 +1,139 @@
+﻿{% extends "clients/base.html" %}
+{% block title %}Pricing — Mortacc{% endblock %}
+{% block topbar_title %}Pricing{% endblock %}
+
+{% block extra_head %}
+<style>
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--gap); max-width: 1000px; margin: 0 auto; }
+  .plan { background: var(--card-bg); border: var(--border); border-radius: var(--radius); padding: 2rem; text-align: center; position: relative; display: flex; flex-direction: column; }
+  .plan.featured { border-color: var(--primary); border-width: 2px; box-shadow: 0 0 0 4px rgba(37,99,235,0.1); }
+  .plan-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; padding: 0.25rem 1rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+  .plan-name { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.25rem; }
+  .plan-price { font-size: 2.5rem; font-weight: 800; margin: 0.5rem 0; }
+  .plan-price span { font-size: 1rem; font-weight: 400; color: var(--muted); }
+  .plan-desc { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
+  .plan-features { list-style: none; padding: 0; margin: 0 0 1.5rem; text-align: left; flex: 1; }
+  .plan-features li { padding: 0.4rem 0; border-bottom: 1px solid var(--border-light); font-size: 0.9rem; }
+  .plan-features li:last-child { border-bottom: none; }
+  .plan-features .check { color: var(--green); margin-right: 0.5rem; }
+  .plan-features .dash { color: var(--muted); margin-right: 0.5rem; }
+  .plan .btn { margin-top: auto; }
+  .faq { max-width: 700px; margin: 3rem auto; }
+  .faq h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  .faq p { color: var(--muted); margin: 0; }
+  .annual-toggle { display: flex; justify-content: center; align-items: center; gap: 1rem; margin: 1.5rem 0; }
+  .toggle-label { font-size: 0.9rem; color: var(--muted); }
+  .toggle-label.active { color: var(--text); font-weight: 600; }
+  .save-badge { background: #f0fdf4; color: #16a34a; font-size: 0.7rem; padding: 0.1rem 0.5rem; border-radius: 10px; font-weight: 600; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="text-align:center; margin-bottom:3rem;">
+  <h1 style="font-size:2rem;">Simple, transparent pricing</h1>
+  <p style="color:var(--muted); max-width:500px; margin:0.5rem auto;">Canadian corporate governance software for accounting and law firms. Start free, upgrade when you grow.</p>
+
+  <div class="annual-toggle" id="toggle">
+    <span class="toggle-label active" id="lbl-monthly">Monthly</span>
+    <input type="checkbox" id="billing-toggle" onchange="toggleBilling()" style="width:40px;height:22px;">
+    <span class="toggle-label" id="lbl-annual">Annual <span class="save-badge">Save 17%</span></span>
+  </div>
+</div>
+
+<div class="pricing-grid">
+  <!-- Starter -->
+  <div class="plan">
+    <div class="plan-name">Starter</div>
+    <div class="plan-price" id="price-starter">$299<span>/mo</span></div>
+    <div class="plan-desc">For sole practitioners and small firms getting started with AI-powered automation.</div>
+    <ul class="plan-features">
+      <li><span class="check">✓</span> Up to 100 clients</li>
+      <li><span class="check">✓</span> Annual Maintenance</li>
+      <li><span class="check">✓</span> Compliance Tracking</li>
+      <li><span class="check">✓</span> Client Onboarding</li>
+      <li><span class="check">✓</span> Corporate Records</li>
+      <li><span class="check">✓</span> Basic AI tools</li>
+    </ul>
+    <a href="/signup/?plan=starter" class="btn btn-primary" style="width:100%;">Start Free Trial</a>
+  </div>
+
+  <!-- Growth -->
+  <div class="plan featured">
+    <div class="plan-badge">Most Popular</div>
+    <div class="plan-name">Growth</div>
+    <div class="plan-price" id="price-growth">$799<span>/mo</span></div>
+    <div class="plan-desc">For growing accounting and law firms managing multiple corporate clients.</div>
+    <ul class="plan-features">
+      <li><span class="check">✓</span> Up to 500 clients</li>
+      <li><span class="check">✓</span> Everything in Starter</li>
+      <li><span class="check">✓</span> AI Tax Suite</li>
+      <li><span class="check">✓</span> Accountant Copilot</li>
+      <li><span class="check">✓</span> Workflow Automation</li>
+      <li><span class="check">✓</span> Revenue Generator</li>
+      <li><span class="check">✓</span> Advanced Reporting</li>
+    </ul>
+    <a href="/signup/?plan=growth" class="btn btn-primary" style="width:100%;">Start Free Trial</a>
+  </div>
+
+  <!-- Professional -->
+  <div class="plan">
+    <div class="plan-name">Professional</div>
+    <div class="plan-price" id="price-professional">$1,499<span>/mo</span></div>
+    <div class="plan-desc">For larger firms with complex multi-jurisdiction needs.</div>
+    <ul class="plan-features">
+      <li><span class="check">✓</span> Unlimited clients</li>
+      <li><span class="check">✓</span> Everything in Growth</li>
+      <li><span class="check">✓</span> Full AI Automation Suite</li>
+      <li><span class="check">✓</span> Advanced Tax Planning</li>
+      <li><span class="check">✓</span> Trust &amp; Holding Structures</li>
+      <li><span class="check">✓</span> Priority Support</li>
+      <li><span class="check">✓</span> White Label Options</li>
+    </ul>
+    <a href="/signup/?plan=professional" class="btn btn-primary" style="width:100%;">Start Free Trial</a>
+  </div>
+
+  <!-- Enterprise -->
+  <div class="plan">
+    <div class="plan-name">Enterprise</div>
+    <div class="plan-price" id="price-enterprise">$2,500<span>/mo</span></div>
+    <div class="plan-desc">Starting at. For large multi-office firms with unlimited entities and custom requirements.</div>
+    <ul class="plan-features">
+      <li><span class="check">✓</span> Unlimited clients</li>
+      <li><span class="check">✓</span> Everything in Professional</li>
+      <li><span class="check">✓</span> SSO / SAML</li>
+      <li><span class="check">✓</span> Custom integrations</li>
+      <li><span class="check">✓</span> Data migration service</li>
+      <li><span class="check">✓</span> SLA guarantee</li>
+      <li><span class="check">✓</span> 24/7 dedicated support</li>
+    </ul>
+    <a href="mailto:support@mortacc.com" class="btn btn-ghost" style="width:100%;">Contact Us</a>
+  </div>
+</div>
+
+<div class="faq">
+  <h2 style="text-align:center;">Frequently Asked Questions</h2>
+  <h3>Can I switch plans later?</h3>
+  <p>Yes. Upgrade or downgrade anytime. If you upgrade mid-cycle, we prorate the difference. If you downgrade, changes apply at your next billing cycle.</p>
+  <h3>What counts as a client?</h3>
+  <p>Each corporate client with its own profile counts toward your client limit. Directors, shareholders, appointments, and documents are unlimited on all plans.</p>
+  <h3>Do you offer a free trial?</h3>
+  <p>Yes — 14 days, no credit card required. You get a fully functional account pre-loaded with sample data to explore.</p>
+  <h3>Where is my data stored?</h3>
+  <p>All data is stored in Canadian data centers (Toronto). We comply with PIPEDA and provincial privacy legislation. See our <a href="/security/">Security Center</a> for details.</p>
+  <h3>Do you offer discounts for annual billing?</h3>
+  <p>Yes — save 17% with annual billing. That is 2 months free compared to monthly.</p>
+  <h3>Can you migrate data from Corporatek, EnAct, or ALF?</h3>
+  <p>Yes. We have structured migration toolkits for major legacy platforms. Enterprise plans include a dedicated migration specialist. Contact us for details.</p>
+</div>
+
+<script>
+function toggleBilling() {
+  const annual = document.getElementById("billing-toggle").checked;
+  document.getElementById("lbl-monthly").classList.toggle("active", !annual);
+  document.getElementById("lbl-annual").classList.toggle("active", annual);
+  document.getElementById("price-starter").innerHTML = annual ? "$249<span>/mo</span>" : "$299<span>/mo</span>";
+  document.getElementById("price-growth").innerHTML = annual ? "$665<span>/mo</span>" : "$799<span>/mo</span>";
+  document.getElementById("price-professional").innerHTML = annual ? "$1,249<span>/mo</span>" : "$1,499<span>/mo</span>";
+}
+</script>
+{% endblock %}

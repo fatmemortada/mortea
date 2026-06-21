@@ -1,0 +1,192 @@
+{% extends "clients/base.html" %}
+{% load static %}
+
+{% block title %}Automation Dashboard — Mortacc{% endblock %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="{% static 'clients/css/automation.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="automation-dashboard">
+  <h1>⚡ Automation Dashboard</h1>
+  <p class="subtitle">Background jobs, workflow execution history, bookkeeping & T2 automation status</p>
+
+  <!-- ── Overview Cards ────────────────────────────────────────── -->
+  <div class="auto-overview">
+    <div class="auto-overview-card">
+      <div class="ao-icon">⚡</div>
+      <div class="ao-value ao-purple">{{ active_workflows.count }}</div>
+      <div class="ao-label">Active Workflows</div>
+    </div>
+    <div class="auto-overview-card">
+      <div class="ao-icon">📊</div>
+      <div class="ao-value ao-amber">{{ bk_pending }}</div>
+      <div class="ao-label">Pending Bookkeeping Tasks</div>
+    </div>
+    <div class="auto-overview-card">
+      <div class="ao-icon">💰</div>
+      <div class="ao-value ao-blue">{{ t2_in_progress }}</div>
+      <div class="ao-label">T2 Returns In Progress</div>
+    </div>
+    <div class="auto-overview-card">
+      <div class="ao-icon">✅</div>
+      <div class="ao-value ao-green">{{ t2_filed }}</div>
+      <div class="ao-label">T2 Returns Filed</div>
+    </div>
+    <div class="auto-overview-card">
+      <div class="ao-icon">📅</div>
+      <div class="ao-value">{{ upcoming_deadlines|length }}</div>
+      <div class="ao-label">Upcoming Deadlines (30 days)</div>
+    </div>
+  </div>
+
+  <!-- ── Recent Job Runs ───────────────────────────────────────── -->
+  <div class="auto-section">
+    <h2>🔄 Scheduled Job Runs</h2>
+    <div class="auto-table-wrap">
+      <table class="auto-table">
+        <thead>
+          <tr>
+            <th>Job Name</th>
+            <th>Last Run</th>
+            <th>Status</th>
+            <th>Duration</th>
+            <th>Records</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for job in jobs %}
+          <tr>
+            <td style="font-weight:600">{{ job.name }}</td>
+            <td style="font-size:12px;color:var(--ink-4)">
+              {% if job.last_run %}
+                {{ job.last_run|date:"M j, Y · g:i A" }}
+              {% else %}
+                <span style="color:var(--ink-4)">Never</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if job.last_status == 'completed' %}
+                <span class="auto-badge completed">✓ Completed</span>
+              {% elif job.last_status == 'failed' %}
+                <span class="auto-badge failed" title="{{ job.last_error }}">✕ Failed</span>
+              {% elif job.last_status == 'running' %}
+                <span class="auto-badge running">⟳ Running</span>
+              {% else %}
+                <span class="auto-badge never">— Never</span>
+              {% endif %}
+            </td>
+            <td style="font-size:12px">
+              {% if job.last_duration_ms %}
+                {{ job.last_duration_ms|floatformat:0 }}ms
+              {% else %}—{% endif %}
+            </td>
+            <td style="font-size:12px">
+              {% if job.records > 0 %}{{ job.records }}{% else %}—{% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="auto-empty">No job runs recorded yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Job Schedule Reference ─────────────────────────────────── -->
+  <div class="auto-section">
+    <h2>📋 Automation Job Schedule</h2>
+    <div class="auto-schedule-grid">
+      {% for sch in job_schedule %}
+      <div class="auto-schedule-card">
+        <div class="sch-name">{{ sch.name }}</div>
+        <div class="sch-time">{{ sch.schedule }}</div>
+        <div class="sch-desc">{{ sch.description }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Upcoming Deadlines ─────────────────────────────────────── -->
+  <div class="auto-section">
+    <h2>⚠ Upcoming Automation Deadlines</h2>
+    {% if upcoming_deadlines %}
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;">
+      {% for dl in upcoming_deadlines %}
+      <div class="auto-deadline-item">
+        <div class="auto-deadline-days {% if dl.days_left <= 7 %}urgent{% elif dl.days_left <= 30 %}warning{% else %}ok{% endif %}">
+          {% if dl.days_left <= 0 %}
+            {% if dl.status == 'overdue' %}OVERDUE{% else %}Today{% endif %}
+          {% else %}
+            {{ dl.days_left }}d
+          {% endif %}
+        </div>
+        <div class="auto-deadline-info">
+          <div class="auto-deadline-client">{{ dl.client_name }}</div>
+          <div class="auto-deadline-type">{{ dl.type }} · {{ dl.deadline|date:"M j, Y" }}</div>
+        </div>
+        <div>
+          {% if dl.client_id and dl.type == 'T2 Filing' %}
+            <a href="{% url 't2_prepare_client' dl.client_id %}" style="font-size:12px;font-weight:600;color:var(--brand);text-decoration:none;">Prepare T2 →</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="auto-empty">
+      <div class="auto-empty-icon">🎉</div>
+      <div>No upcoming automation deadlines. Everything is on track!</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── Workflow Run History ───────────────────────────────────── -->
+  <div class="auto-section">
+    <h2>📜 Workflow Run History</h2>
+    {% if recent_runs %}
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;">
+      <div class="auto-runs">
+        {% for run in recent_runs %}
+        <div class="auto-run-item">
+          <div class="auto-run-status">
+            {% if run.status == 'completed' %}
+              <span class="auto-badge completed">✓</span>
+            {% elif run.status == 'failed' %}
+              <span class="auto-badge failed">✕</span>
+            {% else %}
+              <span class="auto-badge running">⟳</span>
+            {% endif %}
+          </div>
+          <div class="auto-run-info">
+            <div class="run-name">{{ run.workflow.name }}</div>
+            <div class="run-meta">
+              {{ run.started_at|date:"M j, Y · g:i A" }} ·
+              {{ run.steps_executed }} step(s) executed
+              {% if run.error_message %}
+                · <span style="color:var(--red)">{{ run.error_message|truncatechars:100 }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="auto-empty">
+      <div class="auto-empty-icon">🔍</div>
+      <div>No workflow runs yet. Create a workflow and trigger it to see execution history here.</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── Quick Links ────────────────────────────────────────────── -->
+  <div class="auto-section" style="display:flex;gap:12px;flex-wrap:wrap;">
+    <a href="{% url 'workflow_list' %}" class="btn btn-outline">⚡ Manage Workflows</a>
+    <a href="{% url 't2_dashboard' %}" class="btn btn-outline">💰 T2 Dashboard</a>
+    <a href="{% url 'time_tracking' %}" class="btn btn-outline">📊 Bookkeeping</a>
+    <a href="{% url 'compliance_dashboard' %}" class="btn btn-outline">📅 Compliance</a>
+  </div>
+</div>
+{% endblock %}

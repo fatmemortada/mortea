@@ -1,0 +1,117 @@
+{% extends "clients/base.html" %}
+{% block title %}Activity Log — Mortacc{% endblock %}
+{% block nav_activity %}active{% endblock %}
+{% block topbar_title %}Activity Log{% endblock %}
+
+{% block extra_head %}
+<style>
+    .log-table { font-size: 13px; }
+    .log-table td { padding: 10px 14px; vertical-align: middle; }
+    .action-badge {
+        display: inline-flex; align-items: center; gap: 4px;
+        font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px;
+        text-transform: uppercase; letter-spacing: .3px;
+    }
+    .action-create  { background: var(--green-bg); color: #15803d; }
+    .action-update  { background: var(--brand-soft); color: #1e40af; }
+    .action-delete  { background: var(--red-bg); color: #991b1b; }
+    .action-download{ background: var(--purple-bg); color: #6d28d9; }
+    .action-sign    { background: var(--amber-bg); color: #92400e; }
+    .action-login   { background: #e0f2fe; color: #0369a1; }
+    .action-invite  { background: #cffafe; color: #0e7490; }
+    .action-payment { background: var(--green-bg); color: #15803d; }
+    .action-status  { background: var(--brand-soft); color: #1d4ed8; }
+    .action-export  { background: var(--purple-bg); color: #6d28d9; }
+    .action-other   { background: var(--surface-2); color: var(--ink-3); }
+
+    .filter-bar {
+        display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+    .filter-bar select, .filter-bar input {
+        padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius);
+        font-family: inherit; font-size: 13px; color: var(--ink-2); background: var(--surface);
+        outline: none;
+    }
+    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--brand); }
+    .meta-json { font-size: 11px; color: var(--ink-4); font-family: 'SF Mono', 'Consolas', monospace; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .empty-state { text-align: center; padding: 52px 20px; color: var(--ink-3); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Audit Trail</div>
+            <div class="card-subtitle">Every action on this firm's data is recorded — immutable and searchable</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <span style="font-size:12px;color:var(--ink-4);">{{ logs|length }} events shown</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="filter-bar">
+            <select name="action" onchange="this.form.submit()">
+                <option value="">All Actions</option>
+                {% for a in all_actions %}
+                <option value="{{ a }}" {% if action_filter == a %}selected{% endif %}>{{ a|title }}</option>
+                {% endfor %}
+            </select>
+            <select name="target" onchange="this.form.submit()">
+                <option value="">All Targets</option>
+                {% for t in all_targets %}
+                <option value="{{ t }}" {% if target_filter == t %}selected{% endif %}>{{ t }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="user" placeholder="Filter by user..." value="{{ user_filter }}" style="width:150px;">
+            <button type="submit" class="btn btn-ghost btn-sm">Filter</button>
+            {% if action_filter or target_filter or user_filter %}
+            <a href="{% url 'activity_log' %}" class="btn btn-ghost btn-sm">Clear</a>
+            {% endif %}
+        </form>
+
+        {% if logs %}
+        <div class="table-wrap">
+            <table class="log-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td style="white-space:nowrap;font-size:12px;">{{ log.created_at|date:"M d, Y" }}<br><span style="color:var(--ink-4);">{{ log.created_at|date:"H:i" }}</span></td>
+                        <td>{{ log.user.username|default:"system" }}</td>
+                        <td><span class="action-badge action-{{ log.action }}">{{ log.get_action_display }}</span></td>
+                        <td>
+                            {% if log.target_type %}
+                            <span style="font-weight:500;">{{ log.target_type }}</span>
+                            {% if log.target_name %}<br><span style="font-size:11px;color:var(--ink-4);">{{ log.target_name|truncatechars:40 }}</span>{% endif %}
+                            {% else %}
+                            <span style="color:var(--ink-4);">—</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ log.description|truncatechars:120 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <svg viewBox="0 0 20 20" fill="currentColor" style="width:40px;height:40px;opacity:.25;margin:0 auto 12px;"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+            <p>No activity log entries yet{% if action_filter or target_filter or user_filter %} matching your filters{% endif %}.</p>
+            <p style="font-size:12px;margin-top:4px;">Activity is logged automatically as you and your team use the platform.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

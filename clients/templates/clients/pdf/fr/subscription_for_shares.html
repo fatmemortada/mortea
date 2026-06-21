@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8">
+<style>
+  @page { size: letter; margin: 2cm 2.2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; font-size: 10.5pt; color: #1a1a1a; line-height: 1.8; }
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 24px; }
+  .doc-logo { font-size: 20pt; font-weight: bold; } .doc-logo span { color: #b8956a; }
+  .doc-meta { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.6; }
+  .doc-title { text-align: center; margin: 20px 0 36px; }
+  .doc-title h1 { font-size: 15pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .doc-title .corp-name { font-size: 12pt; font-style: italic; color: #333; }
+  .doc-title .jurisdiction { font-size: 9pt; color: #666; margin-top: 4px; }
+  .section { margin-bottom: 24px; }
+  .section-label { font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #b8956a; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 14px; }
+  .sub-block { border: 1px solid #d1d5db; border-radius: 4px; padding: 16px 20px; margin-bottom: 20px; background: #f9fafb; }
+  .sub-block .sub-name { font-size: 11pt; font-weight: bold; margin-bottom: 8px; }
+  .field { display: flex; margin-bottom: 8px; }
+  .field-label { width: 200px; font-weight: bold; font-size: 9.5pt; color: #555; flex-shrink: 0; }
+  .field-value { font-size: 10.5pt; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px; }
+  .sig-item .line { border-bottom: 1px solid #1a1a1a; margin-bottom: 6px; height: 45px; }
+  .sig-item .name { font-size: 9pt; font-weight: bold; }
+  .sig-item .label { font-size: 8.5pt; color: #555; }
+  p { margin-bottom: 10px; } .small { font-size: 8.5pt; color: #666; } .mt { margin-top: 16px; }
+</style>
+</head>
+<body>
+<div class="doc-header">
+  <div class="doc-logo">Mort<span>acc</span></div>
+  <div class="doc-meta">{{ client.name }}<br>Souscription d'actions<br>{{ today|date:"j F Y" }}</div>
+</div>
+<div class="doc-title">
+  <h1>Souscription d'Actions</h1>
+  <div class="corp-name">{{ client.name }}</div>
+  <div class="jurisdiction">{% if jurisdiction_display %}Constituée en vertu des lois de {{ jurisdiction_display }} · {% endif %}Canada</div>
+</div>
+<div class="section">
+  <p>Les soussignés souscrivent par les présentes aux actions indiquées ci-dessous dans le capital de <strong>{{ client.name }}</strong> (la « Société »), société constituée en vertu des lois de {{ jurisdiction_display|default:"Canada" }}, et s'engagent à verser la contrepartie indiquée en regard de leurs noms respectifs.</p>
+</div>
+<div class="section">
+  <div class="section-label">Souscripteurs</div>
+  {% if shareholders %}
+    {% for s in shareholders %}
+    <div class="sub-block">
+      <div class="sub-name">{{ s.full_name }}</div>
+      <div class="field"><span class="field-label">Adresse :</span><span class="field-value">{{ s.address|default:"—" }}</span></div>
+      <div class="field"><span class="field-label">Catégorie d'actions :</span><span class="field-value">{{ s.share_class|default:"Ordinaires" }}</span></div>
+      <div class="field"><span class="field-label">Nombre d'actions :</span><span class="field-value">{{ s.num_shares }}</span></div>
+      <div class="field"><span class="field-label">Contrepartie :</span><span class="field-value">{{ s.num_shares }},00 $ (à 1,00 $ par action)</span></div>
+      <div class="field"><span class="field-label">Date de souscription :</span><span class="field-value">{{ s.acquisition_date|date:"j F Y"|default:today|date:"j F Y" }}</span></div>
+    </div>
+    {% endfor %}
+  {% else %}<p class="small">Aucun souscripteur inscrit.</p>{% endif %}
+</div>
+<div class="section">
+  <p>La Société accepte par les présentes les souscriptions ci-dessus et s'engage à émettre les actions indiquées aux souscripteurs respectifs dès réception de la contrepartie indiquée.</p>
+  <p>ACCEPTÉ par la Société le <strong>{{ incorporation_date|date:"j F Y"|default:today|date:"j F Y" }}</strong>.</p>
+</div>
+<div class="section">
+  <div class="section-label">Signatures des souscripteurs</div>
+  <div class="sig-grid">
+    {% for s in shareholders %}
+    <div class="sig-item">
+      <div class="line"></div>
+      <div class="name">{{ s.full_name }}</div>
+      <div class="label">Souscripteur · {{ s.num_shares }} actions {{ s.share_class|default:"ordinaires" }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<div class="section" style="margin-top: 40px;">
+  <div class="section-label">Acceptation par la Société</div>
+  <div class="sig-grid">
+    <div class="sig-item"><div class="line"></div><div class="label">Signataire autorisé / Administrateur</div></div>
+    <div class="sig-item"><div class="line"></div><div class="label">Date</div></div>
+  </div>
+</div>
+<p class="small mt">Préparé par Mortacc Solutions Inc. · support@mortacc.com · mortacc.com</p>
+</body>
+</html>

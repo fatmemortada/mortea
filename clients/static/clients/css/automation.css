@@ -1,0 +1,293 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Automation Dashboard
+   ═══════════════════════════════════════════════════════════════════ */
+
+.automation-dashboard {
+  padding: 24px;
+  max-width: 1400px;
+}
+
+.automation-dashboard h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.automation-dashboard .subtitle {
+  font-size: 14px;
+  color: var(--ink-3);
+  margin-bottom: 24px;
+}
+
+/* ── Overview Cards ────────────────────────────────────────────── */
+.auto-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.auto-overview-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.auto-overview-card .ao-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.auto-overview-card .ao-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.auto-overview-card .ao-label {
+  font-size: 12px;
+  color: var(--ink-4);
+  margin-top: 2px;
+}
+
+.ao-green { color: var(--green); }
+.ao-amber { color: var(--amber); }
+.ao-blue { color: var(--brand); }
+.ao-purple { color: var(--purple); }
+
+/* ── Section Headers ────────────────────────────────────────────── */
+.auto-section {
+  margin-bottom: 32px;
+}
+
+.auto-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+
+/* ── Jobs Table ────────────────────────────────────────────────── */
+.auto-table-wrap {
+  overflow-x: auto;
+}
+
+.auto-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.auto-table thead {
+  background: #f8fafc;
+}
+
+.auto-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.auto-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--ink-2);
+}
+
+.auto-table tr:last-child td {
+  border-bottom: none;
+}
+
+.auto-table tr:hover {
+  background: #f8fafc;
+}
+
+/* ── Status Badges ─────────────────────────────────────────────── */
+.auto-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.auto-badge.completed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.auto-badge.failed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.auto-badge.running {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.auto-badge.never {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+/* ── Schedule Table ─────────────────────────────────────────────── */
+.auto-schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.auto-schedule-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.auto-schedule-card .sch-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.auto-schedule-card .sch-time {
+  font-size: 12px;
+  color: var(--brand);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.auto-schedule-card .sch-desc {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* ── Run History ────────────────────────────────────────────────── */
+.auto-runs {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.auto-run-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+
+.auto-run-item:last-child {
+  border-bottom: none;
+}
+
+.auto-run-status {
+  flex-shrink: 0;
+}
+
+.auto-run-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.auto-run-info .run-name {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.auto-run-info .run-meta {
+  font-size: 11px;
+  color: var(--ink-4);
+}
+
+/* ── Deadlines List ─────────────────────────────────────────────── */
+.auto-deadlines {
+  list-style: none;
+  padding: 0;
+}
+
+.auto-deadline-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+
+.auto-deadline-item:last-child {
+  border-bottom: none;
+}
+
+.auto-deadline-days {
+  min-width: 70px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.auto-deadline-days.urgent {
+  color: var(--red);
+}
+
+.auto-deadline-days.warning {
+  color: var(--amber);
+}
+
+.auto-deadline-days.ok {
+  color: var(--ink-3);
+}
+
+.auto-deadline-info {
+  flex: 1;
+}
+
+.auto-deadline-client {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.auto-deadline-type {
+  font-size: 11px;
+  color: var(--ink-4);
+}
+
+/* ── Empty States ───────────────────────────────────────────────── */
+.auto-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--ink-4);
+  font-size: 14px;
+}
+
+.auto-empty-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .automation-dashboard {
+    padding: 16px;
+  }
+
+  .auto-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .auto-schedule-grid {
+    grid-template-columns: 1fr;
+  }
+}

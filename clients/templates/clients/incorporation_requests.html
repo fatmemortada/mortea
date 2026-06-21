@@ -1,0 +1,307 @@
+{% extends "clients/base.html" %}
+{% block title %}Incorporation Requests — Mortacc{% endblock %}
+{% block topbar_title %}Incorporation Requests{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'corporate' %}" class="btn btn-primary btn-sm">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        New Incorporation
+    </a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .inc-stats { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px; }
+    .inc-stat {
+        background:var(--surface);border:1px solid var(--border);
+        border-radius:var(--radius-lg);padding:16px 18px;text-align:center;
+    }
+    .inc-stat .val { font-size:26px;font-weight:700;color:var(--ink);line-height:1; }
+    .inc-stat .lbl { font-size:11px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.5px;margin-top:4px; }
+    .inc-stat.new { border-top:2px solid var(--brand); }
+    .inc-stat.progress { border-top:2px solid var(--amber); }
+    .inc-stat.done { border-top:2px solid var(--green); }
+    .inc-stat.all { border-top:2px solid var(--ink-4); }
+
+    /* Two-column layout: list on left, detail on right */
+    .inc-shell { display:grid;grid-template-columns:1fr 420px;gap:0;min-height:calc(100vh - 200px); }
+    .inc-list { border-right:1px solid var(--border); }
+    .inc-list-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg); }
+    .inc-table { width:100%;border-collapse:collapse; }
+    .inc-table th {
+        text-align:left;padding:12px 16px;font-size:10.5px;font-weight:600;
+        text-transform:uppercase;letter-spacing:.5px;color:var(--ink-4);
+        border-bottom:1px solid var(--border);background:var(--bg);
+    }
+    .inc-table td { padding:13px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle; }
+    .inc-table tr:hover td { background:var(--bg);cursor:pointer; }
+    .inc-table tr.selected td { background:var(--brand-soft);border-bottom-color:var(--brand-muted); }
+    .inc-table tr:last-child td { border-bottom:none; }
+
+    .lead-name { font-weight:600;color:var(--ink); }
+    .lead-company { font-size:11.5px;color:var(--ink-3);margin-top:1px; }
+    .status-badge {
+        display:inline-flex;align-items:center;gap:5px;padding:3px 10px;
+        border-radius:99px;font-size:11px;font-weight:500;
+    }
+    .status-badge.new     { background:var(--brand-soft);color:var(--brand); }
+    .status-badge.progress{ background:var(--amber-bg);color:var(--amber); }
+    .status-badge.done    { background:var(--green-bg);color:var(--green); }
+
+    /* Detail panel */
+    .inc-detail {
+        padding:0 0 0 24px;position:sticky;top:80px;align-self:start;
+        max-height:calc(100vh - 120px);overflow-y:auto;
+    }
+    .inc-detail-empty {
+        background:var(--surface);border:1px solid var(--border);
+        border-radius:var(--radius-lg);padding:48px 24px;text-align:center;
+        color:var(--ink-4);font-size:13px;
+    }
+    .inc-detail-card {
+        background:var(--surface);border:1px solid var(--border);
+        border-radius:var(--radius-lg);overflow:hidden;
+    }
+    .inc-detail-header {
+        padding:20px 22px;border-bottom:1px solid var(--border);
+        display:flex;align-items:center;justify-content:space-between;
+    }
+    .inc-detail-name { font-size:16px;font-weight:700;color:var(--ink); }
+    .inc-detail-body { padding:20px 22px; }
+    .inc-field { margin-bottom:16px; }
+    .inc-field-label { font-size:10.5px;font-weight:600;color:var(--ink-4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px; }
+    .inc-field-value { font-size:13.5px;color:var(--ink-2);line-height:1.6; }
+    .inc-field-value.empty { color:var(--ink-4);font-style:italic; }
+    .inc-detail-actions { padding:16px 22px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap; }
+
+    .empty-state { text-align:center;padding:60px 20px;color:var(--ink-4); }
+    .empty-state .icon { font-size:40px;margin-bottom:12px; }
+
+    @media (max-width:960px) {
+        .inc-shell { grid-template-columns:1fr; }
+        .inc-detail { position:static;padding:20px 0 0;max-height:none; }
+        .inc-stats { grid-template-columns:repeat(2,1fr); }
+    }
+</style>
+{% endblock %}
+
+{% block topbar_breadcrumb %}
+<nav class="topbar-breadcrumb">
+    <a href="{% url 'dashboard' %}" style="color:var(--ink-3);text-decoration:none;">Dashboard</a>
+    <span class="crumb-sep">/</span>
+    <span>Incorporation Requests</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+
+<!-- Hidden form for CSRF token (used by JS-generated forms) -->
+<form id="csrf-form" style="display:none">{% csrf_token %}</form>
+
+<!-- Stats -->
+<div class="inc-stats">
+    <div class="inc-stat all"><div class="val">{{ total_count }}</div><div class="lbl">Total</div></div>
+    <div class="inc-stat new"><div class="val" style="color:var(--brand)">{{ new_count }}</div><div class="lbl">New</div></div>
+    <div class="inc-stat progress"><div class="val" style="color:var(--amber)">{{ in_progress_count }}</div><div class="lbl">In Progress</div></div>
+    <div class="inc-stat done"><div class="val" style="color:var(--green)">{{ completed_count }}</div><div class="lbl">Completed</div></div>
+</div>
+
+{% if leads %}
+<div class="inc-shell">
+    <!-- List -->
+    <div class="inc-list">
+        <div class="inc-list-card">
+            <table class="inc-table">
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Company</th>
+                        <th>Jurisdiction</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in leads %}
+                    <tr id="lead-row-{{ lead.id }}"
+                        class="{% if selected_lead and selected_lead.id == lead.id %}selected{% endif %}"
+                        onclick="showDetail({{ lead.id }})">
+                        <td>
+                            <div class="lead-name">{{ lead.first_name }} {{ lead.last_name }}</div>
+                            <div style="font-size:11px;color:var(--ink-4);">{{ lead.email }}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight:500;color:var(--ink-2);">
+                                {% if lead.company_name_1 %}{{ lead.company_name_1 }}{% else %}Numbered Company{% endif %}
+                            </div>
+                            <div class="lead-company">{{ lead.get_company_type_display }}</div>
+                        </td>
+                        <td>
+                            {% if lead.jurisdiction == 'federal' %}Federal (CBCA)
+                            {% elif lead.jurisdiction == 'ontario' %}Ontario (OBCA)
+                            {% elif lead.jurisdiction == 'bc' %}BC (BCA)
+                            {% elif lead.jurisdiction == 'quebec' %}Quebec (LSAQ)
+                            {% else %}<span style="color:var(--ink-4);">—</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if lead.status == 'new' %}
+                            <span class="status-badge new">● New</span>
+                            {% elif lead.status == 'in_progress' %}
+                            <span class="status-badge progress">● In Progress</span>
+                            {% elif lead.status == 'completed' %}
+                            <span class="status-badge done">● Completed</span>
+                            {% else %}
+                            <span class="status-badge">{{ lead.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Detail Panel -->
+    <div class="inc-detail" id="incDetail">
+        <div class="inc-detail-empty" id="emptyDetail">
+            <div style="font-size:32px;margin-bottom:8px;">👈</div>
+            <div style="font-weight:600;margin-bottom:4px;">Select a request</div>
+            Click on any row to see full details and take action.
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="icon">📋</div>
+    <div style="font-weight:600;font-size:15px;color:var(--ink);margin-bottom:4px;">No incorporation requests yet</div>
+    <div>New requests submitted through the intake form will appear here.</div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// All lead data embedded for the detail panel
+var allLeads = {
+    {% for lead in leads %}
+    {{ lead.id }}: {
+        id: {{ lead.id }},
+        firstName: "{{ lead.first_name|escapejs }}",
+        lastName: "{{ lead.last_name|escapejs }}",
+        email: "{{ lead.email|escapejs }}",
+        phone: "{{ lead.phone|escapejs }}",
+        companyType: "{{ lead.get_company_type_display|escapejs }}",
+        companyName1: "{{ lead.company_name_1|escapejs }}",
+        companyName2: "{{ lead.company_name_2|escapejs }}",
+        companyName3: "{{ lead.company_name_3|escapejs }}",
+        frenchName1: "{{ lead.french_name_1|escapejs }}",
+        jurisdiction: "{{ lead.jurisdiction|escapejs }}",
+        businessActivity: "{{ lead.business_activity|escapejs }}",
+        registeredAddress: "{{ lead.registered_address|escapejs }}",
+        directors: "{{ lead.directors|escapejs }}",
+        officers: "{{ lead.officers|escapejs }}",
+        shareholders: "{{ lead.shareholders|escapejs }}",
+        notes: "{{ lead.notes|escapejs }}",
+        status: "{{ lead.status|escapejs }}",
+        submittedAt: "{{ lead.submitted_at|date:'M d, Y' }}",
+        engagementSigned: {% if lead.engagement_signed %}true{% else %}false{% endif %},
+        repName: "{{ lead.authorized_representative_name|escapejs }}",
+        repEmail: "{{ lead.authorized_representative_email|escapejs }}",
+        repPhone: "{{ lead.authorized_representative_phone|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
+var jurisdictionLabels = {
+    'federal': 'Federal (CBCA)',
+    'ontario': 'Ontario (OBCA)',
+    'bc': 'British Columbia (BCA)',
+    'quebec': 'Quebec (LSAQ)'
+};
+
+function showDetail(leadId) {
+    // Highlight selected row
+    document.querySelectorAll('.inc-table tr').forEach(r => r.classList.remove('selected'));
+    var row = document.getElementById('lead-row-' + leadId);
+    if (row) row.classList.add('selected');
+
+    var lead = allLeads[leadId];
+    if (!lead) return;
+
+    var juris = jurisdictionLabels[lead.jurisdiction] || lead.jurisdiction || 'Not specified';
+    var statusBadge = '';
+    if (lead.status === 'new') statusBadge = '<span class="status-badge new">New</span>';
+    else if (lead.status === 'in_progress') statusBadge = '<span class="status-badge progress">In Progress</span>';
+    else if (lead.status === 'completed') statusBadge = '<span class="status-badge done">Completed</span>';
+
+    var html = '<div class="inc-detail-card">' +
+        '<div class="inc-detail-header">' +
+            '<div><div class="inc-detail-name">' + lead.firstName + ' ' + lead.lastName + '</div>' +
+            '<div style="font-size:12px;color:var(--ink-4);margin-top:2px;">' + lead.email + '</div></div>' +
+            statusBadge +
+        '</div>' +
+        '<div class="inc-detail-body">' +
+            field('Company Name', lead.companyName1 || '(Numbered Company)') +
+            (lead.companyName2 ? field('Alternate Name', lead.companyName2) : '') +
+            (lead.companyName3 ? field('Alternate Name 2', lead.companyName3) : '') +
+            field('Company Type', lead.companyType) +
+            field('Jurisdiction', juris) +
+            (lead.frenchName1 ? field('French Name', lead.frenchName1) : '') +
+            (lead.businessActivity ? field('Business Activity', lead.businessActivity) : '') +
+            (lead.registeredAddress ? field('Registered Address', lead.registeredAddress) : '') +
+            (lead.directors ? field('Directors', lead.directors) : '') +
+            (lead.officers ? field('Officers', lead.officers) : '') +
+            (lead.shareholders ? field('Shareholders', lead.shareholders) : '') +
+            (lead.notes ? field('Notes', lead.notes) : '') +
+            field('Submitted', lead.submittedAt) +
+            field('Engagement', lead.engagementSigned ? 'Signed' : 'Not signed') +
+            (lead.repName ? '<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);"><div style="font-size:10.5px;font-weight:600;color:var(--ink-4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Authorized Representative</div>' +
+            field('Name', lead.repName) + field('Email', lead.repEmail) + (lead.repPhone ? field('Phone', lead.repPhone) : '') + '</div>' : '') +
+        '</div>' +
+        '<div class="inc-detail-actions" style="flex-direction:column;gap:12px;">' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+                '<form method="POST" style="display:inline">' +
+                    '<input type="hidden" name="csrfmiddlewaretoken" value="' + getCSRFToken() + '">' +
+                    '<input type="hidden" name="lead_id" value="' + lead.id + '">' +
+                    '<input type="hidden" name="action" value="create_client">' +
+                    '<button type="submit" class="btn btn-primary btn-sm" title="Create client + corporate profile from this lead">' +
+                        '<svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>' +
+                        ' Create Client & Corp Profile' +
+                    '</button>' +
+                '</form>' +
+                (lead.status !== 'completed' ? '<form method="POST" style="display:inline"><input type="hidden" name="csrfmiddlewaretoken" value="' + getCSRFToken() + '"><input type="hidden" name="lead_id" value="' + lead.id + '"><input type="hidden" name="action" value="' + (lead.status === 'in_progress' ? 'completed' : 'in_progress') + '"><button type="submit" class="btn btn-ghost btn-sm">' + (lead.status === 'in_progress' ? 'Mark Complete' : 'Start Working') + '</button></form>' : '') +
+                (lead.status === 'completed' || lead.status === 'in_progress' ? '<form method="POST" style="display:inline"><input type="hidden" name="csrfmiddlewaretoken" value="' + getCSRFToken() + '"><input type="hidden" name="lead_id" value="' + lead.id + '"><input type="hidden" name="action" value="new"><button type="submit" class="btn btn-ghost btn-sm">Reopen</button></form>' : '') +
+            '</div>' +
+            '<div style="display:flex;gap:8px;">' +
+                '<a href="mailto:' + lead.email + '" class="btn btn-ghost btn-sm">Email Client</a>' +
+            '</div>' +
+        '</div>' +
+    '</div>';
+
+    document.getElementById('incDetail').innerHTML = html;
+}
+
+function field(label, value) {
+    if (!value) return '';
+    return '<div class="inc-field"><div class="inc-field-label">' + label + '</div><div class="inc-field-value">' + value + '</div></div>';
+}
+
+function getCSRFToken() {
+    // First try to get it from the hidden form
+    var el = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (el && el.value) return el.value;
+    // Fallback: read from cookie (Django sets csrftoken cookie)
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, 'csrftoken'.length + 1) === 'csrftoken=') {
+                cookieValue = decodeURIComponent(cookie.substring('csrftoken'.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue || '';
+}
+</script>
+{% endblock %}

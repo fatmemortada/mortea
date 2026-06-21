@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Bookings — {{ provider.name }} | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.panel { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; }
+.sidebar { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 88px; }
+.sidebar a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; color: var(--ink-2); text-decoration: none; }
+.sidebar a:hover, .sidebar a.active { background: var(--brand-light); color: var(--brand-dark); }
+.sidebar a .si { font-size: 16px; width: 24px; text-align: center; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; }
+.bk-row { display: grid; grid-template-columns: 1fr 1fr auto auto auto; gap: 12px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-light); font-size: 14px; }
+.bk-row:last-child { border-bottom: none; }
+.bk-client { font-weight: 600; color: var(--ink); }
+.bk-service { color: var(--ink-2); }
+.bk-date { color: var(--ink-3); font-size: 13px; }
+.badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 3px 10px; border-radius: var(--radius-full); }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-confirmed { background: #dcfce7; color: #166534; }
+.badge-cancelled { background: #fee2e2; color: #991b1b; }
+.badge-completed { background: #e0e7ff; color: #3730a3; }
+.btn-sm { padding: 4px 10px; font-size: 11px; font-weight: 600; border-radius: var(--radius-full); border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--ink-2); }
+.btn-sm.confirm { color: #166534; border-color: #bbf7d0; }
+.btn-sm.confirm:hover { background: #f0fdf4; }
+.btn-sm.cancel { color: #dc2626; border-color: #fecaca; }
+.btn-sm.cancel:hover { background: #fef2f2; }
+@media (max-width:700px){ .panel{grid-template-columns:1fr;} .sidebar{position:static;flex-direction:row;overflow-x:auto;} .bk-row{grid-template-columns:1fr 1fr;gap:4px;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><div class="panel">
+<div class="sidebar">
+<a href="{% url 'owner_dashboard' provider.slug %}"><span class="si">📊</span> Overview</a>
+<a href="{% url 'owner_edit_profile' provider.slug %}"><span class="si">✏️</span> Edit Profile</a>
+<a href="{% url 'owner_services' provider.slug %}"><span class="si">💰</span> Services</a>
+<a href="{% url 'owner_photos' provider.slug %}"><span class="si">📸</span> Photos & Videos</a>
+<a href="{% url 'owner_social' provider.slug %}"><span class="si">📱</span> Social Links</a>
+<a href="{% url 'owner_bookings' provider.slug %}" class="active"><span class="si">📋</span> Bookings</a>
+<a href="{% url 'provider_profile' provider.slug %}" target="_blank"><span class="si">👁</span> View Profile</a>
+</div>
+<div class="main"><h1>Bookings</h1>
+<div class="card">
+{% if bookings %}
+{% for b in bookings %}
+<div class="bk-row">
+<div><span class="bk-client">{{ b.client_name }}</span><br><span class="bk-service">{{ b.service.name|default:"—" }}</span></div>
+<div><span class="bk-date">{{ b.date|date:"M j, Y" }} · {{ b.time|time:"g:iA" }}</span><br><span style="font-size:12px;color:var(--ink-4)">{{ b.client_phone }} · {{ b.client_email }}</span></div>
+<div><span class="badge {% if b.status == 'confirmed' %}badge-confirmed{% elif b.status == 'cancelled' %}badge-cancelled{% elif b.status == 'completed' %}badge-completed{% else %}badge-pending{% endif %}">{{ b.get_status_display }}</span></div>
+<div style="display:flex;gap:4px;flex-direction:column">
+{% if b.status == 'pending' %}<form method="POST">{% csrf_token %}<input type="hidden" name="booking_id" value="{{ b.id }}"><input type="hidden" name="status" value="confirmed"><button type="submit" class="btn-sm confirm">Confirm</button></form>{% endif %}
+{% if b.status == 'confirmed' %}<form method="POST">{% csrf_token %}<input type="hidden" name="booking_id" value="{{ b.id }}"><input type="hidden" name="status" value="completed"><button type="submit" class="btn-sm" style="color:#3730a3;border-color:#c7d2fe">Complete</button></form>{% endif %}
+{% if b.status != 'cancelled' and b.status != 'completed' %}<form method="POST">{% csrf_token %}<input type="hidden" name="booking_id" value="{{ b.id }}"><input type="hidden" name="status" value="cancelled"><button type="submit" class="btn-sm cancel">Cancel</button></form>{% endif %}
+</div>
+<div>{% if b.notes %}<span style="font-size:12px;color:var(--ink-4)">{{ b.notes|truncatechars:40 }}</span>{% endif %}</div>
+</div>{% endfor %}
+{% else %}<p style="color:var(--ink-3)">No bookings yet.</p>{% endif %}
+</div></div></div></div>
+</body></html>

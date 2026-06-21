@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: letter; margin: 2cm 2.2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; font-size: 10.5pt; color: #1a1a1a; line-height: 1.55; }
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 24px; }
+  .doc-logo { font-size: 20pt; font-weight: bold; } .doc-logo span { color: #b8956a; }
+  .doc-meta { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.6; }
+  .doc-title { text-align: center; margin: 20px 0 28px; }
+  .doc-title h1 { font-size: 15pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .doc-title .corp-name { font-size: 12pt; font-style: italic; color: #333; }
+  .doc-title .jurisdiction { font-size: 9pt; color: #666; margin-top: 2px; }
+  .section { margin-bottom: 22px; }
+  .section-label { font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #b8956a; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-top: 8px; }
+  th { background: #f3f4f6; padding: 7px 10px; text-align: left; font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #444; border: 1px solid #d1d5db; }
+  td { padding: 8px 10px; border: 1px solid #d1d5db; vertical-align: top; }
+  tr:nth-child(even) td { background: #f9fafb; }
+  .sig-block { margin-top: 40px; }
+  .sig-line-wrap { display: flex; gap: 60px; margin-top: 30px; }
+  .sig-item { flex: 1; }
+  .sig-item .line { border-bottom: 1px solid #1a1a1a; margin-bottom: 6px; height: 40px; }
+  .sig-item .label { font-size: 8.5pt; color: #555; }
+  p { margin-bottom: 10px; }
+  .small { font-size: 8.5pt; color: #666; }
+  .mt { margin-top: 16px; }
+  .empty-note { font-size: 9pt; color: #888; font-style: italic; padding: 20px 10px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="doc-logo">Mort<span>acc</span></div>
+  <div class="doc-meta">{{ client.name }}<br>Register of Share Transfers<br>As at {{ today|date:"F j, Y" }}</div>
+</div>
+
+<div class="doc-title">
+  <h1>Register of Share Transfers</h1>
+  <div class="corp-name">{{ client.name }}</div>
+  <div class="jurisdiction">
+    {% if jurisdiction_display %}Incorporated under the laws of {{ jurisdiction_display }} · {% endif %}Canada
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Corporation Information</div>
+  <table>
+    <tr><th style="width:30%">Field</th><th>Details</th></tr>
+    <tr><td>Corporation Name</td><td>{{ client.name }}</td></tr>
+    <tr><td>Jurisdiction</td><td>{{ jurisdiction_display|default:"—" }}</td></tr>
+    {% if profile %}
+    <tr><td>Business Number</td><td>{{ profile.business_number|default:"—" }}</td></tr>
+    <tr><td>Date of Incorporation</td><td>{{ profile.incorporation_date|date:"F j, Y"|default:"—" }}</td></tr>
+    {% endif %}
+  </table>
+</div>
+
+<div class="section">
+  <div class="section-label">Transfer History</div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Date of Transfer</th>
+        <th>Transferor (From)</th>
+        <th>Transferee (To)</th>
+        <th>Share Class</th>
+        <th>No. of Shares</th>
+        <th>Certificate No.</th>
+        <th>Consideration</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="8" class="empty-note">No transfers recorded. All shares were issued on original subscription.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <div class="section-label">Current Shareholders (Post-Transfer)</div>
+  {% if shareholders %}
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Registered Holder</th>
+        <th>Share Class</th>
+        <th>No. of Shares</th>
+        <th>Certificate No.</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in shareholders %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td><strong>{{ s.full_name }}</strong></td>
+        <td>{{ s.share_class|default:"Common" }}</td>
+        <td>{{ s.num_shares }}</td>
+        <td>{{ forloop.counter|stringformat:"04d" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="small">No shareholders on record.</p>
+  {% endif %}
+</div>
+
+<div class="section">
+  <div class="section-label">Certification</div>
+  <p>I hereby certify that the foregoing is a true and complete register of all share transfers of <strong>{{ client.name }}</strong> as at <strong>{{ today|date:"F j, Y" }}</strong>.</p>
+</div>
+
+<div class="sig-block">
+  <div class="sig-line-wrap">
+    <div class="sig-item"><div class="line"></div><div class="label">Authorized Signatory / Secretary</div></div>
+    <div class="sig-item"><div class="line"></div><div class="label">Date</div></div>
+  </div>
+</div>
+
+<p class="small mt">Prepared by Mortacc Solutions Inc. · support@mortacc.com · mortacc.com</p>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+{% extends "clients/base.html" %}{% block title %}Fee Calculator — Mortacc{% endblock %}{% block topbar_title %}Government Fee Calculator{% endblock %}{% block content %}<div style="max-width:700px">
+<div class="page-header"><div class="page-header-text"><h1>Government Fee Calculator</h1><p>Incorporation, annual return, and amendment fees across all Canadian jurisdictions</p></div></div>
+
+<form method="GET" class="card mb-3"><div class="card-body"><div style="display:flex;gap:10px;flex-wrap:wrap">
+<select name="jurisdiction" class="form-control" style="width:auto" onchange="this.form.submit()">
+<option value="federal" {% if jurisdiction == 'federal' %}selected{% endif %}>Federal</option>
+<option value="ontario" {% if jurisdiction == 'ontario' %}selected{% endif %}>Ontario</option>
+<option value="bc" {% if jurisdiction == 'bc' %}selected{% endif %}>British Columbia</option>
+<option value="quebec" {% if jurisdiction == 'quebec' %}selected{% endif %}>Quebec</option>
+<option value="alberta" {% if jurisdiction == 'alberta' %}selected{% endif %}>Alberta</option>
+</select>
+<select name="fee_type" class="form-control" style="width:auto" onchange="this.form.submit()">
+<option value="incorporation" {% if fee_type == 'incorporation' %}selected{% endif %}>Incorporation</option>
+<option value="annual_return" {% if fee_type == 'annual_return' %}selected{% endif %}>Annual Return</option>
+<option value="amendment" {% if fee_type == 'amendment' %}selected{% endif %}>Amendment</option>
+<option value="dissolution" {% if fee_type == 'dissolution' %}selected{% endif %}>Dissolution</option>
+<option value="name_change" {% if fee_type == 'name_change' %}selected{% endif %}>Name Change</option>
+<option value="extra_prov" {% if fee_type == 'extra_prov' %}selected{% endif %}>Extra-Provincial</option>
+</select>
+</div></div></form>
+
+<div class="card"><div class="table-wrap"><table>
+<thead><tr><th>Jurisdiction</th><th>Type</th><th>Gov Fee</th><th>Service Fee</th><th>Total</th></tr></thead>
+<tbody>
+{% for f in fees %}
+<tr><td>{{ f.get_jurisdiction_display }}</td><td>{{ f.get_fee_type_display }}</td><td>${{ f.government_fee }}</td><td>${{ f.service_fee }}</td><td><strong>${{ f.total }}</strong></td></tr>
+{% empty %}
+<tr><td colspan="5"><div class="empty-state"><p>No fee data for this selection. Data is being updated.</p></div></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+</div>{% endblock %}

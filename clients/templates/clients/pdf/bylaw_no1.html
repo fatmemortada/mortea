@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: letter; margin: 2cm 2.2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; font-size: 10.5pt; color: #1a1a1a; line-height: 1.7; }
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 24px; }
+  .doc-logo { font-size: 20pt; font-weight: bold; } .doc-logo span { color: #b8956a; }
+  .doc-meta { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.6; }
+  .doc-title { text-align: center; margin: 20px 0 28px; }
+  .doc-title h1 { font-size: 14pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .doc-title h2 { font-size: 12pt; font-weight: normal; margin-bottom: 4px; }
+  .doc-title .corp-name { font-size: 13pt; font-style: italic; font-weight: bold; color: #1a1a1a; }
+  .doc-title .jurisdiction { font-size: 9pt; color: #666; margin-top: 4px; }
+  .section { margin-bottom: 22px; }
+  .section-label { font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #b8956a; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 14px; }
+  .article { margin-bottom: 18px; }
+  .article-title { font-weight: bold; font-size: 10.5pt; margin-bottom: 6px; }
+  .article p { margin-bottom: 8px; }
+  p { margin-bottom: 10px; }
+  .small { font-size: 8.5pt; color: #666; }
+  .mt { margin-top: 16px; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px; }
+  .sig-item .line { border-bottom: 1px solid #1a1a1a; margin-bottom: 6px; height: 45px; }
+  .sig-item .name { font-size: 9pt; font-weight: bold; }
+  .sig-item .label { font-size: 8.5pt; color: #555; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="doc-logo">Mort<span>acc</span></div>
+  <div class="doc-meta">{{ client.name }}<br>General By-Law No. 1<br>{{ today|date:"F j, Y" }}</div>
+</div>
+
+<div class="doc-title">
+  <h1>General By-Law No. 1</h1>
+  <h2>of</h2>
+  <div class="corp-name">{{ client.name }}</div>
+  <div class="jurisdiction">
+    Incorporated under the laws of {{ jurisdiction_display|default:"Canada" }}
+    {% if incorporation_date %} on {{ incorporation_date|date:"F j, Y" }}{% endif %}
+  </div>
+</div>
+
+<div class="section">
+  <p>
+    BE IT ENACTED as a by-law of <strong>{{ client.name }}</strong> (the "Corporation") as follows:
+  </p>
+</div>
+
+<div class="section">
+  <div class="section-label">Article 1 — Interpretation</div>
+  <div class="article">
+    <p><strong>1.1 Definitions.</strong> In this by-law and all other by-laws of the Corporation, unless the context otherwise requires: "Act" means the applicable corporate legislation under which the Corporation is incorporated, as amended from time to time; "articles" means the articles of incorporation of the Corporation, as amended from time to time; "board" means the board of directors of the Corporation; "Corporation" means {{ client.name }}; "director" means a member of the board; "officer" means any person appointed as an officer of the Corporation.</p>
+    <p><strong>1.2 Interpretation.</strong> Words importing the singular include the plural and vice versa. Words importing a gender include all genders. Headings are for convenience only and do not affect interpretation.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Article 2 — Directors</div>
+  <div class="article">
+    <p><strong>2.1 Number of Directors.</strong> The board shall consist of such number of directors as shall be set from time to time within the minimum and maximum numbers set out in the articles.</p>
+    <p><strong>2.2 Election and Term.</strong> Directors shall be elected by the shareholders at each annual meeting of shareholders and shall hold office until the next annual meeting or until their successors are elected or appointed.</p>
+    <p><strong>2.3 Quorum.</strong> A majority of the directors in office shall constitute a quorum for the transaction of business at any meeting of the board.</p>
+    <p><strong>2.4 Meetings.</strong> Meetings of the board may be held at any place within or outside Canada. Notice of each meeting shall be given to each director not less than two (2) days before the meeting. A meeting of the board may be held without notice immediately following the annual meeting of shareholders.</p>
+    <p><strong>2.5 Written Resolutions.</strong> A resolution in writing signed by all directors entitled to vote on that resolution at a meeting of directors is as valid as if it had been passed at a meeting of directors.</p>
+    <p><strong>2.6 Remuneration.</strong> The directors shall be paid such remuneration for their services as the board may from time to time determine. Directors shall also be entitled to be reimbursed for reasonable travelling and other expenses incurred by them in attending meetings of the board.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Article 3 — Officers</div>
+  <div class="article">
+    <p><strong>3.1 Appointment.</strong> The board may designate the offices of the Corporation, appoint officers, specify their duties and, subject to the Act, delegate to such officers the power to manage the business and affairs of the Corporation.</p>
+    <p><strong>3.2 President.</strong> The President shall be the chief executive officer of the Corporation and shall, subject to the authority of the board, supervise and direct the business and affairs of the Corporation.</p>
+    <p><strong>3.3 Secretary.</strong> The Secretary shall give or cause to be given notices for all meetings of the board and of shareholders and shall have charge of the corporate records and the corporate seal, if any.</p>
+    <p><strong>3.4 Remuneration.</strong> The officers of the Corporation shall receive such remuneration as the board may from time to time determine.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Article 4 — Shareholders</div>
+  <div class="article">
+    <p><strong>4.1 Annual Meetings.</strong> The annual meeting of shareholders shall be held at such time and place as the board may determine, for the purpose of receiving the financial statements and reports, electing directors, appointing the auditor (if any), and transacting such other business as may properly come before the meeting.</p>
+    <p><strong>4.2 Special Meetings.</strong> The board may call a special meeting of shareholders at any time.</p>
+    <p><strong>4.3 Notice.</strong> Notice of each meeting of shareholders shall be given not less than ten (10) days and not more than fifty (50) days before the date of the meeting.</p>
+    <p><strong>4.4 Quorum.</strong> A quorum for the transaction of business at a meeting of shareholders shall be one or more persons present in person or by proxy who together hold not less than a majority of the issued shares entitled to vote at the meeting.</p>
+    <p><strong>4.5 Written Resolutions.</strong> A resolution in writing signed by all shareholders entitled to vote on that resolution at a meeting of shareholders is as valid as if it had been passed at a meeting of shareholders.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Article 5 — Shares and Transfers</div>
+  <div class="article">
+    <p><strong>5.1 Share Certificates.</strong> Every holder of shares is entitled, on request, to a share certificate signed by or on behalf of the Corporation that states the number and class or series of shares held by the holder.</p>
+    <p><strong>5.2 Transfer of Shares.</strong> Subject to the articles, shares may be transferred by entry in the securities register. No transfer shall be registered unless a duly executed transfer form or instrument has been presented to the Corporation.</p>
+    <p><strong>5.3 Joint Shareholders.</strong> If two or more persons are registered as joint holders of any share, the Corporation shall not be bound to issue more than one share certificate in respect thereof, and delivery of such certificate to one of such persons shall be sufficient delivery to all of them.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Article 6 — Financial</div>
+  <div class="article">
+    <p><strong>6.1 Financial Year.</strong> The financial year of the Corporation shall end on <strong>{{ profile.fiscal_year_end|default:"December 31" }}</strong> in each year, unless otherwise determined by the board.</p>
+    <p><strong>6.2 Banking.</strong> The banking business of the Corporation shall be transacted with such banks, trust companies or other financial institutions as the board may designate from time to time. All documents required to be signed in connection with the banking business of the Corporation shall be signed by such officer(s) or director(s) as the board may designate from time to time.</p>
+    <p><strong>6.3 Execution of Documents.</strong> Contracts, documents or instruments in writing requiring execution by the Corporation shall be signed by any two officers or directors of the Corporation, and all contracts, documents and instruments so signed shall be binding upon the Corporation without any further authorization or formality.</p>
+    <p><strong>6.4 Dividends.</strong> Subject to the Act and the articles, the board may from time to time declare and pay dividends to the shareholders according to their respective rights and interests in the Corporation.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-label">Article 7 — General</div>
+  <div class="article">
+    <p><strong>7.1 Indemnification.</strong> Subject to the Act, the Corporation shall indemnify a director or officer of the Corporation against all costs, charges and expenses reasonably incurred by them in respect of any civil, criminal or administrative action or proceeding to which they are made a party by reason of being or having been a director or officer of the Corporation.</p>
+    <p><strong>7.2 Notices.</strong> Any notice required to be given under this by-law shall be given in writing and may be delivered personally, by mail, by email, or by any other electronic means.</p>
+    <p><strong>7.3 Amendment.</strong> This by-law may be amended by resolution of the directors, subject to confirmation by the shareholders at the next meeting of shareholders.</p>
+  </div>
+</div>
+
+<div class="section">
+  <p>
+    ENACTED by the board of directors of the Corporation effective as of
+    <strong>{{ incorporation_date|date:"F j, Y"|default:today|date:"F j, Y" }}</strong>,
+    and confirmed by the shareholders of the Corporation as of the same date.
+  </p>
+</div>
+
+<div class="section">
+  <div class="section-label">Signatures of Directors</div>
+  <div class="sig-grid">
+    {% for d in directors %}
+    <div class="sig-item">
+      <div class="line"></div>
+      <div class="name">{{ d.full_name }}</div>
+      <div class="label">Director{% if d.is_officer %} · {{ d.officer_title }}{% endif %}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<p class="small mt">Prepared by Mortacc Solutions Inc. · support@mortacc.com · mortacc.com</p>
+
+</body>
+</html>

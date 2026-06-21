@@ -1,0 +1,41 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Approvals — Mortea Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.container { max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; text-align: center; }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: var(--brand); }
+.stat-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin-top: 4px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-light); }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); font-weight: 600; }
+.badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 3px 10px; border-radius: var(--radius-full); }
+.badge-claimed { background: #dcfce7; color: #166534; }
+.badge-unclaimed { background: #fef3c7; color: #92400e; }
+.btn-sm { padding: 4px 12px; font-size: 12px; font-weight: 600; border-radius: var(--radius-full); border: 1px solid var(--border); background: var(--surface); cursor: pointer; text-decoration: none; color: var(--ink-2); }
+.btn-sm:hover { background: var(--brand-light); color: var(--brand); }
+.nav-row { display: flex; gap: 12px; margin-bottom: 28px; }
+.nav-row a { padding: 8px 18px; font-size: 13px; font-weight: 600; border-radius: var(--radius-full); border: 1px solid var(--border); color: var(--ink-2); text-decoration: none; }
+.nav-row a:hover, .nav-row a.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><span style="font-size:12px;color:var(--ink-3);font-weight:600">Admin</span></div></nav>
+<div class="page"><div class="container">
+<div class="nav-row">
+<a href="{% url 'csv_import' %}">📥 CSV Import</a>
+<a href="{% url 'approval_dashboard' %}" class="active">✅ Approvals</a>
+<a href="{% url 'email_dashboard' %}">✉️ Emails</a>
+<a href="{% url 'admin:index' %}">⚙ Django Admin</a>
+</div>
+<h1>Approval Dashboard</h1>
+<div class="stats"><div class="stat"><div class="stat-val">{{ total_imported }}</div><div class="stat-label">Total Providers</div></div><div class="stat"><div class="stat-val">{{ total_claimed }}</div><div class="stat-label">Claimed</div></div><div class="stat"><div class="stat-val">{{ total_imported|add:total_claimed|add:0 }}</div><div class="stat-label">Unclaimed</div></div></div>
+
+<div class="card"><h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:16px">Unclaimed Businesses</h3>
+<table><thead><tr><th>Name</th><th>Category</th><th>City</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+{% for p in unclaimed %}
+<tr><td><a href="{% url 'provider_profile' p.slug %}" style="color:var(--brand);font-weight:500">{{ p.name }}</a></td><td>{{ p.get_category_display }}</td><td>{{ p.city }}</td><td>{{ p.phone }}</td><td><span class="badge badge-{% if p.is_claimed %}claimed{% else %}unclaimed{% endif %}">{% if p.is_claimed %}Claimed{% else %}Unclaimed{% endif %}</span></td><td><a href="{% url 'onboarding_wizard' p.slug %}" class="btn-sm">Onboard</a></td></tr>
+{% empty %}<tr><td colspan="6" style="color:var(--ink-3)">No unclaimed businesses.</td></tr>{% endfor %}
+</tbody></table></div></div></div></body></html>

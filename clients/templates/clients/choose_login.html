@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sign In — Mortacc</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+            background: #fdfbf8;
+        }
+
+        .wrap {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 860px;
+            background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+            border-radius: 18px;
+            box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+            padding: 44px;
+        }
+
+        .logo {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: #2f2a26;
+        }
+
+        .logo span {
+            color: #b8956a;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: 34px;
+            color: #2f2a26;
+        }
+
+        .subtitle {
+            margin: 0 0 32px;
+            color: #7b6f64;
+            font-size: 16px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .option {
+            display: block;
+            text-decoration: none;
+            border: 1px solid #e9dfd2;
+            border-radius: 16px;
+            padding: 26px;
+            transition: 0.2s ease;
+            background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+        }
+
+        .option:hover {
+            border-color: #b8956a;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .option-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2f2a26;
+            margin-bottom: 10px;
+        }
+
+        .option-text {
+            color: #7b6f64;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+
+        .option-link {
+            color: #b8956a;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        @media (max-width: 700px) {
+            .card {
+                padding: 28px;
+            }
+
+            .options {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="card">
+            <div class="logo">Mort<span>acc</span></div>
+            <h1>Welcome back</h1>
+            <p class="subtitle">Choose how you’d like to sign in.</p>
+
+            <div class="options">
+                <a href="/login/" class="option">
+                    <div class="option-title">Accountant Portal</div>
+                    <div class="option-text">
+                        Sign in as an accountant to manage clients, review documents, and access your internal dashboard.
+                    </div>
+                    <div class="option-link">Sign in as accountant →</div>
+                </a>
+
+                <a href="/client/login/" class="option">
+                    <div class="option-title">Client Portal</div>
+                    <div class="option-text">
+                        Sign in as a client to view your portal, signed engagement letter, and onboarding progress.
+                    </div>
+                    <div class="option-link">Sign in as client →</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

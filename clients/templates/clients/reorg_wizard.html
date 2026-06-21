@@ -1,0 +1,27 @@
+{% extends "clients/base.html" %}{% block title %}Reorg Wizard — {{ client.name }}{% endblock %}{% block topbar_title %}Corporate Reorganization Wizard{% endblock %}{% block content %}<div style="max-width:760px">
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Guided reorganization workflows — estate freeze, holding company, Section 85</p></div></div>
+
+<div class="card mb-3"><div class="card-header"><span class="card-title">New Reorganization Project</span></div><div class="card-body">
+<form method="POST">{% csrf_token %}
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Project Type *</label><select name="project_type" class="form-control" required><option value="">Select...</option><option value="estate_freeze">Estate Freeze</option><option value="holding_company">Holding Company Setup</option><option value="share_exchange">Share Exchange</option><option value="s85_rollover">Section 85 Rollover</option><option value="amalgamation">Amalgamation</option></select></div>
+<div class="form-group"><label class="form-label">Description</label><input type="text" name="description" class="form-control" placeholder="Optional notes"></div>
+</div>
+<button type="submit" class="btn btn-primary">Create Project</button>
+</form></div></div>
+
+{% for proj in projects %}
+<div class="card mb-3"><div class="card-header"><span class="card-title">{{ proj.get_project_type_display }}</span><span class="badge {% if proj.status == 'completed' %}badge-completed{% elif proj.status == 'in_progress' %}badge-in-progress{% else %}badge-not-started{% endif %}">{{ proj.get_status_display }}</span></div>
+<div class="card-body">
+{% if proj.steps.all %}
+<div style="display:grid;gap:6px">
+{% for step in proj.steps.all %}
+<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface-2);border-radius:6px">
+<span style="color:{% if step.completed %}var(--green){% else %}var(--ink-4){% endif %};font-size:16px">{% if step.completed %}✓{% else %}○{% endif %}</span>
+<span style="{% if step.completed %}text-decoration:line-through;color:var(--ink-4){% endif %}">{{ forloop.counter }}. {{ step.title }}</span>
+</div>
+{% endfor %}</div>
+{% endif %}
+</div></div>
+{% endfor %}
+</div>{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "clients/base.html" %}
+{% block title %}Data Rooms — Mortacc{% endblock %}
+{% block nav_data_rooms %}active{% endblock %}
+{% block topbar_title %}Data Rooms{% endblock %}
+{% block topbar_actions %}<a href="{% url 'data_room_create' %}" class="btn btn-primary">+ New Data Room</a>{% endblock %}
+{% block extra_head %}<style>.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}.room-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;}.room-name{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:6px;}.room-meta{font-size:11px;color:var(--ink-4);margin-bottom:4px;}.room-status{font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;}.room-status.active{background:var(--green-bg);color:var(--green);}.room-status.closed{background:var(--red-bg);color:var(--red);}</style>{% endblock %}
+{% block content %}
+{% if data_rooms %}
+<div class="room-grid">
+    {% for room in data_rooms %}
+    <a href="{% url 'data_room_detail' room.id %}" style="text-decoration:none;">
+        <div class="room-card">
+            <span class="room-status {{ room.status }}">{{ room.get_status_display }}</span>
+            <div class="room-name">{{ room.name }}</div>
+            <div class="room-meta">{{ room.documents.count }} documents · Expires {{ room.expires_at|date:"M d, Y"|default:"Never" }}</div>
+            <div class="room-meta">Access: {{ room.accesses.count }} views</div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><p style="font-size:15px;font-weight:500;color:var(--ink-3);">No data rooms</p><p style="font-size:13px;color:var(--ink-4);">Create a secure data room for sharing documents with external parties.</p><a href="{% url 'data_room_create' %}" class="btn btn-primary" style="margin-top:12px;">Create Data Room</a></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,373 @@
+# French (Canada) translations for Mortacc
+msgid ""
+msgstr ""
+"Project-Id-Version: Mortacc\n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# Navigation
+msgid "Workspace"
+msgstr "Espace de travail"
+
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+msgid "Command Center"
+msgstr "Centre de commande"
+
+msgid "Search"
+msgstr "Rechercher"
+
+msgid "Corporate"
+msgstr "Entreprise"
+
+msgid "Entity Records"
+msgstr "Registres d'entités"
+
+msgid "Incorporation Requests"
+msgstr "Demandes de constitution"
+
+msgid "New Incorporation"
+msgstr "Nouvelle constitution"
+
+msgid "New Intake"
+msgstr "Nouvelle admission"
+
+msgid "Documents"
+msgstr "Documents"
+
+msgid "Document Manager"
+msgstr "Gestionnaire de documents"
+
+msgid "Minute Books"
+msgstr "Registres corporatifs"
+
+msgid "Compliance"
+msgstr "Conformité"
+
+msgid "Compliance Tasks"
+msgstr "Tâches de conformité"
+
+msgid "Reports"
+msgstr "Rapports"
+
+msgid "Risk Scanner"
+msgstr "Analyseur de risques"
+
+msgid "Remediation"
+msgstr "Correction"
+
+msgid "Annual Packages"
+msgstr "Forfaits annuels"
+
+msgid "Jurisdictions"
+msgstr "Juridictions"
+
+msgid "Billing"
+msgstr "Facturation"
+
+msgid "Financial"
+msgstr "Finances"
+
+msgid "Subscriptions"
+msgstr "Abonnements"
+
+msgid "Invoices"
+msgstr "Factures"
+
+msgid "Time"
+msgstr "Temps"
+
+msgid "Collections"
+msgstr "Recouvrement"
+
+msgid "Engagements"
+msgstr "Mandats"
+
+msgid "Commerce"
+msgstr "Commerce"
+
+msgid "Service Catalog"
+msgstr "Catalogue de services"
+
+msgid "Dividends"
+msgstr "Dividendes"
+
+msgid "Data Rooms"
+msgstr "Salles de données"
+
+msgid "Automation"
+msgstr "Automatisation"
+
+msgid "Workflows"
+msgstr "Flux de travail"
+
+msgid "AI Time"
+msgstr "Temps IA"
+
+msgid "Conflicts"
+msgstr "Conflits"
+
+msgid "Email Triage"
+msgstr "Triage courriel"
+
+msgid "SHA Generator"
+msgstr "Générateur de convention"
+
+msgid "Security"
+msgstr "Sécurité"
+
+msgid "Activity Log"
+msgstr "Journal d'activité"
+
+msgid "Settings"
+msgstr "Paramètres"
+
+msgid "Log Out"
+msgstr "Déconnexion"
+
+# Dashboard
+msgid "Clients"
+msgstr "Clients"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Pending"
+msgstr "En attente"
+
+msgid "Overdue"
+msgstr "En retard"
+
+msgid "Revenue"
+msgstr "Revenus"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Edit"
+msgstr "Modifier"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Submit"
+msgstr "Soumettre"
+
+msgid "Download"
+msgstr "Télécharger"
+
+msgid "Upload"
+msgstr "Téléverser"
+
+msgid "Export"
+msgstr "Exporter"
+
+msgid "Import"
+msgstr "Importer"
+
+msgid "Send"
+msgstr "Envoyer"
+
+msgid "Close"
+msgstr "Fermer"
+
+msgid "Back"
+msgstr "Retour"
+
+msgid "Next"
+msgstr "Suivant"
+
+msgid "Previous"
+msgstr "Précédent"
+
+# Actions
+msgid "Mark as Complete"
+msgstr "Marquer comme terminé"
+
+msgid "Mark as Paid"
+msgstr "Marquer comme payé"
+
+msgid "Generate Invoice"
+msgstr "Générer une facture"
+
+msgid "Generate Document"
+msgstr "Générer un document"
+
+msgid "View Details"
+msgstr "Voir les détails"
+
+msgid "Add Note"
+msgstr "Ajouter une note"
+
+# Status
+msgid "Draft"
+msgstr "Brouillon"
+
+msgid "In Progress"
+msgstr "En cours"
+
+msgid "Completed"
+msgstr "Terminé"
+
+msgid "In Review"
+msgstr "En révision"
+
+msgid "Approved"
+msgstr "Approuvé"
+
+msgid "Rejected"
+msgstr "Rejeté"
+
+msgid "Paid"
+msgstr "Payé"
+
+msgid "Sent"
+msgstr "Envoyé"
+
+msgid "Overdue"
+msgstr "En retard"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Inactive"
+msgstr "Inactif"
+
+# Time
+msgid "Today"
+msgstr "Aujourd'hui"
+
+msgid "Yesterday"
+msgstr "Hier"
+
+msgid "Tomorrow"
+msgstr "Demain"
+
+msgid "This Week"
+msgstr "Cette semaine"
+
+msgid "This Month"
+msgstr "Ce mois"
+
+msgid "Last Month"
+msgstr "Le mois dernier"
+
+msgid "This Year"
+msgstr "Cette année"
+
+msgid "Last Year"
+msgstr "L'année dernière"
+
+# Errors
+msgid "Not found"
+msgstr "Introuvable"
+
+msgid "Access denied"
+msgstr "Accès refusé"
+
+msgid "Invalid request"
+msgstr "Requête invalide"
+
+msgid "Please log in"
+msgstr "Veuillez vous connecter"
+
+msgid "File too large"
+msgstr "Fichier trop volumineux"
+
+msgid "Invalid file type"
+msgstr "Type de fichier invalide"
+
+# Corporate
+msgid "Incorporation"
+msgstr "Constitution"
+
+msgid "Director"
+msgstr "Administrateur"
+
+msgid "Directors"
+msgstr "Administrateurs"
+
+msgid "Shareholder"
+msgstr "Actionnaire"
+
+msgid "Shareholders"
+msgstr "Actionnaires"
+
+msgid "Officer"
+msgstr "Dirigeant"
+
+msgid "Officers"
+msgstr "Dirigeants"
+
+msgid "President"
+msgstr "Président"
+
+msgid "Secretary"
+msgstr "Secrétaire"
+
+msgid "Treasurer"
+msgstr "Trésorier"
+
+msgid "Registered Office"
+msgstr "Siège social"
+
+msgid "Business Number"
+msgstr "Numéro d'entreprise"
+
+msgid "Fiscal Year End"
+msgstr "Fin d'exercice"
+
+# Jurisdictions
+msgid "Federal"
+msgstr "Fédéral"
+
+msgid "Ontario"
+msgstr "Ontario"
+
+msgid "British Columbia"
+msgstr "Colombie-Britannique"
+
+msgid "Alberta"
+msgstr "Alberta"
+
+msgid "Quebec"
+msgstr "Québec"
+
+msgid "Nova Scotia"
+msgstr "Nouvelle-Écosse"
+
+msgid "Manitoba"
+msgstr "Manitoba"
+
+msgid "Saskatchewan"
+msgstr "Saskatchewan"
+
+msgid "New Brunswick"
+msgstr "Nouveau-Brunswick"
+
+msgid "Prince Edward Island"
+msgstr "Île-du-Prince-Édouard"
+
+msgid "Newfoundland and Labrador"
+msgstr "Terre-Neuve-et-Labrador"
+
+msgid "Yukon"
+msgstr "Yukon"
+
+msgid "Northwest Territories"
+msgstr "Territoires du Nord-Ouest"
+
+msgid "Nunavut"
+msgstr "Nunavut"

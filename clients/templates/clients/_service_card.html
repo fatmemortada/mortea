@@ -1,0 +1,31 @@
+<div class="service-card {% if svc.is_featured %}featured{% endif %}">
+    {% if svc.badge %}<span class="service-badge popular">{{ svc.badge }}</span>{% endif %}
+    <div class="service-name">{{ svc.name }}</div>
+    <div class="service-desc">{{ svc.short_description|default:svc.description|truncatechars:120 }}</div>
+    <div class="service-price">
+        {% if svc.has_discount %}<span class="orig">${{ svc.price|floatformat:2 }}</span>{% endif %}
+        ${{ svc.display_price }}
+    </div>
+    {% if svc.estimated_days %}<div style="font-size:10px;color:var(--ink-3);margin-top:2px">⏱ ~{{ svc.estimated_days }} business days</div>{% endif %}
+    {% if svc.features %}
+    <ul class="service-features">
+        {% for feature in svc.features|slice:":5" %}
+        <li>{{ feature }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div style="display:flex;gap:6px;margin-top:12px">
+        <form method="POST" style="flex:1">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_to_cart">
+            <input type="hidden" name="service_id" value="{{ svc.id }}">
+            <button type="submit" class="btn btn-primary btn-sm" style="width:100%;font-size:12px">Add to Cart</button>
+        </form>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="request_service">
+            <input type="hidden" name="service_id" value="{{ svc.id }}">
+            <button type="submit" class="btn btn-outline btn-sm" style="font-size:12px">Inquire</button>
+        </form>
+    </div>
+</div>

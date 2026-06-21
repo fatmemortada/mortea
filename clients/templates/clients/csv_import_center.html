@@ -1,0 +1,44 @@
+{% extends "clients/base.html" %}
+{% block title %}CSV Import Center — Mortacc{% endblock %}
+{% block nav_data %}active{% endblock %}
+{% block topbar_title %}Data Import Center{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'csv_export_center' %}" class="btn btn-ghost btn-sm">Export Data</a>
+{% endblock %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title">Import Clients</span></div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'csv_import' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">CSV File</label>
+                    <input class="form-control" type="file" name="csv_file" accept=".csv" required>
+                    <div class="form-hint">CSV should include columns: name, email, phone, business_type, jurisdiction</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload & Import</button>
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><span class="card-title">Template Download</span></div>
+        <div class="card-body">
+            <p style="font-size:13px;color:var(--ink-3);margin-bottom:12px;">Download a CSV template with the correct column structure.</p>
+            <a href="{% url 'export_clients_csv' %}" class="btn btn-ghost btn-sm">Download Template</a>
+        </div>
+    </div>
+</div>
+
+{% if recent_imports %}
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title">Recent Imports</span></div>
+        <div class="card-body">
+        {% for imp in recent_imports %}
+        <div style="padding:8px 0;border-bottom:1px solid var(--surface-2);font-size:12.5px;">{{ imp.name }} — {{ imp.created_at|date:"M d, Y" }} — {{ imp.rows_imported }} rows</div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

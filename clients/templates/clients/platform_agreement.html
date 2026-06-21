@@ -1,0 +1,383 @@
+{% extends "clients/base.html" %}
+{% block title %}Platform Agreement — Mortacc{% endblock %}
+
+{% block content %}
+<style>
+    .agreement-wrap {
+        max-width: 820px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+    }
+    .agreement-header {
+        margin-bottom: 32px;
+    }
+    .agreement-header h1 {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--text-primary, #0f172a);
+        margin: 0 0 6px;
+    }
+    .agreement-header p {
+        font-size: 14px;
+        color: var(--text-secondary, #64748b);
+        margin: 0;
+    }
+    .agreement-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+        margin-bottom: 24px;
+    }
+    .agreement-doc-header {
+        background: #0a0f1e;
+        padding: 28px 40px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+    }
+    .doc-logo {
+        font-size: 22px;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.5px;
+    }
+    .doc-logo span { color: #3b82f6; }
+    .doc-meta-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 4px;
+        text-align: right;
+    }
+    .doc-meta-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+        text-align: right;
+    }
+    .doc-meta-version {
+        font-size: 12px;
+        color: #475569;
+        text-align: right;
+        margin-top: 4px;
+    }
+    .scroll-hint {
+        background: #eff6ff;
+        border-bottom: 1px solid #bfdbfe;
+        padding: 10px 40px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #1d4ed8;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .agreement-body {
+        padding: 36px 40px;
+        max-height: 520px;
+        overflow-y: auto;
+        border-bottom: 1px solid #e2e8f0;
+        font-size: 14px;
+        line-height: 1.85;
+        color: #334155;
+    }
+    .agreement-body::-webkit-scrollbar { width: 5px; }
+    .agreement-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .agreement-body h2 {
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #94a3b8;
+        margin: 28px 0 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .agreement-body h2:first-child { margin-top: 0; }
+    .agreement-body p { margin: 0 0 12px; }
+    .agreement-body ul { margin: 0 0 12px 20px; }
+    .agreement-body ul li { margin-bottom: 6px; }
+    .parties-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 18px 22px;
+        margin-bottom: 24px;
+        font-size: 13px;
+    }
+    .parties-box .party-row {
+        display: flex;
+        gap: 14px;
+        margin-bottom: 10px;
+    }
+    .parties-box .party-row:last-child { margin-bottom: 0; }
+    .party-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #94a3b8;
+        min-width: 80px;
+        padding-top: 2px;
+    }
+
+    /* Signature section */
+    .sign-section {
+        padding: 32px 40px;
+        background: #f8fafc;
+    }
+    .sign-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 4px;
+    }
+    .sign-sub {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 24px;
+    }
+    .sign-field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+    .fg {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .fl {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #334155;
+    }
+    .fl span { color: #ef4444; }
+    .fi {
+        background: #fff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 11px 14px;
+        font-size: 14px;
+        color: #0f172a;
+        font-family: inherit;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .fi:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    .fi[readonly] {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+    .agree-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 24px;
+        cursor: pointer;
+    }
+    .agree-row input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #3b82f6;
+        margin-top: 2px;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+    .agree-lbl {
+        font-size: 13px;
+        color: #475569;
+        line-height: 1.7;
+    }
+    .agree-lbl strong { color: #0f172a; }
+
+    {% if error %}
+    .error-box {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 13px;
+        color: #dc2626;
+        margin-bottom: 20px;
+    }
+    {% endif %}
+
+    .btn-sign {
+        width: 100%;
+        background: #1e40af;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 15px;
+        font-size: 15px;
+        font-weight: 700;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .btn-sign:hover:not(:disabled) {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+    }
+    .btn-sign:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .sign-note {
+        text-align: center;
+        font-size: 11px;
+        color: #94a3b8;
+        margin-top: 12px;
+    }
+
+    @media (max-width: 640px) {
+        .agreement-doc-header { flex-direction: column; }
+        .doc-meta-label, .doc-meta-title, .doc-meta-version { text-align: left; }
+        .agreement-doc-header, .agreement-body, .sign-section, .scroll-hint { padding-left: 20px; padding-right: 20px; }
+        .sign-field-row { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="agreement-wrap">
+    <div class="agreement-header">
+        <h1>One last step before you get started</h1>
+        <p>Please read and sign the Mortacc Platform Agreement to activate your account.</p>
+    </div>
+
+    <div class="agreement-card">
+        <div class="agreement-doc-header">
+            <div class="doc-logo">Mort<span>acc</span></div>
+            <div>
+                <div class="doc-meta-label">Platform Agreement · Convention de plateforme</div>
+                <div class="doc-meta-title">Mortacc Platform Services Agreement</div>
+                <div class="doc-meta-version">Version 1.0 — Effective January 1, 2026</div>
+            </div>
+        </div>
+
+        <div class="scroll-hint">↓ Please scroll through the full agreement before signing</div>
+
+        <div class="agreement-body">
+            <div class="parties-box">
+                <div class="party-row">
+                    <div class="party-label">Provider</div>
+                    <div><strong>Mortacc Solutions Inc.</strong><br>1110 Elizabeth St, Sharbot Lake, ON K0H 2P0<br>support@mortacc.com · mortacc.com</div>
+                </div>
+                <div class="party-row">
+                    <div class="party-label">Subscriber</div>
+                    <div><strong>{{ request.user.get_full_name|default:request.user.email }}</strong> — {{ firm_name }}<br>{{ request.user.email }}</div>
+                </div>
+            </div>
+
+            <h2>1. Acceptance of Terms</h2>
+            <p>By signing this Agreement, the Subscriber ("you", "your firm") agrees to be bound by the terms and conditions set out herein. This Agreement is entered into between Mortacc Solutions Inc. ("Mortacc", "we", "us") and the Subscriber named above.</p>
+
+            <h2>2. Description of Services</h2>
+            <p>Mortacc provides a cloud-based entity management and corporate governance platform designed for Canadian accounting and law firms. Services include, but are not limited to:</p>
+            <ul>
+                <li>Client onboarding and document collection portals;</li>
+                <li>Corporate incorporation workflows for Federal, Ontario, BC, and Québec jurisdictions;</li>
+                <li>Entity records management, structure charts, and cap table tracking;</li>
+                <li>Compliance deadline monitoring and automated reminders;</li>
+                <li>Billing, invoicing, and document management tools; and</li>
+                <li>Bilingual (EN/FR) platform access.</li>
+            </ul>
+            <p>Mortacc is a technology platform. It does not provide legal, accounting, or tax advice. The Subscriber is solely responsible for ensuring that services rendered to their clients comply with applicable professional standards and regulations.</p>
+
+            <h2>3. Subscription and Payment</h2>
+            <p>Access to the platform is subject to payment of the applicable subscription fee as selected at registration. Fees are billed in advance on a monthly or annual basis. All fees are in Canadian dollars and exclusive of applicable taxes (HST/GST/QST). Mortacc reserves the right to update pricing with thirty (30) days' written notice.</p>
+
+            <h2>4. Subscriber Responsibilities</h2>
+            <p>You agree to:</p>
+            <ul>
+                <li>Provide accurate and complete registration information;</li>
+                <li>Maintain the confidentiality of your account credentials;</li>
+                <li>Use the platform only for lawful purposes and in accordance with applicable professional obligations;</li>
+                <li>Not share your account access with individuals outside your registered firm; and</li>
+                <li>Notify Mortacc promptly of any unauthorized use of your account.</li>
+            </ul>
+
+            <h2>5. Data and Confidentiality</h2>
+            <p>Mortacc will maintain the confidentiality of all data submitted to the platform and will not disclose Subscriber data to third parties except as required by law or necessary to provide the services. Subscriber data remains the property of the Subscriber. Mortacc may use anonymized, aggregated data for platform improvement purposes.</p>
+
+            <h2>6. Limitation of Liability</h2>
+            <p>To the maximum extent permitted by applicable law, Mortacc's total liability to the Subscriber shall not exceed the amount paid by the Subscriber in the three (3) months preceding the event giving rise to the claim. Mortacc shall not be liable for any indirect, consequential, incidental, or punitive damages.</p>
+
+            <h2>7. Term and Termination</h2>
+            <p>This Agreement commences on the date of signing and continues on a subscription basis. Either party may terminate with thirty (30) days' written notice. Mortacc may suspend or terminate access immediately in the event of material breach, non-payment, or conduct that violates this Agreement or applicable law.</p>
+
+            <h2>8. Governing Law</h2>
+            <p>This Agreement is governed by and construed in accordance with the laws of the Province of Ontario and the federal laws of Canada applicable therein. Any disputes shall be resolved in the courts of the Province of Ontario.</p>
+
+            <h2>9. Amendments</h2>
+            <p>Mortacc reserves the right to amend this Agreement from time to time. Subscribers will be notified of material changes by email and will be required to re-acknowledge the updated agreement upon next login.</p>
+
+            <p style="margin-top: 32px;">Signed electronically by the parties as indicated below.</p>
+        </div>
+
+        <form method="POST" action="{% url 'sign_platform_agreement' %}">
+            {% csrf_token %}
+            <div class="sign-section">
+                <div class="sign-title">Sign this Agreement</div>
+                <div class="sign-sub">Type your full name exactly as it appears on your account to create your electronic signature.</div>
+
+                {% if error %}
+                <div class="error-box">{{ error }}</div>
+                {% endif %}
+
+                <div class="sign-field-row">
+                    <div class="fg">
+                        <label class="fl">Full Name (Electronic Signature) <span>*</span></label>
+                        <input type="text" name="signed_name" class="fi" id="signed_name"
+                               placeholder="e.g. Jane Smith"
+                               value="{{ prefill_name }}"
+                               autocomplete="name"
+                               oninput="checkForm()" required>
+                    </div>
+                    <div class="fg">
+                        <label class="fl">Email Address</label>
+                        <input type="email" class="fi" value="{{ request.user.email }}" readonly>
+                    </div>
+                </div>
+
+                <label class="agree-row">
+                    <input type="checkbox" id="agree_cb" onchange="checkForm()">
+                    <span class="agree-lbl">
+                        I, <strong id="name_display">the undersigned</strong>, confirm that I have read and understood the Mortacc Platform Services Agreement and agree to be bound by its terms and conditions on behalf of myself and my firm.
+                    </span>
+                </label>
+
+                <button type="submit" class="btn-sign" id="sign_btn" disabled>
+                    ✍️ Sign &amp; Activate My Account
+                </button>
+                <p class="sign-note">🔒 This signature is recorded with a timestamp and your IP address for legal purposes.</p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function checkForm() {
+    const name = document.getElementById('signed_name').value.trim();
+    const agreed = document.getElementById('agree_cb').checked;
+    document.getElementById('name_display').textContent = name || 'the undersigned';
+    document.getElementById('sign_btn').disabled = !(name && agreed);
+}
+</script>
+{% endblock %}

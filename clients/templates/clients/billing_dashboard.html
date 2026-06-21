@@ -1,0 +1,331 @@
+{% extends "clients/base.html" %}
+{% block title %}Billing — Mortacc{% endblock %}
+{% block nav_invoices %}active{% endblock %}
+{% block topbar_title %}Billing{% endblock %}
+{% block topbar_actions %}
+    <button class="btn btn-primary" onclick="document.getElementById('create-invoice-modal').style.display='flex'">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        New Invoice
+    </button>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .billing-stats { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px; }
+
+    .revenue-card {
+        background:var(--ink);color:#fff;
+        border-radius:var(--radius-lg);padding:20px 22px;
+        grid-column: span 2;
+        display:flex;align-items:center;justify-content:space-between;
+    }
+    .revenue-card h3 { font-size:13px;font-weight:500;color:rgba(255,255,255,.55);margin-bottom:6px; }
+    .revenue-card .amount { font-size:32px;font-weight:700;letter-spacing:-.5px; }
+    .revenue-card .sub { font-size:12px;color:rgba(255,255,255,.4);margin-top:4px; }
+    .revenue-bars { display:flex;gap:4px;align-items:flex-end;height:48px; }
+    .revenue-bar-item { width:12px;border-radius:2px 2px 0 0;background:rgba(255,255,255,.2);transition:var(--transition); }
+    .revenue-bar-item:hover { background:rgba(255,255,255,.4); }
+    .revenue-bar-item.current { background:#60a5fa; }
+
+    .filter-bar { display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap; }
+    .search-bar {
+        width:210px;padding:7px 11px 7px 32px;
+        border:1px solid var(--border);border-radius:var(--radius);
+        font-family:inherit;font-size:13px;color:var(--ink-2);
+        background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z' clip-rule='evenodd'/%3E%3C/svg%3E") 10px center no-repeat;
+        outline:none;transition:var(--transition);
+    }
+    .search-bar:focus { border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .filter-select {
+        padding:7px 26px 7px 10px;border:1px solid var(--border);border-radius:var(--radius);
+        font-family:inherit;font-size:13px;color:var(--ink-2);background:var(--surface);
+        cursor:pointer;outline:none;appearance:none;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2394a3b8' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+        background-repeat:no-repeat;background-position:right 9px center;
+    }
+
+    .inv-number { font-family:monospace;font-size:12px;color:var(--ink-3);background:var(--surface-2);padding:2px 7px;border-radius:4px; }
+    .amount-cell { font-weight:600;font-size:14px; }
+    .amount-cell.paid   { color:var(--green); }
+    .amount-cell.sent   { color:var(--ink); }
+    .amount-cell.overdue { color:var(--red); }
+    .amount-cell.draft  { color:var(--ink-3); }
+
+    .action-row { display:flex;gap:4px;flex-wrap:wrap; }
+    .mark-btn {
+        background:none;border:1px solid var(--border);border-radius:5px;
+        padding:4px 9px;font-size:11.5px;font-weight:500;color:var(--ink-3);
+        cursor:pointer;font-family:inherit;transition:var(--transition);
+    }
+    .mark-btn:hover { background:var(--surface-2); }
+    .mark-btn.paid:hover  { background:var(--green-bg);color:var(--green);border-color:#bbf7d0; }
+    .mark-btn.sent:hover  { background:var(--brand-soft);color:var(--brand);border-color:var(--brand-muted); }
+
+    .overdue-row { background:#fff5f5; }
+    .overdue-row:hover { background:#fef2f2 !important; }
+
+    /* Modal */
+    .modal-backdrop { display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:400;align-items:center;justify-content:center;padding:20px; }
+    .modal { background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:540px;box-shadow:var(--shadow-lg);animation:fadeUp .18s ease;max-height:90vh;overflow-y:auto; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+    .modal-header { padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--surface);z-index:1; }
+    .modal-title { font-size:15px;font-weight:600;color:var(--ink); }
+    .modal-close { background:none;border:none;cursor:pointer;color:var(--ink-4);font-size:20px;line-height:1;padding:2px 6px;border-radius:4px; }
+    .modal-close:hover { background:var(--surface-2); }
+    .modal-body { padding:18px 22px; }
+    .modal-footer { padding:12px 22px 18px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--border); }
+
+    .toast { position:fixed;bottom:22px;right:22px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:var(--radius);font-size:13px;display:none;z-index:999;box-shadow:var(--shadow-md); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Revenue + Stats -->
+<div class="billing-stats">
+
+    <div class="revenue-card">
+        <div>
+            <h3>Total Revenue (All Time)</h3>
+            <div class="amount">${{ total_paid|floatformat:0 }}</div>
+            <div class="sub">{{ paid_count }} invoice{{ paid_count|pluralize }} paid</div>
+        </div>
+        <div class="revenue-bars">
+            {% for bar in monthly_bars %}
+            <div class="revenue-bar-item {% if bar.current %}current{% endif %}"
+                 style="height:{{ bar.height }}px"
+                 title="{{ bar.month }}: ${{ bar.amount }}"></div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="stat-card" style="border-top:2px solid var(--red)">
+        <div class="stat-label">Outstanding</div>
+        <div class="stat-value" style="color:var(--red)">${{ total_outstanding|floatformat:0 }}</div>
+        <div class="stat-sub">{{ outstanding_count }} unpaid invoice{{ outstanding_count|pluralize }}</div>
+    </div>
+
+    <div class="stat-card" style="border-top:2px solid var(--amber)">
+        <div class="stat-label">Overdue</div>
+        <div class="stat-value" style="color:var(--amber)">${{ total_overdue|floatformat:0 }}</div>
+        <div class="stat-sub">{{ overdue_count }} invoice{{ overdue_count|pluralize }}</div>
+    </div>
+
+    <div class="stat-card" style="border-top:2px solid var(--ink-4)">
+        <div class="stat-label">Drafts</div>
+        <div class="stat-value" style="color:var(--ink-3)">{{ draft_count }}</div>
+        <div class="stat-sub">Not yet sent</div>
+    </div>
+
+    <div class="stat-card" style="border-top:2px solid var(--green)">
+        <div class="stat-label">Paid This Month</div>
+        <div class="stat-value" style="color:var(--green)">${{ paid_this_month|floatformat:0 }}</div>
+        <div class="stat-sub">{{ paid_this_month_count }} invoice{{ paid_this_month_count|pluralize }}</div>
+    </div>
+
+</div>
+
+<!-- Filter bar -->
+<div class="filter-bar">
+    <input type="text" class="search-bar" placeholder="Search invoices or clients…" id="inv-search" oninput="filterInvoices()">
+    <select class="filter-select" id="status-filter" onchange="filterInvoices()">
+        <option value="">All statuses</option>
+        <option value="draft">Draft</option>
+        <option value="sent">Sent</option>
+        <option value="paid">Paid</option>
+        <option value="overdue">Overdue</option>
+    </select>
+    <select class="filter-select" id="service-filter" onchange="filterInvoices()">
+        <option value="">All services</option>
+        <option value="bookkeeping">Bookkeeping</option>
+        <option value="tax_return">Tax Return</option>
+        <option value="incorporation">Incorporation</option>
+        <option value="consultation">Consultation</option>
+        <option value="hst_filing">HST/GST Filing</option>
+        <option value="payroll">Payroll</option>
+        <option value="other">Other</option>
+    </select>
+</div>
+
+<!-- Invoices Table -->
+<div class="card">
+    {% if invoices %}
+    <div class="table-wrap">
+        <table id="invoices-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Client</th>
+                    <th>Service</th>
+                    <th>Amount</th>
+                    <th>Invoice Date</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for inv in invoices %}
+            <tr class="{% if inv.status == 'overdue' %}overdue-row{% endif %}"
+                data-search="{{ inv.invoice_number|lower }} {{ inv.client.name|lower }} {{ inv.description|lower }}"
+                data-status="{{ inv.status }}"
+                data-service="{{ inv.service_type }}">
+
+                <td><span class="inv-number">{{ inv.invoice_number|default:"—" }}</span></td>
+
+                <td>
+                    <a href="{% url 'client_detail' inv.client.id %}" style="color:var(--ink);text-decoration:none;font-weight:500">{{ inv.client.name }}</a>
+                    <div class="text-small text-muted" style="margin-top:2px">{{ inv.description|truncatechars:40 }}</div>
+                </td>
+
+                <td><span class="text-small text-muted">{{ inv.get_service_type_display }}</span></td>
+
+                <td>
+                    <span class="amount-cell {{ inv.status }}">${{ inv.amount|floatformat:2 }}</span>
+                </td>
+
+                <td>{{ inv.invoice_date|date:"M d, Y" }}</td>
+
+                <td>
+                    {% if inv.due_date %}
+                        <span {% if inv.status == 'overdue' %}style="color:var(--red);font-weight:500"{% endif %}>
+                            {{ inv.due_date|date:"M d, Y" }}
+                        </span>
+                    {% else %}—{% endif %}
+                </td>
+
+                <td>
+                    {% if inv.status == 'paid' %}
+                        <span class="badge badge-completed">Paid</span>
+                        {% if inv.paid_date %}<div class="text-small text-muted">{{ inv.paid_date|date:"M d" }}</div>{% endif %}
+                    {% elif inv.status == 'overdue' %}
+                        <span class="badge badge-needs-attention">Overdue</span>
+                    {% elif inv.status == 'sent' %}
+                        <span class="badge badge-in-progress">Sent</span>
+                    {% else %}
+                        <span class="badge badge-not-started">Draft</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <div class="action-row">
+                        {% if inv.status == 'draft' %}
+                        <form method="POST" style="display:inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="invoice_id" value="{{ inv.id }}">
+                            <input type="hidden" name="action" value="mark_sent">
+                            <button type="submit" class="mark-btn sent">Mark Sent</button>
+                        </form>
+                        {% endif %}
+                        {% if inv.status != 'paid' %}
+                        <form method="POST" style="display:inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="invoice_id" value="{{ inv.id }}">
+                            <input type="hidden" name="action" value="mark_paid">
+                            <button type="submit" class="mark-btn paid">Mark Paid</button>
+                        </form>
+                        {% endif %}
+                        <a href="{% url 'pdf_invoice' inv.client.id inv.id %}" target="_blank" class="mark-btn">PDF</a>
+                        <form method="POST" style="display:inline" onsubmit="return confirm('Delete this invoice?')">
+                            {% csrf_token %}
+                            <input type="hidden" name="invoice_id" value="{{ inv.id }}">
+                            <input type="hidden" name="action" value="delete_invoice">
+                            <button type="submit" class="mark-btn" style="color:var(--red)">✕</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+        <p>No invoices yet. Click <strong>New Invoice</strong> to create your first one.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Create Invoice Modal -->
+<div class="modal-backdrop" id="create-invoice-modal" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">New Invoice</span>
+            <button class="modal-close" onclick="document.getElementById('create-invoice-modal').style.display='none'">×</button>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create_invoice">
+            <div class="modal-body">
+                <div class="form-grid-2">
+                    <div class="form-group form-full">
+                        <label class="form-label">Client *</label>
+                        <select name="client_id" class="form-control" required>
+                            <option value="">Select client…</option>
+                            {% for client in clients %}
+                            <option value="{{ client.id }}">{{ client.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Service Type *</label>
+                        <select name="service_type" class="form-control" required>
+                            <option value="bookkeeping">Bookkeeping</option>
+                            <option value="tax_return">Tax Return</option>
+                            <option value="incorporation">Incorporation</option>
+                            <option value="consultation">Consultation</option>
+                            <option value="hst_filing">HST/GST Filing</option>
+                            <option value="payroll">Payroll</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Amount (CAD) *</label>
+                        <input type="number" name="amount" class="form-control" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Invoice Date *</label>
+                        <input type="date" name="invoice_date" class="form-control" required value="{% now 'Y-m-d' %}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" name="due_date" class="form-control">
+                    </div>
+                    <div class="form-group form-full">
+                        <label class="form-label">Description *</label>
+                        <textarea name="description" class="form-control" rows="2" placeholder="e.g. Bookkeeping services — January 2025" required></textarea>
+                    </div>
+                    <div class="form-group form-full">
+                        <label class="form-label">Notes</label>
+                        <textarea name="notes" class="form-control" rows="2" placeholder="Optional internal notes…"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="document.getElementById('create-invoice-modal').style.display='none'">Cancel</button>
+                <button type="submit" name="send_after" value="0" class="btn btn-ghost">Save as Draft</button>
+                <button type="submit" name="send_after" value="1" class="btn btn-primary">Create &amp; Mark Sent</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function filterInvoices() {
+    const q = document.getElementById('inv-search').value.toLowerCase();
+    const s = document.getElementById('status-filter').value;
+    const sv = document.getElementById('service-filter').value;
+    document.querySelectorAll('#invoices-table tbody tr').forEach(row => {
+        const sm = row.dataset.search.includes(q);
+        const stm = !s  || row.dataset.status  === s;
+        const svm = !sv || row.dataset.service === sv;
+        row.style.display = (sm && stm && svm) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

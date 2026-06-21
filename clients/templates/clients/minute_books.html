@@ -1,0 +1,270 @@
+{% extends "clients/base.html" %}
+{% block title %}Minute Books — Mortacc{% endblock %}
+{% block nav_minutebooks %}active{% endblock %}
+{% block topbar_title %}Minute Books{% endblock %}
+
+{% block extra_head %}
+<style>
+    .mb-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .mb-stat {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    }
+    .mb-stat .label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: var(--gray-500);
+        margin-bottom: 6px;
+    }
+    .mb-stat .value {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--gray-900);
+        line-height: 1;
+    }
+
+    .mb-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        box-shadow: 0 2px 12px rgba(0,0,0,.04);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    .mb-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .mb-card-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--gray-900);
+    }
+
+    .mb-table { width: 100%; border-collapse: collapse; }
+    .mb-table th {
+        padding: 10px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--gray-500);
+        border-bottom: 1px solid var(--gray-100);
+        background: var(--gray-50);
+    }
+    .mb-table td {
+        padding: 14px 16px;
+        font-size: 13px;
+        border-bottom: 1px solid var(--gray-100);
+        vertical-align: middle;
+    }
+    .mb-table tr:last-child td { border-bottom: none; }
+    .mb-table tr:hover td { background: var(--gray-50); }
+
+    .client-name { font-weight: 600; color: var(--gray-900); }
+    .client-juris { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+    .readiness-bar {
+        width: 100%;
+        height: 6px;
+        background: var(--gray-100);
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 4px;
+    }
+    .readiness-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width .3s;
+    }
+    .readiness-label { font-size: 11px; color: var(--gray-500); }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-amber { background: #fef3c7; color: #d97706; }
+    .badge-gray  { background: var(--gray-100); color: var(--gray-500); }
+
+    .action-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid transparent;
+        transition: all .15s;
+        white-space: nowrap;
+    }
+    .btn-sm-primary { background: var(--blue); color: #fff; }
+    .btn-sm-primary:hover { background: #1d4ed8; color: #fff; }
+    .btn-sm-ghost { background: var(--gray-50); color: var(--gray-700); border-color: var(--gray-200); }
+    .btn-sm-ghost:hover { background: var(--gray-100); color: var(--gray-900); }
+
+    .search-wrap {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    .search-input {
+        flex: 1;
+        background: #fff;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 10px 14px;
+        font-size: 13px;
+        font-family: inherit;
+        outline: none;
+    }
+    .search-input:focus { border-color: var(--blue); }
+
+    .no-data { padding: 48px; text-align: center; color: var(--gray-400); font-size: 13px; }
+    .no-data .icon { font-size: 32px; margin-bottom: 8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-stats">
+    <div class="mb-stat">
+        <div class="label">Total Clients</div>
+        <div class="value">{{ total_clients }}</div>
+    </div>
+    <div class="mb-stat">
+        <div class="label">Ready to Generate</div>
+        <div class="value" style="color:#15803d;">{{ ready_count }}</div>
+    </div>
+    <div class="mb-stat">
+        <div class="label">Incomplete</div>
+        <div class="value" style="color:#d97706;">{{ incomplete_count }}</div>
+    </div>
+    <div class="mb-stat">
+        <div class="label">No Corp Profile</div>
+        <div class="value" style="color:var(--gray-400);">{{ no_profile_count }}</div>
+    </div>
+</div>
+
+<div class="search-wrap">
+    <input type="text" class="search-input" id="mbSearch" placeholder="Search clients…" oninput="filterTable()">
+</div>
+
+<div class="mb-card">
+    <div class="mb-card-header">
+        <div class="mb-card-title">All Clients — Minute Book Status</div>
+    </div>
+    {% if rows %}
+    <table class="mb-table" id="mbTable">
+        <thead>
+            <tr>
+                <th>Client</th>
+                <th>Jurisdiction</th>
+                <th>Directors</th>
+                <th>Shareholders</th>
+                <th>Readiness</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                <td>
+                    <div class="client-name">{{ row.client.name }}</div>
+                    {% if row.client.business_type %}
+                    <div class="client-juris">{{ row.client.business_type }}</div>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row.corp %}
+                        {% if row.corp.jurisdiction == 'federal' %}Federal (CBCA)
+                        {% elif row.corp.jurisdiction == 'ontario' %}Ontario
+                        {% elif row.corp.jurisdiction == 'bc' %}British Columbia
+                        {% elif row.corp.jurisdiction == 'quebec' %}Québec
+                        {% else %}{{ row.corp.jurisdiction|title }}{% endif %}
+                    {% else %}
+                        <span style="color:var(--gray-400);">—</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="badge {% if row.director_count > 0 %}badge-green{% else %}badge-amber{% endif %}">
+                        {{ row.director_count }} director{{ row.director_count|pluralize }}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge {% if row.shareholder_count > 0 %}badge-green{% else %}badge-amber{% endif %}">
+                        {{ row.shareholder_count }} shareholder{{ row.shareholder_count|pluralize }}
+                    </span>
+                </td>
+                <td style="min-width:120px;">
+                    <div class="readiness-label">{{ row.readiness }}% complete</div>
+                    <div class="readiness-bar">
+                        <div class="readiness-fill" style="width:{{ row.readiness }}%;background:{% if row.readiness == 100 %}#16a34a{% elif row.readiness >= 60 %}#d97706{% else %}#ef4444{% endif %};"></div>
+                    </div>
+                </td>
+                <td>
+                    <div class="action-btns">
+                        {% if row.corp %}
+                        <a href="{% url 'minute_book_builder' row.client.id %}" class="btn-sm btn-sm-primary" title="Select documents and generate">
+                            🔨 Build
+                        </a>
+                        <a href="{% url 'pdf_banking_package' row.client.id %}" class="btn-sm btn-sm-ghost" title="Banking resolution + supporting docs">
+                            🏦 Banking
+                        </a>
+                        <a href="{% url 'pdf_minute_book_zip' row.client.id %}" class="btn-sm btn-sm-ghost" title="Download all 15 documents as ZIP">
+                            ⬇ ZIP All
+                        </a>
+                        <a href="{% url 'client_detail' row.client.id %}?tab=corporate" class="btn-sm btn-sm-ghost">
+                            Edit Records
+                        </a>
+                        {% else %}
+                        <a href="{% url 'client_detail' row.client.id %}?tab=corporate" class="btn-sm btn-sm-ghost">
+                            Set Up Corp Profile
+                        </a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="no-data">
+        <div class="icon">📚</div>
+        No clients yet. Add a client to start generating minute books.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function filterTable() {
+    const q = document.getElementById('mbSearch').value.toLowerCase();
+    document.querySelectorAll('#mbTable tbody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

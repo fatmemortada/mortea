@@ -1,0 +1,143 @@
+{% extends "clients/base.html" %}
+{% block title %}{{ module.title }} — Mortacc Academy{% endblock %}
+{% block nav_academy %}active{% endblock %}
+{% block topbar_title %}Academy{% endblock %}
+{% block topbar_breadcrumb %}<a href="{% url 'academy_home' %}">Academy</a> <span class="topbar-sep">›</span> {{ module.title }}{% endblock %}
+
+{% block extra_head %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'clients/css/academy.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="academy-shell">
+
+<!-- Module Hero -->
+<div class="module-hero" style="background:{{ module.thumbnail_gradient }}">
+    <div class="module-hero-back">
+        <a href="{% url 'academy_home' %}" class="module-back-link">← Back to Academy</a>
+    </div>
+    <div class="module-hero-content">
+        <div class="module-hero-icon">{{ module.icon }}</div>
+        <div class="module-hero-info">
+            <div class="module-hero-breadcrumb">
+                {% if category %}{{ category.icon }} {{ category.title }}{% endif %}
+            </div>
+            <h1>{{ module.title }}</h1>
+            <p class="module-hero-desc">{{ module.short_description }}</p>
+            <div class="module-hero-meta">
+                <span class="mhm-item difficulty-{{ module.difficulty }}">{{ module.difficulty }}</span>
+                <span class="mhm-item">📚 {{ module.chapter_count }} chapters</span>
+                <span class="mhm-item">⏱ {{ module.watch_time_minutes }} min</span>
+                {% if progress.started %}
+                <span class="mhm-item">📊 {{ progress.percent }}% complete</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if is_placeholder %}
+<!-- Coming Soon State -->
+<div class="module-placeholder">
+    <div class="module-placeholder-icon">{{ module.icon }}</div>
+    <h2>Coming Soon</h2>
+    <p>We are building this learning module. It will cover {{ module.short_description|lower }}</p>
+    <p style="color: var(--ink-3); font-size: 14px; margin-bottom: 24px">Estimated: {{ module.chapter_count }} chapters · {{ module.watch_time_minutes }} minutes</p>
+    <a href="{% url 'academy_home' %}" class="btn btn-outline">← Back to Academy</a>
+</div>
+{% else %}
+<!-- Module Content -->
+<div class="module-layout">
+    <!-- Chapters List -->
+    <div class="module-chapters">
+        {% if progress.started %}
+        <div class="module-progress-overview">
+            <div class="module-progress-ring-wrapper">
+                <svg viewBox="0 0 100 100" class="module-progress-ring">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" stroke-width="8"/>
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="var(--brand)" stroke-width="8"
+                            stroke-dasharray="{{ progress.percent|floatformat:0|add:0|stringformat:'s'|add:'.0' }} 264"
+                            stroke-linecap="round" transform="rotate(-90 50 50)"
+                            style="stroke-dasharray: calc(264 * {{ progress.percent }} / 100) 264; transition: stroke-dasharray 0.6s ease"/>
+                </svg>
+                <div class="module-progress-ring-text">{{ progress.percent }}%</div>
+            </div>
+            <span class="module-progress-label">{{ progress.completed_chapters }}/{{ progress.total_chapters }} chapters complete</span>
+        </div>
+        {% endif %}
+
+        <h3 style="font-size:15px;font-weight:600;color:var(--ink);margin-bottom:14px">Course Chapters</h3>
+        <div class="chapter-timeline">
+            {% for ch in chapters %}
+            <a href="{% url 'academy_chapter' module.id ch.id %}" class="chapter-timeline-item {% if ch.completed %}completed{% endif %}">
+                <div class="chapter-timeline-marker">
+                    {% if ch.completed %}✓{% else %}{{ forloop.counter }}{% endif %}
+                </div>
+                <div class="chapter-timeline-content">
+                    <div class="chapter-timeline-title">
+                        {{ ch.title }}
+                        {% if ch.type == 'quiz' %}<span class="quiz-badge">Quiz</span>{% endif %}
+                    </div>
+                    <div class="chapter-timeline-meta">{{ ch.duration_minutes }} min</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <div class="module-start-section">
+            <a href="{% url 'academy_chapter' module.id module.chapters.0.id %}" class="btn btn-primary btn-lg">
+                {% if progress.started %}Resume Learning →{% else %}Start Learning →{% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Overview Sidebar -->
+    <div class="module-overview">
+        <div class="module-overview-card">
+            <h4>About This Course</h4>
+            <p>{{ module.long_description }}</p>
+        </div>
+
+        <div class="module-overview-card">
+            <h4>Course Details</h4>
+            <div class="module-detail-row">
+                <span>Difficulty</span>
+                <span class="difficulty-{{ module.difficulty }}">{{ module.difficulty }}</span>
+            </div>
+            <div class="module-detail-row">
+                <span>Duration</span>
+                <span>{{ module.watch_time_minutes }} minutes</span>
+            </div>
+            <div class="module-detail-row">
+                <span>Chapters</span>
+                <span>{{ module.chapter_count }}</span>
+            </div>
+            <div class="module-detail-row">
+                <span>Quizzes</span>
+                <span>1</span>
+            </div>
+            <div class="module-detail-row">
+                <span>Certificate</span>
+                <span>🏅 Completion</span>
+            </div>
+        </div>
+
+        {% if progress.quiz_passed %}
+        <div class="module-overview-card" style="border-color:var(--green);background:rgba(34,197,94,.04)">
+            <h4 style="color:var(--green)">✅ Module Completed</h4>
+            <p>Quiz score: {{ progress.quiz_score|floatformat:0 }}%</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% include "clients/academy/includes/cta_banner.html" %}
+{% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'clients/js/academy.js' %}"></script>
+{% endblock %}

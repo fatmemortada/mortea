@@ -1,0 +1,16 @@
+{% extends "clients/base.html" %}
+{% block title %}Plan Upgraded — Mortacc{% endblock %}
+{% block topbar_title %}Plan Upgraded{% endblock %}
+
+{% block content %}
+<div style="max-width:520px;margin:80px auto;text-align:center;">
+    <div style="font-size:3rem;margin-bottom:16px;">🎉</div>
+    <h1 style="font-size:1.5rem;font-weight:700;color:var(--navy);margin-bottom:8px;">
+        You're now on the {{ plan|title }} plan
+    </h1>
+    <p style="color:var(--gray-500);font-size:.95rem;margin-bottom:32px;">
+        Your new features and client limits are active immediately.
+    </p>
+    <a href="{% url 'dashboard' %}" class="btn btn-primary">Back to Dashboard →</a>
+</div>
+{% endblock %}

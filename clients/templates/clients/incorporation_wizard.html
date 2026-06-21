@@ -1,0 +1,380 @@
+{% extends "clients/base.html" %}
+{% block title %}Incorporation: {{ project.client.name }} — Mortacc{% endblock %}
+{% block nav_incorporations %}active{% endblock %}
+{% block topbar_title %}{{ project.client.name }}{% endblock %}
+{% block topbar_breadcrumb %}<span style="font-size:12px;color:var(--ink-3)">→ {{ project.get_jurisdiction_display }} · {{ project.get_structure_type_display }}</span>{% endblock %}
+
+{% block extra_head %}
+<style>
+    .wizard-layout { display:grid; grid-template-columns:260px 1fr; gap:20px; min-height:70vh; }
+    @media (max-width:900px) { .wizard-layout { grid-template-columns:1fr; } }
+
+    .step-sidebar {
+        background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+        padding:0; overflow:hidden;
+    }
+    .step-sidebar-header { padding:16px 18px; border-bottom:1px solid var(--border); background:var(--surface-2); }
+    .step-sidebar-header h3 { font-size:13px;font-weight:600;color:var(--ink);margin:0; }
+    .step-sidebar-header .progress-text { font-size:11px;color:var(--ink-3);margin-top:2px; }
+
+    .step-list { padding:8px 0; }
+    .step-item {
+        display:flex; align-items:flex-start; gap:10px; padding:10px 16px;
+        border-left:3px solid transparent; transition:var(--transition);
+        font-size:12px; color:var(--ink-3);
+    }
+    .step-item.current { background:var(--brand-soft); border-left-color:var(--brand); color:var(--ink); font-weight:600; }
+    .step-item.completed { color:var(--green); }
+    .step-item.skipped { color:var(--ink-4); text-decoration:line-through; }
+    .step-indicator {
+        width:20px; height:20px; border-radius:50%; border:2px solid var(--border);
+        display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;
+        flex-shrink:0; margin-top:1px;
+    }
+    .step-item.completed .step-indicator { background:var(--green); border-color:var(--green); color:#fff; }
+    .step-item.current .step-indicator { background:var(--brand); border-color:var(--brand); color:#fff; }
+    .step-item.skipped .step-indicator { background:var(--surface-2); border-color:var(--ink-4); color:var(--ink-4); }
+
+    .progress-bar-container { height:6px; background:var(--surface-2); border-radius:3px; margin:16px 18px 8px; overflow:hidden; }
+    .progress-bar-fill { height:100%; background:var(--brand); border-radius:3px; transition:width .3s ease; }
+
+    .wizard-main { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px; }
+    .wizard-main h2 { font-size:18px; font-weight:700; color:var(--ink); margin:0 0 6px; }
+    .wizard-main .step-desc { font-size:13px; color:var(--ink-3); margin-bottom:24px; line-height:1.5; }
+
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+    @media (max-width:600px) { .form-row { grid-template-columns:1fr; } }
+    .form-group { margin-bottom:14px; }
+    .form-group label { display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-2); margin-bottom:4px; }
+    .form-group input, .form-group textarea, .form-group select {
+        width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:var(--radius);
+        font-family:inherit; font-size:13px; color:var(--ink); outline:none; transition:var(--transition);
+        box-sizing:border-box;
+    }
+    .form-group input:focus, .form-group textarea:focus { border-color:var(--brand); box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .form-group textarea { resize:vertical; min-height:70px; }
+
+    .action-bar { display:flex; justify-content:space-between; align-items:center; margin-top:24px; padding-top:18px; border-top:1px solid var(--border); }
+    .btn-lg { padding:10px 24px; font-size:13px; }
+
+    .doc-link { display:inline-flex; align-items:center; gap:4px; padding:6px 12px; border:1px solid var(--border); border-radius:var(--radius); font-size:11px; color:var(--brand); text-decoration:none; transition:var(--transition); white-space:nowrap; }
+    .doc-link:hover { background:var(--brand-soft); }
+    .doc-links { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+
+    .info-callout {
+        padding:12px 16px; border-radius:var(--radius); font-size:12px; line-height:1.5; margin-bottom:18px;
+        border-left:3px solid;
+    }
+    .info-callout.info { background:var(--blue-bg); border-color:var(--blue); color:var(--blue-dark); }
+    .info-callout.success { background:var(--green-bg); border-color:var(--green); color:var(--green-dark); }
+    .info-callout.warning { background:#fef3c7; border-color:#d97706; color:#92400e; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wizard-layout">
+    <!-- Step sidebar -->
+    <div class="step-sidebar">
+        <div class="step-sidebar-header">
+            <h3>{{ project.get_jurisdiction_display }}</h3>
+            <div class="progress-text">{{ completed_count }}/{{ total_steps }} steps · {{ progress_pct }}%</div>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width:{{ progress_pct }}%"></div>
+        </div>
+        <div class="step-list">
+            {% for step in steps %}
+            <div class="step-item {% if step.step_key == project.current_step %}current{% elif step.status == 'completed' %}completed{% elif step.status == 'skipped' %}skipped{% endif %}">
+                <div class="step-indicator">
+                    {% if step.status == 'completed' %}✓{% elif step.step_key == project.current_step %}{{ forloop.counter }}{% elif step.status == 'skipped' %}-{% else %}{{ forloop.counter }}{% endif %}
+                </div>
+                <div>
+                    <span style="display:block;line-height:1.3">{{ step.step_name }}</span>
+                    {% if step.external_reference %}
+                    <span style="font-size:10px;color:var(--ink-4)">{{ step.external_reference }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="wizard-main">
+        <h2>{{ current_step_obj.step_name|default:"Setup" }}</h2>
+        <p class="step-desc">Step {{ current_step_obj.step_order|default:"1" }} of {{ total_steps }} · {{ project.get_current_step_display }}</p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="advance">
+
+            {% if project.current_step == 'draft' or project.current_step == 'name_search' %}
+            <div class="info-callout info">
+                <strong>Name Search:</strong> Check name availability with the corporate registry before proceeding. For federal incorporations, a NUANS report is required.
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Proposed Name #1</label>
+                    <input type="text" name="proposed_name_1" value="{{ project.proposed_name_1 }}" placeholder="e.g., Maple Leaf Consulting Inc.">
+                </div>
+                <div class="form-group">
+                    <label>Proposed Name #2 (optional)</label>
+                    <input type="text" name="proposed_name_2" value="{{ project.proposed_name_2 }}" placeholder="Alternative if first is taken">
+                </div>
+            </div>
+            <div class="form-group">
+                <label style="display:flex;align-items:center;gap:6px">
+                    <input type="checkbox" name="is_numbered" value="1" {% if project.is_numbered %}checked{% endif %}>
+                    Use numbered company instead (e.g., "1234567 Canada Inc.")
+                </label>
+            </div>
+            {% endif %}
+
+            {% if project.current_step == 'client_info' or project.current_step == 'articles' %}
+            <div class="form-group">
+                <label>Registered Address</label>
+                <textarea name="registered_address" placeholder="Full street address of the corporation's registered office">{{ project.registered_address }}</textarea>
+            </div>
+            <div class="form-group">
+                <label>Business Activity Description</label>
+                <textarea name="business_activity" placeholder="Brief description of what the corporation will do">{{ project.business_activity }}</textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Fiscal Year End</label>
+                    <select name="fiscal_year_end">
+                        {% for month in 'January,February,March,April,May,June,July,August,September,October,November,December'|split:',' %}
+                        <option value="{{ month }} 31" {% if project.fiscal_year_end == month|add:' 31' %}selected{% endif %}>{{ month }} 31</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Min/Max Directors</label>
+                    <div style="display:flex;gap:8px">
+                        <input type="number" name="min_directors" value="{{ project.min_directors }}" min="1" max="10" style="width:60px">
+                        <span style="line-height:36px;color:var(--ink-3)">to</span>
+                        <input type="number" name="max_directors" value="{{ project.max_directors }}" min="1" max="50" style="width:60px">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Authorized Share Structure</label>
+                <input type="text" name="authorized_shares" value="{{ project.authorized_shares }}" placeholder="e.g., Unlimited Common shares without par value">
+            </div>
+            {% endif %}
+
+            {% if project.current_step == 'directors_officers' or project.current_step == 'org_resolutions' %}
+            <div class="info-callout info">
+                <strong>Directors:</strong> At least {{ project.min_directors }} director(s) required. Each director must consent to act and not be disqualified.
+            </div>
+            <div id="directors-container">
+                {% for d in project.client.directors.all %}
+                <div class="form-row director-row" style="margin-bottom:8px">
+                    <div class="form-group"><label>Director Name</label><input type="text" name="director_name" value="{{ d.full_name }}" placeholder="Full legal name"></div>
+                    <div class="form-group"><label>Address</label><input type="text" name="director_address" value="{{ d.address }}" placeholder="Residential address"></div>
+                </div>
+                {% empty %}
+                <div class="form-row director-row" style="margin-bottom:8px">
+                    <div class="form-group"><label>Director Name</label><input type="text" name="director_name" placeholder="Full legal name"></div>
+                    <div class="form-group"><label>Address</label><input type="text" name="director_address" placeholder="Residential address"></div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-outline" style="font-size:11px;margin-bottom:14px" onclick="addDirectorRow()">+ Add Director</button>
+            {% endif %}
+
+            {% if project.current_step == 'share_structure' %}
+            <div class="info-callout success">
+                Define the initial shareholdings. You can add multiple share classes and shareholders later from the Cap Table.
+            </div>
+            <div id="shareholders-container">
+                {% for s in project.client.shareholders.all %}
+                <div class="form-row shareholder-row">
+                    <div class="form-group"><label>Shareholder Name</label><input type="text" name="shareholder_name" value="{{ s.full_name }}"></div>
+                    <div class="form-group"><label>Share Class</label><input type="text" name="shareholder_class" value="{{ s.share_class }}" placeholder="Common"></div>
+                    <div class="form-group"><label># of Shares</label><input type="number" name="shareholder_count" value="{{ s.num_shares }}" min="1"></div>
+                </div>
+                {% empty %}
+                <div class="form-row shareholder-row">
+                    <div class="form-group"><label>Shareholder Name</label><input type="text" name="shareholder_name" placeholder="Founder name"></div>
+                    <div class="form-group"><label>Share Class</label><input type="text" name="shareholder_class" value="Common"></div>
+                    <div class="form-group"><label># of Shares</label><input type="number" name="shareholder_count" value="100" min="1"></div>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-outline" style="font-size:11px;margin-bottom:14px" onclick="addShareholderRow()">+ Add Shareholder</button>
+            {% endif %}
+
+            {% if project.current_step == 'cra_bn' or project.current_step == 'gst_hst' or project.current_step == 'payroll' %}
+            <div class="info-callout warning">
+                <strong>CRA Registration:</strong> You'll need to register for a Business Number (BN), GST/HST (if revenue exceeds $30,000), and potentially payroll. These can be done online through CRA's Business Registration Online (BRO).
+            </div>
+            <div class="form-group">
+                <label>Business Number (if received)</label>
+                <input type="text" name="cra_bn" placeholder="123456789 RT 0001" style="max-width:250px">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>GST/HST Required?</label>
+                    <select name="gst_hst_required">
+                        <option value="yes">Yes — register now</option>
+                        <option value="no" selected>No — not required yet</option>
+                        <option value="voluntary">Voluntary registration</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payroll Required?</label>
+                    <select name="payroll_required">
+                        <option value="no" selected>No</option>
+                        <option value="yes">Yes — corporation has employees</option>
+                    </select>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if project.current_step == 'banking' %}
+            <div class="info-callout success">
+                <strong>Banking Package:</strong> Generate the banking resolution and share certificates needed to open the corporate bank account.
+            </div>
+            <div class="doc-links">
+                {% if doc_urls.banking %}
+                <a href="{{ doc_urls.banking }}" target="_blank" class="doc-link">📄 Generate Banking Package →</a>
+                {% endif %}
+                <a href="{% url 'pdf_banking_resolution' project.client.id %}" target="_blank" class="doc-link">🏦 Banking Resolution</a>
+            </div>
+            <p style="font-size:12px;color:var(--ink-3);margin-top:12px">Generate the banking documents, then mark this step complete once provided to the client.</p>
+            {% endif %}
+
+            {% if project.current_step == 'minute_book' %}
+            <div class="info-callout info">
+                <strong>Minute Book Assembly:</strong> Compile all generated documents into a complete minute book. Use the Minute Book Builder for a guided experience.
+            </div>
+            <div class="doc-links">
+                <a href="{% url 'minute_book_builder' project.client.id %}" target="_blank" class="doc-link">📚 Open Minute Book Builder →</a>
+                <a href="{% url 'pdf_minute_book_zip' project.client.id %}" target="_blank" class="doc-link">📦 Download ZIP</a>
+            </div>
+            {% endif %}
+
+            {% if project.current_step == 'welcome_package' or project.current_step == 'compliance_setup' %}
+            <div class="info-callout success">
+                <strong>Final Steps:</strong> The incorporation is nearly complete. Generate the welcome package, set up compliance tracking, and send the invoice.
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Fixed Fee ($)</label>
+                    <input type="number" name="fixed_fee" step="0.01" min="0" value="{{ project.fixed_fee }}" placeholder="e.g., 1499.00">
+                </div>
+                <div class="form-group">
+                    <label>Disbursements ($)</label>
+                    <input type="number" name="disbursements" step="0.01" min="0" value="{{ project.disbursements }}" placeholder="NUANS + filing fees">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Notes</label>
+                <textarea name="notes" placeholder="Any special instructions or notes for this incorporation">{{ project.notes }}</textarea>
+            </div>
+            {% endif %}
+
+            <!-- Always show these fields -->
+            {% if project.current_step == 'draft' %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Fixed Fee ($)</label>
+                    <input type="number" name="fixed_fee" step="0.01" min="0" value="{{ project.fixed_fee }}" placeholder="Total incorporation fee">
+                </div>
+                <div class="form-group">
+                    <label>Disbursements ($)</label>
+                    <input type="number" name="disbursements" step="0.01" min="0" value="{{ project.disbursements }}" placeholder="Government filing fees">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Document generation links -->
+            {% if current_step_obj and current_step_obj.step_key in 'articles,bylaws,org_resolutions,directors_officers,share_structure' %}
+            <div class="doc-links" style="margin-bottom:18px">
+                {% if doc_urls.articles %}
+                <a href="{{ doc_urls.articles }}" target="_blank" class="doc-link">📄 Generate Articles</a>
+                {% endif %}
+                {% if doc_urls.bylaws %}
+                <a href="{{ doc_urls.bylaws }}" target="_blank" class="doc-link">📜 By-law No. 1</a>
+                {% endif %}
+                {% if doc_urls.org_resolutions %}
+                <a href="{{ doc_urls.org_resolutions }}" target="_blank" class="doc-link">✍️ Resolutions</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="action-bar">
+                <div style="display:flex;gap:8px">
+                    <button type="submit" name="action" value="save_draft" class="btn btn-outline btn-lg">Save Draft</button>
+                    {% if current_step_obj and current_step_obj.step_key != 'welcome_package' %}
+                    <button type="button" class="btn btn-outline btn-lg" onclick="skipStep()">Skip Step</button>
+                    {% endif %}
+                </div>
+                <div style="display:flex;gap:8px">
+                    {% if project.current_step == 'welcome_package' or project.current_step == 'compliance_setup' %}
+                    <input type="hidden" name="next_step" value="complete">
+                    <button type="submit" class="btn btn-primary btn-lg" style="background:var(--green);border-color:var(--green)">🎉 Complete Incorporation</button>
+                    {% else %}
+                    <select name="next_step" class="filter-select" style="padding:8px 12px;max-width:250px" required>
+                        <option value="">Next step...</option>
+                        {% for step in steps %}
+                            {% if step.step_order > current_step_obj.step_order|default:0 and step.status != 'completed' %}
+                            <option value="{{ step.step_key }}">{{ step.step_name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                        <option value="complete">✅ Mark Complete</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-lg">Next →</button>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+
+        {% if project.notes %}
+        <div style="margin-top:20px;padding:12px;background:var(--surface-2);border-radius:var(--radius);font-size:12px;color:var(--ink-3)">
+            <strong>Notes:</strong> {{ project.notes }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function addDirectorRow() {
+    const container = document.getElementById('directors-container');
+    const row = document.createElement('div');
+    row.className = 'form-row director-row';
+    row.style.marginBottom = '8px';
+    row.innerHTML = `
+        <div class="form-group"><label>Director Name</label><input type="text" name="director_name" placeholder="Full legal name"></div>
+        <div class="form-group"><label>Address</label><input type="text" name="director_address" placeholder="Residential address"></div>
+    `;
+    container.appendChild(row);
+}
+function addShareholderRow() {
+    const container = document.getElementById('shareholders-container');
+    const row = document.createElement('div');
+    row.className = 'form-row shareholder-row';
+    row.innerHTML = `
+        <div class="form-group"><label>Shareholder Name</label><input type="text" name="shareholder_name" placeholder="Name"></div>
+        <div class="form-group"><label>Share Class</label><input type="text" name="shareholder_class" value="Common"></div>
+        <div class="form-group"><label># of Shares</label><input type="number" name="shareholder_count" value="100" min="1"></div>
+    `;
+    container.appendChild(row);
+}
+function skipStep() {
+    if (confirm('Skip this step? You can return to it later.')) {
+        const form = document.querySelector('form');
+        const actionInput = form.querySelector('input[name="action"]');
+        actionInput.value = 'skip_step';
+        // Copy next_step value
+        const nextSelect = form.querySelector('select[name="next_step"]');
+        if (nextSelect && nextSelect.value) {
+            form.submit();
+        } else {
+            alert('Please select the next step.');
+        }
+    }
+}
+</script>
+{% endblock %}

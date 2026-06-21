@@ -1,0 +1,462 @@
+{% extends "clients/base.html" %}
+{% block title %}{{ client.name }} — Dashboard{% endblock %}
+{% block topbar_title %}{{ client.name }}{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'client_detail' client.id %}" class="btn btn-ghost">← Back to Client</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .cd-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 20px;
+        align-items: start;
+    }
+    @media (max-width: 900px) { .cd-layout { grid-template-columns: 1fr; } }
+
+    .cd-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        box-shadow: 0 2px 12px rgba(0,0,0,.04);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    .cd-card-header {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .cd-card-title { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+    .cd-card-count {
+        font-size: 12px;
+        color: var(--gray-500);
+        background: var(--gray-100);
+        padding: 2px 9px;
+        border-radius: 20px;
+    }
+    .cd-card-body { padding: 0; }
+
+    /* Status header bar */
+    .cd-status-bar {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        box-shadow: 0 2px 12px rgba(0,0,0,.04);
+        padding: 20px 24px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .cd-client-name { font-size: 22px; font-weight: 800; color: var(--gray-900); margin-bottom: 3px; }
+    .cd-client-meta { font-size: 13px; color: var(--gray-500); }
+
+    /* Badge */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .badge-green  { background: #dcfce7; color: #15803d; }
+    .badge-amber  { background: #fef3c7; color: #d97706; }
+    .badge-red    { background: #fee2e2; color: #dc2626; }
+    .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+    .badge-gray   { background: var(--gray-100); color: var(--gray-500); }
+
+    /* Task table */
+    .task-table { width: 100%; border-collapse: collapse; }
+    .task-table th {
+        padding: 9px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--gray-500);
+        border-bottom: 1px solid var(--gray-100);
+        background: var(--gray-50);
+    }
+    .task-table td {
+        padding: 13px 16px;
+        font-size: 13px;
+        border-bottom: 1px solid var(--gray-100);
+        vertical-align: middle;
+    }
+    .task-table tr:last-child td { border-bottom: none; }
+    .task-table tr:hover td { background: var(--gray-50); }
+    .task-title { font-weight: 600; color: var(--gray-900); }
+    .task-desc { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+    /* Completed tasks toggle */
+    .completed-toggle {
+        padding: 12px 16px;
+        border-top: 1px solid var(--gray-100);
+        background: var(--gray-50);
+    }
+    .toggle-btn {
+        background: none;
+        border: none;
+        font-size: 12px;
+        color: var(--gray-500);
+        cursor: pointer;
+        font-family: inherit;
+        padding: 0;
+        font-weight: 600;
+    }
+    .toggle-btn:hover { color: var(--gray-900); }
+    .completed-list { display: none; margin-top: 10px; }
+    .completed-list.open { display: block; }
+    .completed-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 0;
+        font-size: 12px;
+        color: var(--gray-500);
+        border-bottom: 1px solid var(--gray-100);
+    }
+    .completed-item:last-child { border-bottom: none; }
+
+    /* Action buttons */
+    .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-xs {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 10px;
+        border-radius: 7px;
+        font-size: 11px;
+        font-weight: 600;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all .15s;
+        white-space: nowrap;
+    }
+    .btn-xs-green  { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+    .btn-xs-green:hover  { background: #bbf7d0; }
+    .btn-xs-ghost  { background: var(--gray-50); color: var(--gray-600); border-color: var(--gray-200); }
+    .btn-xs-ghost:hover  { background: var(--gray-100); }
+    .btn-xs-blue   { background: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
+    .btn-xs-blue:hover { background: #bfdbfe; }
+
+    /* Docs list */
+    .doc-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--gray-100);
+    }
+    .doc-item:last-child { border-bottom: none; }
+    .doc-name { font-size: 13px; font-weight: 600; color: var(--gray-900); }
+    .doc-date { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+    .doc-link {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--blue);
+        text-decoration: none;
+        padding: 5px 10px;
+        border: 1px solid #bfdbfe;
+        border-radius: 7px;
+        background: #dbeafe;
+        white-space: nowrap;
+    }
+    .doc-link:hover { background: #bfdbfe; color: #1d4ed8; }
+
+    /* Invoice rows */
+    .inv-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 13px;
+    }
+    .inv-item:last-child { border-bottom: none; }
+    .inv-num { font-weight: 600; color: var(--gray-900); }
+    .inv-date { font-size: 11px; color: var(--gray-400); }
+    .inv-amount { font-weight: 700; color: var(--gray-900); }
+
+    /* Corp info */
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 13px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--gray-500); font-size: 12px; }
+    .info-value { font-weight: 600; color: var(--gray-900); text-align: right; }
+
+    .empty-state {
+        padding: 36px 20px;
+        text-align: center;
+        color: var(--gray-400);
+        font-size: 13px;
+    }
+    .empty-icon { font-size: 28px; margin-bottom: 8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Status bar -->
+<div class="cd-status-bar">
+    <div>
+        <div class="cd-client-name">{{ client.name }}</div>
+        <div class="cd-client-meta">
+            {{ client.client_token }}
+            {% if client.email %} &nbsp;·&nbsp; {{ client.email }}{% endif %}
+            {% if client.phone %} &nbsp;·&nbsp; {{ client.phone }}{% endif %}
+        </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        {% if corporate_profile %}
+            {% if corporate_profile.status == 'active' %}<span class="badge badge-green">Active Corporation</span>
+            {% elif corporate_profile.status == 'in_progress' %}<span class="badge badge-amber">Incorporation In Progress</span>
+            {% elif corporate_profile.status == 'dissolved' %}<span class="badge badge-red">Dissolved</span>
+            {% else %}<span class="badge badge-gray">{{ corporate_profile.get_status_display }}</span>{% endif %}
+        {% else %}
+            <span class="badge badge-gray">{{ client.get_status_display }}</span>
+        {% endif %}
+        <a href="{% url 'client_detail' client.id %}" class="btn btn-ghost" style="font-size:13px;padding:7px 14px;">Full Record →</a>
+    </div>
+</div>
+
+<div class="cd-layout">
+
+    <!-- LEFT COLUMN -->
+    <div>
+
+        <!-- Compliance Tasks -->
+        <div class="cd-card">
+            <div class="cd-card-header">
+                <div class="cd-card-title">📋 Compliance Tasks</div>
+                <div class="cd-card-count">{{ upcoming_tasks.count }} active</div>
+            </div>
+            <div class="cd-card-body">
+                {% if upcoming_tasks %}
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Due</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in upcoming_tasks %}
+                        <tr>
+                            <td>
+                                <div class="task-title">{{ task.title }}</div>
+                                {% if task.description %}<div class="task-desc">{{ task.description|truncatechars:70 }}</div>{% endif %}
+                            </td>
+                            <td>
+                                <span style="{% if task.status == 'overdue' %}color:#dc2626;font-weight:700;{% endif %}">
+                                    {{ task.due_date|date:"M j, Y" }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if task.status == 'overdue' %}<span class="badge badge-red">Overdue</span>
+                                {% elif task.status == 'in_progress' %}<span class="badge badge-amber">In Progress</span>
+                                {% elif task.status == 'waived' %}<span class="badge badge-gray">Waived</span>
+                                {% else %}<span class="badge badge-blue">Pending</span>{% endif %}
+                            </td>
+                            <td>
+                                <div class="action-btns">
+                                    {% if task.status != 'waived' %}
+                                    <form method="POST" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                                        <input type="hidden" name="action" value="complete">
+                                        <button type="submit" class="btn-xs btn-xs-green">✔ Done</button>
+                                    </form>
+                                    <form method="POST" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                                        <input type="hidden" name="action" value="waive">
+                                        <button type="submit" class="btn-xs btn-xs-ghost">Waive</button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="task_id" value="{{ task.id }}">
+                                        <input type="hidden" name="action" value="reopen">
+                                        <button type="submit" class="btn-xs btn-xs-blue">Reopen</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">✅</div>
+                    No active compliance tasks.
+                </div>
+                {% endif %}
+
+                {% if completed_tasks %}
+                <div class="completed-toggle">
+                    <button class="toggle-btn" onclick="toggleCompleted(this)">
+                        ▸ Show {{ completed_tasks.count }} completed task{{ completed_tasks.count|pluralize }}
+                    </button>
+                    <div class="completed-list" id="completedList">
+                        {% for task in completed_tasks %}
+                        <div class="completed-item">
+                            <span style="color:#16a34a;">✔</span>
+                            <span style="flex:1;">{{ task.title }}</span>
+                            <span>{{ task.completed_at|date:"M j, Y" }}</span>
+                            <form method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="task_id" value="{{ task.id }}">
+                                <input type="hidden" name="action" value="reopen">
+                                <button type="submit" class="btn-xs btn-xs-ghost">Reopen</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="cd-card">
+            <div class="cd-card-header">
+                <div class="cd-card-title">📄 Documents</div>
+            </div>
+            <div class="cd-card-body">
+                {% if documents %}
+                    {% for doc in documents %}
+                    <div class="doc-item">
+                        <div>
+                            <div class="doc-name">{{ doc.name }}</div>
+                            <div class="doc-date">{{ doc.created_at|date:"M j, Y" }}</div>
+                        </div>
+                        {% if doc.file %}
+                        <a href="{{ doc.file.url }}" target="_blank" class="doc-link">Download</a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">📂</div>
+                    No documents uploaded yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+
+        <!-- Corporate Info -->
+        {% if corporate_profile %}
+        <div class="cd-card">
+            <div class="cd-card-header">
+                <div class="cd-card-title">🏢 Corporate Info</div>
+                <a href="{% url 'client_detail' client.id %}?tab=corporate" style="font-size:12px;color:var(--blue);text-decoration:none;font-weight:600;">Edit →</a>
+            </div>
+            <div class="cd-card-body">
+                <div class="info-row">
+                    <span class="info-label">Jurisdiction</span>
+                    <span class="info-value">{{ corporate_profile.get_jurisdiction_display|default:"—" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Incorporated</span>
+                    <span class="info-value">{{ corporate_profile.incorporation_date|date:"M j, Y"|default:"—" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Business #</span>
+                    <span class="info-value">{{ corporate_profile.business_number|default:"—" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">HST #</span>
+                    <span class="info-value">{{ corporate_profile.hst_number|default:"—" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fiscal Year End</span>
+                    <span class="info-value">{{ corporate_profile.fiscal_year_end|default:"—" }}</span>
+                </div>
+                {% if corporate_profile.annual_return_due %}
+                <div class="info-row">
+                    <span class="info-label">Annual Return Due</span>
+                    <span class="info-value" style="{% if corporate_profile.annual_return_due < today %}color:#dc2626;{% endif %}">
+                        {{ corporate_profile.annual_return_due|date:"M j, Y" }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Invoices -->
+        <div class="cd-card">
+            <div class="cd-card-header">
+                <div class="cd-card-title">💳 Recent Invoices</div>
+                <a href="{% url 'billing_dashboard' %}" style="font-size:12px;color:var(--blue);text-decoration:none;font-weight:600;">All →</a>
+            </div>
+            <div class="cd-card-body">
+                {% if invoices %}
+                    {% for inv in invoices %}
+                    <div class="inv-item">
+                        <div>
+                            <div class="inv-num">{{ inv.invoice_number|default:"Draft" }}</div>
+                            <div class="inv-date">{{ inv.invoice_date|date:"M j, Y" }}</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span class="inv-amount">${{ inv.amount }}</span>
+                            {% if inv.status == 'paid' %}<span class="badge badge-green">Paid</span>
+                            {% elif inv.status == 'overdue' %}<span class="badge badge-red">Overdue</span>
+                            {% elif inv.status == 'sent' %}<span class="badge badge-blue">Sent</span>
+                            {% else %}<span class="badge badge-gray">Draft</span>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">💳</div>
+                    No invoices yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function toggleCompleted(btn) {
+    const list = document.getElementById('completedList');
+    list.classList.toggle('open');
+    btn.textContent = list.classList.contains('open')
+        ? btn.textContent.replace('▸', '▾')
+        : btn.textContent.replace('▾', '▸');
+}
+</script>
+{% endblock %}

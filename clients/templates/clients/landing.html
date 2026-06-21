@@ -1,0 +1,399 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mortea — Find Beauty Services Near You</title>
+    <meta name="description" content="Discover top-rated beauty salons, med spas, clinics, and beauty professionals near you. Mortea helps you find and book the best beauty services in your area.">
+    <meta property="og:title" content="Mortea — Find Beauty Services Near You">
+    <meta property="og:description" content="Discover top-rated beauty salons, med spas, clinics, and beauty professionals near you.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mortea.com/">
+    <meta property="og:site_name" content="Mortea">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mortea — Find Beauty Services Near You">
+    <meta name="twitter:description" content="Discover top-rated beauty salons, med spas, clinics, and beauty professionals near you.">
+    <link rel="canonical" href="https://mortea.com/">
+    <link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'clients/icons/favicon-32.png' %}">
+    <link rel="shortcut icon" href="{% static 'clients/icons/favicon.ico' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- NAVIGATION                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<nav id="topNav">
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">Mortea</a>
+        <div class="nav-links">
+            <a href="#search" class="nav-link">Find Services</a>
+            <a href="{% url 'discovery_feed' %}" class="nav-link">Portfolio</a>
+            <a href="{% url 'results_gallery' %}" class="nav-link">Results</a>
+            <a href="{% url 'for_professionals' %}" class="nav-link">For Professionals</a>
+            <a href="#about" class="nav-link">About</a>
+            <a href="{% url 'choose_login' %}" class="nav-link">Login</a>
+        </div>
+        <a href="{% url 'choose_login' %}" class="btn btn-outline nav-btn-desktop">Login</a>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+    <a href="#search" onclick="closeMenu()">Find Services</a>
+    <a href="{% url 'discovery_feed' %}" onclick="closeMenu()">Portfolio</a>
+    <a href="{% url 'results_gallery' %}" onclick="closeMenu()">Results</a>
+    <a href="{% url 'for_professionals' %}" onclick="closeMenu()">For Professionals</a>
+    <a href="#about" onclick="closeMenu()">About</a>
+    <a href="{% url 'choose_login' %}" onclick="closeMenu()">Login</a>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- HERO + SEARCH                                                   -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="hero" id="search">
+    <div class="hero-content">
+        <h1 class="hero-title">Find Beauty Services<br>Near You</h1>
+        <p class="hero-subtitle">Discover top-rated beauty salons, med spas, clinics, and beauty professionals near your location.</p>
+
+        <!-- Search Box -->
+        <form class="search-box" action="{% url 'search_results' %}" method="GET">
+            <div class="search-field">
+                <span class="search-icon">📍</span>
+                <input type="text" name="location" placeholder="Enter your city or postal code" autocomplete="off" class="search-input" list="city-list">
+                <datalist id="city-list">
+                    <option value="Montreal"><option value="Laval"><option value="Brossard">
+                    <option value="Ottawa"><option value="Toronto"><option value="Quebec City">
+                    <option value="Gatineau"><option value="Longueuil"><option value="Sherbrooke">
+                </datalist>
+            </div>
+            <div class="search-divider"></div>
+            <div class="search-field">
+                <span class="search-icon">🔍</span>
+                <input type="text" name="q" placeholder="e.g., Botox, Hair Salon, Nails…" autocomplete="off" class="search-input" list="service-list">
+                <datalist id="service-list">
+                    <option value="Botox"><option value="Lip Fillers"><option value="Hair Salon">
+                    <option value="Nails"><option value="Hydrafacial"><option value="Laser Hair Removal">
+                    <option value="Head Spa"><option value="Eyelash Extensions"><option value="Brows">
+                    <option value="Makeup"><option value="Lashes"><option value="PRP">
+                    <option value="Microneedling"><option value="Microblading"><option value="Balayage">
+                    <option value="Hair Extensions"><option value="Chemical Peel"><option value="Gel Manicure">
+                </datalist>
+            </div>
+            <button type="submit" class="btn btn-search">Search</button>
+        </form>
+
+        <!-- Service Quick Chips -->
+        <div class="service-chips">
+            <span class="chip-label">Popular:</span>
+            <a href="/find/?q=Botox&location=Montreal" class="chip">Botox</a>
+            <a href="/find/?q=Lip+Fillers&location=Montreal" class="chip">Lip Fillers</a>
+            <a href="/find/?q=Hair+Salon&location=Laval" class="chip">Hair Salon</a>
+            <a href="/find/?q=Nails&location=Montreal" class="chip">Nails</a>
+            <a href="/find/?q=Hydrafacial" class="chip">Hydrafacial</a>
+            <a href="/find/?q=Laser+Hair+Removal&location=Montreal" class="chip">Laser Hair Removal</a>
+            <a href="/find/?q=Head+Spa" class="chip">Head Spa</a>
+            <a href="/find/?q=Eyelash+Extensions&location=Laval" class="chip">Eyelash Extensions</a>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- CATEGORIES                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="categories">
+    <div class="section-header">
+        <h2 class="section-title">Explore by Category</h2>
+        <p class="section-sub">Find exactly what you're looking for</p>
+    </div>
+    <div class="category-grid">
+        <a href="/find/?category=medical_aesthetics" class="category-card">
+            <div class="category-icon">💉</div>
+            <h3 class="category-name">Medical Aesthetics</h3>
+            <ul class="category-items">
+                <li>Botox</li>
+                <li>Fillers</li>
+                <li>PRP Therapy</li>
+                <li>Laser Treatments</li>
+            </ul>
+        </a>
+        <a href="/find/?category=hair" class="category-card">
+            <div class="category-icon">💇</div>
+            <h3 class="category-name">Hair</h3>
+            <ul class="category-items">
+                <li>Hair Salon</li>
+                <li>Head Spa</li>
+                <li>Hair Extensions</li>
+            </ul>
+        </a>
+        <a href="/find/?category=beauty" class="category-card">
+            <div class="category-icon">💅</div>
+            <h3 class="category-name">Nails</h3>
+            <ul class="category-items">
+                <li>Gel Manicure</li>
+                <li>Nail Art</li>
+                <li>Spa Pedicure</li>
+            </ul>
+        </a>
+        <a href="/find/?category=beauty" class="category-card">
+            <div class="category-icon">👁</div>
+            <h3 class="category-name">Lashes & Brows</h3>
+            <ul class="category-items">
+                <li>Lash Extensions</li>
+                <li>Microblading</li>
+                <li>Brow Lamination</li>
+            </ul>
+        </a>
+        <a href="/find/?category=medical_aesthetics" class="category-card">
+            <div class="category-icon">✨</div>
+            <h3 class="category-name">Skin & Facials</h3>
+            <ul class="category-items">
+                <li>Hydrafacial</li>
+                <li>Microneedling</li>
+                <li>Chemical Peels</li>
+            </ul>
+        </a>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- NEARBY PROVIDERS                                                -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section section-alt" id="nearby">
+    <div class="section-header">
+        <h2 class="section-title">Top-Rated Near You</h2>
+        <p class="section-sub">The best beauty professionals in your area</p>
+    </div>
+
+    <div class="nearby-layout">
+        <div class="provider-cards">
+            {% if providers %}
+                {% for provider in providers %}
+                <a href="{% url 'provider_profile' provider.slug %}" class="provider-card">
+                    <div class="pc-photo">
+                        {% if provider.photo %}
+                        <img src="{{ provider.photo.url }}" alt="{{ provider.name }}" loading="lazy">
+                        {% else %}
+                        <div class="pc-photo-placeholder">{{ provider.name|slice:":1" }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="pc-info">
+                        <h4 class="pc-name">{{ provider.name }}</h4>
+                        <div class="pc-rating">
+                            <span class="stars">{% for i in "12345" %}{% if forloop.counter <= provider.rating|floatformat:"0" %}★{% else %}☆{% endif %}{% endfor %}</span>
+                            <span class="rating-num">{{ provider.rating }}</span>
+                            {% if provider.review_count %}<span class="review-count">({{ provider.review_count }})</span>{% endif %}
+                        </div>
+                        <div class="pc-meta-row">
+                            <span class="pc-category">{{ provider.get_category_display }}</span>
+                            <span class="pc-city">{{ provider.city }}, {{ provider.province }}</span>
+                        </div>
+                        {% with top_services=provider.services.all|slice:":2" %}
+                        {% if top_services %}
+                        <div class="pc-services">
+                            {% for svc in top_services %}
+                            <span class="pc-service-tag">{{ svc.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                        {% if provider.min_price %}
+                        <div class="pc-price">Starting at <strong>${{ provider.min_price|floatformat:"0" }}</strong></div>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="provider-card placeholder">
+                    <div class="pc-info" style="padding:32px;text-align:center">
+                        <p style="color:var(--ink-3)">No providers in your area yet.<br>Be the first to <a href="{% url 'for_professionals' %}" style="color:var(--brand)">join Mortea</a>.</p>
+                    </div>
+                </div>
+            {% endif %}
+            <a href="{% url 'provider_list' %}" class="view-all-link">View all providers →</a>
+        </div>
+
+        <!-- Map -->
+        <div class="nearby-map" id="map"></div>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- FOR PROFESSIONALS                                               -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section cta-section" id="for-professionals">
+    <div class="cta-content">
+        <h2 class="cta-title">Get Found by New Clients</h2>
+        <p class="cta-sub">List your beauty business on Mortea and connect with clients searching for your services.</p>
+        <a href="{% url 'accountant_signup' %}" class="btn btn-primary btn-lg">Join Mortea</a>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- ABOUT (MINIMAL)                                                 -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="section" id="about">
+    <div class="section-header">
+        <h2 class="section-title">About Mortea</h2>
+        <p class="section-sub">We're building the most beautiful way to discover beauty services.</p>
+    </div>
+    <div class="about-text">
+        <p>Mortea connects you with the best beauty professionals in your area — from medical spas and aesthetic clinics to hair salons and nail studios. Find, compare, and book beauty services with confidence.</p>
+    </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                          -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <a href="/" class="footer-logo">Mortea</a>
+            <p class="footer-tagline">Find beauty services near you.</p>
+        </div>
+        <div class="footer-links">
+            <div class="footer-col">
+                <h4>Discover</h4>
+                <a href="{% url 'search_results' %}?q=Botox">Botox</a>
+                <a href="{% url 'search_results' %}?q=Fillers">Fillers</a>
+                <a href="{% url 'search_results' %}?q=Hair+Salon">Hair Salon</a>
+                <a href="{% url 'search_results' %}?q=Nails">Nails</a>
+            </div>
+            <div class="footer-col">
+                <h4>For Professionals</h4>
+                <a href="{% url 'accountant_signup' %}">Join Mortea</a>
+                <a href="{% url 'provider_list' %}">Browse Providers</a>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a href="#about">About</a>
+                <a href="{% url 'privacy' %}">Privacy</a>
+                <a href="{% url 'terms' %}">Terms</a>
+                <a href="mailto:support@mortacc.com">Contact</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; {% now "Y" %} Mortea. All rights reserved.</p>
+    </div>
+</footer>
+
+
+<!-- Leaflet Map -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Mobile menu ──────────────────────────────────────────────────────
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    mobileMenu.classList.toggle('active');
+});
+function closeMenu() {
+    hamburger.classList.remove('active');
+    mobileMenu.classList.remove('active');
+}
+
+// ── Nav scroll ───────────────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+    const nav = document.getElementById('topNav');
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ── Map ──────────────────────────────────────────────────────────────
+(function() {
+    const mapEl = document.getElementById('map');
+    if (!mapEl) return;
+
+    // Default center (can be overridden by geolocation)
+    const defaultCenter = [43.6532, -79.3832]; // Toronto
+    const map = L.map('map', {
+        center: defaultCenter,
+        zoom: 12,
+        scrollWheelZoom: false,
+        zoomControl: true,
+    });
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        maxZoom: 19,
+    }).addTo(map);
+
+    // Add provider markers
+    const providers = [
+        {% for provider in providers %}
+        {
+            name: "{{ provider.name|escapejs }}",
+            lat: {{ provider.latitude|default:'null' }},
+            lng: {{ provider.longitude|default:'null' }},
+            category: "{{ provider.get_category_display|escapejs }}",
+            url: "{% url 'provider_profile' provider.slug %}",
+        },
+        {% endfor %}
+    ];
+
+    const bounds = [];
+    providers.forEach(function(p) {
+        if (p.lat && p.lng) {
+            const marker = L.marker([p.lat, p.lng])
+                .addTo(map)
+                .bindPopup('<strong><a href="' + p.url + '">' + p.name + '</a></strong><br>' + p.category);
+            bounds.push([p.lat, p.lng]);
+        }
+    });
+
+    if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+    }
+
+    // Try geolocation
+    if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                const userLat = pos.coords.latitude;
+                const userLng = pos.coords.longitude;
+                // Only recenter if we have providers near the user
+                if (bounds.length === 0) {
+                    map.setView([userLat, userLng], 12);
+                }
+            },
+            function() { /* Silently fail — use default */ },
+            { timeout: 5000 }
+        );
+    }
+})();
+
+// ── Scroll reveal ────────────────────────────────────────────────────
+(function() {
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(function(el) {
+        observer.observe(el);
+    });
+})();
+</script>
+</body>
+</html>

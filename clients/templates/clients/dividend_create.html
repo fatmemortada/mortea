@@ -1,0 +1,21 @@
+{% extends "clients/base.html" %}{% block title %}Declare Dividend — {{ client.name }} — Mortacc{% endblock %}{% block nav_dividends %}active{% endblock %}{% block topbar_title %}Declare Dividend: {{ client.name }}{% endblock %}
+{% block extra_head %}<style>.form-section{margin-bottom:16px}label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-2);margin-bottom:4px}input,select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:13px;color:var(--ink);box-sizing:border-box}input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.1)}.shareholder-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}.sh-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface-2);border-radius:var(--radius);font-size:13px}.preview{background:var(--surface-2);border-radius:var(--radius);padding:14px;font-size:12px;line-height:1.6;margin-top:12px}</style>{% endblock %}
+{% block content %}
+<div style="max-width:640px;margin:0 auto">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px">
+        <h2 style="font-size:16px;font-weight:700;color:var(--ink);margin:0 0 16px">Declare Dividend</h2>
+        {% if shareholders %}
+        <div class="shareholder-list"><h3 style="font-size:12px;font-weight:600;color:var(--ink-3);margin:0">Shareholders</h3>
+            {% for s in shareholders %}<div class="sh-row"><span>{{ s.full_name }}</span><span style="font-weight:600">{{ s.num_shares }} {{ s.share_class }} shares</span></div>{% endfor %}
+        </div>
+        {% endif %}
+        <form method="POST">{% csrf_token %}
+            <div class="form-section"><label>Dividend Type</label><select name="dividend_type"><option value="non_eligible">Non-Eligible (standard)</option><option value="eligible">Eligible Dividend</option><option value="capital">Capital Dividend (CDA)</option><option value="return_capital">Return of Capital</option></select></div>
+            <div class="form-section"><label>Total Amount ($)</label><input type="number" name="total_amount" step="0.01" min="0" placeholder="e.g., 50000.00" required></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="form-section"><label>Declaration Date</label><input type="date" name="declaration_date" value="{{ today|date:'Y-m-d' }}" required></div><div class="form-section"><label>Fiscal Year</label><input type="number" name="fiscal_year" value="{{ today.year }}" required></div></div>
+            <p style="font-size:11px;color:var(--ink-3);margin:8px 0">Amount will be distributed proportionally to shareholders based on share ownership. A corporate resolution and invoice ($299) will be generated.</p>
+            <button type="submit" class="btn btn-primary" style="width:100%;padding:12px;font-size:14px">Declare Dividend</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

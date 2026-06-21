@@ -1,0 +1,60 @@
+{% extends "clients/base.html" %}{% block title %}New Incorporation Intake — Mortacc{% endblock %}{% block nav_intake %}active{% endblock %}{% block topbar_title %}New Incorporation Intake{% endblock %}{% block topbar_breadcrumb %}<span style="font-size:12px;color:var(--ink-3)">→ <a href="{% url 'intake_form_list' %}" style="color:var(--brand);text-decoration:none">All Intakes</a></span>{% endblock %}
+{% block extra_head %}<style>
+.intake-form{max-width:900px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px}
+.intake-form h2{font-size:20px;font-weight:700;margin:0 0 4px}.intake-form .subtitle{font-size:13px;color:var(--ink-3);margin-bottom:20px}
+.section{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:16px}
+.section h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-2);margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.section h3 .num{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;align-items:center;justify-content:center;font-size:11px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.form-group{margin-bottom:10px}.form-group label{display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:13px;color:var(--ink);box-sizing:border-box;background:var(--surface)}input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.1);outline:none}
+.toggle{display:flex;align-items:center;gap:6px;padding:6px 0;font-size:12px;color:var(--ink-2)}.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px}.badge.auto{background:var(--brand-soft);color:var(--brand)}
+.actions{display:flex;gap:10px;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}.btn-lg{padding:12px 28px;font-size:14px;font-weight:600}.summary{background:var(--brand-soft);border:1px solid var(--brand-muted);border-radius:var(--radius);padding:14px;font-size:12px;color:var(--brand-dark);margin-bottom:16px}
+</style>{% endblock %}
+{% block content %}<form method="POST" class="intake-form">{% csrf_token %}
+<h2>📋 New Incorporation Intake</h2><p class="subtitle">Fill in the details below and submit. The system will auto-create the client, corporate profile, directors, shareholders, incorporation project, compliance tasks, and invoice. <span class="badge auto">One-Click Processing</span></p>
+
+<div class="section"><h3><span class="num">1</span> Client &amp; Entity</h3>
+<div class="row2"><div class="form-group"><label>Proposed Corporation Name</label><input type="text" name="client_name" placeholder="e.g., Maple Tech Consulting Inc."></div><div class="form-group"><label>Client Email *</label><input type="email" name="client_email" required placeholder="client@example.com"></div></div>
+<div class="row2"><div class="form-group"><label>Phone</label><input type="text" name="client_phone" placeholder="(416) 555-0123"></div><div class="form-group"><label>Industry Sector</label><input type="text" name="industry_sector" placeholder="e.g., Technology, Real Estate"></div></div>
+<div class="row2"><div class="form-group"><label>Jurisdiction *</label><select name="jurisdiction"><option value="federal">Federal (CBCA)</option><option value="ontario">Ontario (OBCA)</option><option value="bc">British Columbia</option><option value="alberta">Alberta</option><option value="quebec">Quebec</option></select></div><div class="form-group"><label>Structure</label><select name="structure_type"><option value="named">Named Corporation</option><option value="numbered">Numbered Company</option><option value="professional">Professional Corporation</option></select></div></div>
+<div class="form-group"><label>Registered Office Address</label><textarea name="registered_address" rows="2" placeholder="Full street address for registered office"></textarea></div>
+<div class="form-group"><label>Business Activity</label><input type="text" name="business_activity" placeholder="Brief description of what the corporation will do"></div>
+</div>
+
+<div class="section"><h3><span class="num">2</span> Directors</h3>
+<div class="row2"><div class="form-group"><label>Director 1 (President)</label><input type="text" name="director_1_name" placeholder="Full name"></div><div class="form-group"><label>Address</label><input type="text" name="director_1_address" placeholder="Residential address"></div></div>
+<div class="row2"><div class="form-group"><label>Director 2 (Secretary)</label><input type="text" name="director_2_name" placeholder="Full name"></div><div class="form-group"><label>Address</label><input type="text" name="director_2_address" placeholder="Residential address"></div></div>
+<div class="row2"><div class="form-group"><label>Director 3 (optional)</label><input type="text" name="director_3_name" placeholder="Full name"></div><div class="form-group"><label>Address</label><input type="text" name="director_3_address" placeholder="Residential address"></div></div>
+</div>
+
+<div class="section"><h3><span class="num">3</span> Shareholders &amp; Share Structure</h3>
+<div class="row3"><div class="form-group"><label>Shareholder 1 *</label><input type="text" name="shareholder_1_name" placeholder="Founder name" required></div><div class="form-group"><label>Share Class</label><input type="text" name="shareholder_1_class" value="Common"></div><div class="form-group"><label># of Shares</label><input type="number" name="shareholder_1_shares" value="100" min="1"></div></div>
+<div class="row3"><div class="form-group"><label>Shareholder 2</label><input type="text" name="shareholder_2_name" placeholder="Optional"></div><div class="form-group"><label>Share Class</label><input type="text" name="shareholder_2_class" value="Common"></div><div class="form-group"><label># of Shares</label><input type="number" name="shareholder_2_shares" value="0" min="0"></div></div>
+<label class="toggle"><input type="checkbox" name="authorize_unlimited_shares" value="1" checked> Authorize unlimited Common shares</label>
+</div>
+
+<div class="section"><h3><span class="num">4</span> Services &amp; Billing</h3>
+<div class="row2"><div class="form-group"><label>Incorporation Fee ($)</label><input type="number" name="incorporation_fee" value="1499" step="0.01"></div><div class="form-group"><label>Disbursements ($)</label><input type="number" name="disbursements" value="200" step="0.01"></div></div>
+<div class="row2"><div class="form-group"><label>Subscription Plan</label><select name="subscription_plan_tier"><option value="basic">Basic ($29/mo)</option><option value="standard" selected>Standard ($79/mo)</option><option value="premium">Premium ($199/mo)</option></select></div><div class="form-group"><label>Referral Source</label><input type="text" name="referral_source" placeholder="e.g., Client referral, Google"></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+<label class="toggle"><input type="checkbox" name="include_gst" value="1" checked> GST/HST Registration</label>
+<label class="toggle"><input type="checkbox" name="include_bank" value="1" checked> Banking Package</label>
+<label class="toggle"><input type="checkbox" name="include_minute_book" value="1" checked> Minute Book Assembly</label>
+<label class="toggle"><input type="checkbox" name="include_engagement" value="1" checked> Engagement Letter</label>
+<label class="toggle"><input type="checkbox" name="create_subscription" value="1" checked> Auto-Subscribe to Maintenance</label>
+<label class="toggle"><input type="checkbox" name="rush_service" value="1"> RUSH Service (+$200)</label>
+</div></div>
+
+<div class="section"><h3><span class="num">5</span> Additional Details</h3>
+<div class="form-group"><label>Special Instructions</label><textarea name="special_instructions" rows="2" placeholder="Any special requirements or notes"></textarea></div>
+<div class="form-group"><label>Internal Notes (not client-visible)</label><textarea name="internal_notes" rows="2" placeholder="Staff notes"></textarea></div>
+</div>
+
+<div class="summary">💡 <strong>What happens when you submit:</strong> The system will automatically create the client record, corporate profile, directors, shareholders, incorporation project, 8+ compliance tasks, an invoice, and a subscription — all from this single form. You'll get a results page showing everything that was created.</div>
+
+<div class="actions">
+    <button type="submit" name="action" value="save_draft" class="btn btn-outline btn-lg">💾 Save Draft</button>
+    <button type="submit" name="action" value="submit_and_process" class="btn btn-primary btn-lg" style="flex:1">⚡ Submit &amp; Process Now</button>
+</div>
+</form>{% endblock %}

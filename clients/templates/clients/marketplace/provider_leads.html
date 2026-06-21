@@ -1,0 +1,48 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Leads — {{ provider.name }} | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.container { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 28px; }
+.stat { background: var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; text-align:center; }
+.stat-val { font-family:'Playfair Display',serif; font-size:30px; font-weight:700; color:var(--brand); }
+.stat-label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-3); margin-top:4px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; }
+.card h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; margin-bottom: 14px; }
+.lead-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-light); gap: 12px; }
+.lead-row:last-child { border-bottom: none; }
+.lead-info { font-size: 14px; }
+.quote-form { display: none; margin-top: 8px; padding: 16px; background: var(--bg-warm); border-radius: var(--radius); }
+.quote-form.active { display: block; }
+.quote-form input, .quote-form textarea { width: 100%; padding: 8px 12px; font-size: 14px; border: 1.5px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; font-family: 'Inter', sans-serif; }
+.btn { padding: 8px 20px; font-size: 13px; font-weight: 600; border-radius: var(--radius-full); border: none; cursor: pointer; }
+.btn-primary { background: var(--brand); color: #fff; }
+.btn-primary:hover { background: var(--brand-dark); }
+.btn-outline { background: var(--surface); color: var(--ink-2); border: 1.5px solid var(--border); }
+.badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: var(--radius-full); }
+.badge-sent { background: #fef3c7; color: #92400e; }
+.badge-accepted { background: #dcfce7; color: #166534; }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a></div></nav>
+<div class="page"><div class="container">
+<h1>{{ provider.name }} — Leads</h1><p style="color:var(--ink-3);margin-bottom:20px">{{ provider.city }}, {{ provider.province }}</p>
+<div class="stats"><div class="stat"><div class="stat-val">{{ sent }}</div><div class="stat-label">Sent Quotes</div></div><div class="stat"><div class="stat-val">{{ won }}</div><div class="stat-label">Won Leads</div></div><div class="stat"><div class="stat-val">{{ available|length }}</div><div class="stat-label">Available Leads</div></div></div>
+
+<div class="card"><h3>Available Leads in {{ provider.city }}</h3>
+{% for req in available %}
+<div class="lead-row"><div class="lead-info"><strong>{{ req.get_service_display }}</strong><br><span style="font-size:13px;color:var(--ink-3)">{% if req.budget %}{{ req.budget }} · {% endif %}{{ req.created_at|date:"M d" }} · {{ req.description|truncatewords:15 }}</span></div>
+<button class="btn btn-primary" onclick="document.getElementById('form-{{ req.id }}').classList.toggle('active')">Quote</button></div>
+<div class="quote-form" id="form-{{ req.id }}">
+<form method="POST">{% csrf_token %}<input type="hidden" name="request_id" value="{{ req.id }}"><input type="hidden" name="action" value="quote">
+<input type="text" name="price_estimate" placeholder="Price estimate (e.g., $350-450)" required>
+<input type="text" name="availability" placeholder="Availability (e.g., Weekdays, next opening June 25)">
+<textarea name="message" placeholder="Message to client…" rows="2"></textarea>
+<input type="text" name="portfolio_links" placeholder="Portfolio links (one per line)">
+<button type="submit" class="btn btn-primary">Send Quote</button></form></div>{% empty %}<p style="color:var(--ink-3)">No available leads in your city right now. Check back soon.</p>{% endfor %}</div>
+
+<div class="card"><h3>My Quotes</h3>
+{% for q in my_quotes %}<div class="lead-row"><div class="lead-info"><strong>{{ q.request.get_service_display }}</strong> · {{ q.price_estimate }}<br><span style="font-size:12px;color:var(--ink-3)">{{ q.request.client_name }} · {{ q.created_at|date:"M d" }}</span></div><span class="badge {% if q.status == 'accepted' %}badge-accepted{% else %}badge-sent{% endif %}">{{ q.get_status_display }}</span></div>{% empty %}<p style="color:var(--ink-3)">No quotes sent yet. Browse available leads above.</p>{% endfor %}</div>
+</div></div></body></html>

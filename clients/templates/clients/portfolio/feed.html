@@ -1,0 +1,108 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beauty Portfolio — Discover Transformations | Mortea</title>
+<meta name="description" content="Browse stunning before-and-after beauty transformations from top providers across Canada. Like, save, and get inspired.">
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.hero { background: linear-gradient(135deg, var(--brand-dark), var(--brand)); color: #fff; padding: 48px 32px; text-align: center; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px,5vw,42px); font-weight: 600; }
+.hero .sub { font-size: 16px; opacity: .85; margin-top: 8px; }
+.shell { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr; gap: 0; min-height: 100vh; }
+.filters { padding: 24px; border-right: 1px solid var(--border); background: var(--surface); }
+.filters h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); margin-bottom: 10px; }
+.fg { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+.fg:last-child { border-bottom: none; }
+.fg a { display: block; padding: 4px 0; font-size: 13px; color: var(--ink-2); text-decoration: none; }
+.fg a:hover, .fg a.active { color: var(--brand); font-weight: 500; }
+.main-col { padding: 32px; }
+.feed-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.feed-count { font-size: 14px; color: var(--ink-3); }
+.feed-count strong { color: var(--ink); }
+.sort-select { padding: 6px 12px; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-full); outline: none; font-family: 'Inter', sans-serif; }
+
+.grid { columns: 3; column-gap: 16px; }
+.post { break-inside: avoid; margin-bottom: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: all .2s; }
+.post:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+.post-media { position: relative; background: var(--bg-warm); min-height: 200px; display: flex; align-items: center; justify-content: center; }
+.ba-split { display: grid; grid-template-columns: 1fr 1fr; width: 100%; height: 240px; }
+.ba-half { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+.ba-before { background: linear-gradient(135deg, #f5f0ed, #ede5df); }
+.ba-after { background: linear-gradient(135deg, #edf5f0, #dfede5); }
+.ba-label { position: absolute; top: 8px; left: 8px; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: var(--radius-full); background: rgba(0,0,0,.06); }
+.ba-emoji { font-size: 36px; opacity: .4; }
+.video-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.15); }
+.video-btn { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,.9); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+
+.post-body { padding: 14px 16px; }
+.post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.post-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--brand); flex-shrink: 0; }
+.post-provider { font-weight: 600; font-size: 14px; color: var(--ink); }
+.post-city { font-size: 12px; color: var(--ink-3); }
+.post-procedure { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 10px; border-radius: var(--radius-full); background: var(--brand-light); color: var(--brand-dark); margin-bottom: 6px; }
+.post-desc { font-size: 13px; color: var(--ink-2); line-height: 1.5; margin-bottom: 8px; }
+.post-products { font-size: 11px; color: var(--ink-4); margin-bottom: 8px; }
+.post-actions { display: flex; gap: 16px; padding-top: 8px; border-top: 1px solid var(--border-light); }
+.post-action { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--ink-3); cursor: pointer; border: none; background: none; padding: 4px 0; font-family: 'Inter', sans-serif; transition: color .15s; }
+.post-action:hover { color: var(--brand); }
+.post-action.liked { color: #e1306c; }
+
+@media (max-width:900px){ .shell{grid-template-columns:1fr;} .filters{display:none;} .grid{columns:2;} }
+@media (max-width:500px){ .grid{columns:1;} .main-col{padding:16px;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="{% url 'discovery_feed' %}" class="nav-link" style="color:var(--brand)">Portfolio</a><a href="{% url 'results_gallery' %}" class="nav-link">Results</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+
+<div class="page"><section class="hero"><h1>Beauty Portfolio</h1><p class="sub">Discover transformations from Canada's best beauty providers</p></section>
+<div class="shell">
+<div class="filters"><h4>Procedure</h4><div class="fg"><a href="?{% if city %}city={{ city|urlencode }}&{% endif %}{% if sort %}sort={{ sort }}{% endif %}" class="{% if not procedure %}active{% endif %}">All</a>{% for val, label in procedures %}<a href="?procedure={{ val }}{% if city %}&city={{ city|urlencode }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="{% if procedure == val %}active{% endif %}">{{ label }}</a>{% endfor %}</div>
+<h4>City</h4><div class="fg"><a href="?{% if procedure %}procedure={{ procedure }}&{% endif %}{% if sort %}sort={{ sort }}{% endif %}" class="{% if not city %}active{% endif %}">All</a>{% for c in cities %}{% if c %}<a href="?city={{ c|urlencode }}{% if procedure %}&procedure={{ procedure }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}" class="{% if city == c %}active{% endif %}">{{ c }}</a>{% endif %}{% endfor %}</div></div>
+<div class="main-col">
+<div class="feed-header"><div class="feed-count"><strong>{{ total_posts }}</strong> post{{ total_posts|pluralize }}</div>
+<select class="sort-select" onchange="location.href='?{% if procedure %}procedure={{ procedure }}&{% endif %}{% if city %}city={{ city|urlencode }}&{% endif %}sort='+this.value"><option value="recent" {% if sort == 'recent' %}selected{% endif %}>Most Recent</option><option value="likes" {% if sort == 'likes' %}selected{% endif %}>Most Liked</option></select></div>
+{% if posts %}
+<div class="grid">
+{% for post in posts %}
+<div class="post" id="post-{{ post.id }}">
+<a href="{% url 'provider_profile' post.provider.slug %}">
+<div class="post-media">
+{% if post.video_url %}<div class="ba-split"><div class="ba-half ba-before"><span class="ba-label">Before</span><span class="ba-emoji">📷</span></div><div class="ba-half ba-after"><span class="ba-label">After</span><span class="ba-emoji">✨</span></div></div><div class="video-overlay"><div class="video-btn">▶</div></div>
+{% else %}<div class="ba-split"><div class="ba-half ba-before"><span class="ba-label">Before</span><span class="ba-emoji">📷</span></div><div class="ba-half ba-after"><span class="ba-label">After</span><span class="ba-emoji">✨</span></div></div>
+{% endif %}</div></a>
+<div class="post-body">
+<div class="post-header"><a href="{% url 'provider_profile' post.provider.slug %}" style="text-decoration:none;display:flex;align-items:center;gap:10px"><div class="post-avatar">{{ post.provider.name|slice:':1' }}</div><div><div class="post-provider">{{ post.provider.name }}</div><div class="post-city">{{ post.provider.city }}, {{ post.provider.province }}</div></div></a></div>
+{% if post.procedure_type %}<span class="post-procedure">{{ post.get_procedure_type_display }}</span>{% endif %}
+{% if post.description %}<p class="post-desc">{{ post.description }}</p>{% endif %}
+{% if post.products_used %}<p class="post-products">🧴 {{ post.products_used }}</p>{% endif %}
+<div class="post-actions">
+<button class="post-action like-btn" data-post="{{ post.id }}" onclick="toggleLike({{ post.id }})">🤍 <span id="like-count-{{ post.id }}">{{ post.likes_count }}</span></button>
+<button class="post-action save-btn" data-post="{{ post.id }}" onclick="toggleSave({{ post.id }})">🔖 Save</button>
+<button class="post-action" onclick="navigator.share?navigator.share({title:'{{ post.provider.name|escapejs }}',url:'{{ request.scheme }}://{{ request.get_host }}{% url 'provider_profile' post.provider.slug %}'}):alert('Copy link: {{ request.get_host }}{% url 'provider_profile' post.provider.slug %}')">↗ Share</button>
+</div></div></div>{% endfor %}</div>
+{% else %}<div style="text-align:center;padding:64px 24px"><h3 style="font-family:'Playfair Display',serif;font-size:24px;margin-bottom:8px">No posts yet</h3><p style="color:var(--ink-3);margin-bottom:20px">Portfolio posts from beauty providers will appear here.</p></div>{% endif %}
+</div></div></div>
+
+<script>
+function getCSRF() {
+    var m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+}
+function apiPost(url, cb) {
+    fetch(url, {method:'POST',headers:{'X-CSRFToken':getCSRF()}}).then(r=>r.json()).then(cb).catch(function(){});
+}
+function toggleLike(postId) {
+    apiPost('/portfolio/like/'+postId+'/', function(data){
+        document.getElementById('like-count-'+postId).textContent = data.count;
+        var btn = document.querySelector('.like-btn[data-post="'+postId+'"]');
+        if (data.liked) { btn.innerHTML = '❤ <span id=\"like-count-'+postId+'\">'+data.count+'</span>'; btn.classList.add('liked'); }
+        else { btn.innerHTML = '🤍 <span id=\"like-count-'+postId+'\">'+data.count+'</span>'; btn.classList.remove('liked'); }
+    });
+}
+function toggleSave(postId) {
+    apiPost('/portfolio/save/'+postId+'/', function(data){
+        var btn = document.querySelector('.save-btn[data-post="'+postId+'"]');
+        btn.textContent = data.saved ? '🔖 Saved' : '🔖 Save';
+    });
+}
+</script>
+</body></html>

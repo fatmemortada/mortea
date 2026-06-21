@@ -1,0 +1,30 @@
+{% extends "clients/base.html" %}{% block title %}CRA Tracker — {{ client.name }}{% endblock %}{% block topbar_title %}Government Correspondence{% endblock %}{% block content %}<div style="max-width:800px">
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Track CRA, Revenu Quebec, and government correspondence with deadlines</p></div></div>
+
+<div class="card mb-3"><div class="card-header"><span class="card-title">Log Correspondence</span></div><div class="card-body">
+<form method="POST">{% csrf_token %}
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Title *</label><input type="text" name="title" class="form-control" placeholder="Notice of Assessment" required></div>
+<div class="form-group"><label class="form-label">Agency</label><input type="text" name="agency" class="form-control" value="CRA"></div>
+<div class="form-group"><label class="form-label">Reference #</label><input type="text" name="reference" class="form-control"></div>
+<div class="form-group"><label class="form-label">Received Date *</label><input type="date" name="received_date" class="form-control" value="{{ today|date:'Y-m-d' }}" required></div>
+<div class="form-group"><label class="form-label">Response Deadline</label><input type="date" name="deadline" class="form-control"></div>
+</div>
+<button type="submit" class="btn btn-primary btn-sm">Log Item</button>
+</form></div></div>
+
+<div class="card"><div class="card-header"><span class="card-title">Correspondence Log</span></div>
+<div class="table-wrap"><table>
+<thead><tr><th>Date</th><th>Title</th><th>Agency</th><th>Reference</th><th>Deadline</th><th>Status</th></tr></thead>
+<tbody>
+{% for item in items %}
+<tr>
+<td>{{ item.received_date|date:"M d, Y" }}</td><td><strong>{{ item.title }}</strong></td><td>{{ item.agency }}</td><td>{{ item.reference_number }}</td>
+<td>{% if item.response_deadline %}<span {% if item.response_deadline < today %}style="color:var(--red);font-weight:600"{% endif %}>{{ item.response_deadline|date:"M d, Y" }}</span>{% else %}—{% endif %}</td>
+<td><span class="badge {% if item.status == 'closed' %}badge-completed{% elif item.status == 'in_progress' %}badge-in-progress{% else %}badge-not-started{% endif %}">{{ item.get_status_display }}</span></td>
+</tr>
+{% empty %}
+<tr><td colspan="6"><div class="empty-state"><p>No correspondence logged yet.</p></div></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+</div>{% endblock %}

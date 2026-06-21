@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — {{ provider.name }} | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.panel { max-width: 1060px; margin: 0 auto; padding: 40px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; }
+.sidebar { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 88px; }
+.sidebar a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; color: var(--ink-2); text-decoration: none; }
+.sidebar a:hover, .sidebar a.active { background: var(--brand-light); color: var(--brand-dark); }
+.sidebar a .si { font-size: 16px; width: 24px; text-align: center; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 24px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700; color: var(--brand); line-height: 1; }
+.stat-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin-top: 6px; }
+.stat-trend { font-size: 12px; color: var(--success); margin-top: 4px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; }
+.card h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 16px; }
+.chart-wrap { position: relative; height: 280px; }
+.chart-wrap canvas { width: 100% !important; }
+
+.clicks-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.click-item { text-align: center; padding: 16px 12px; border: 1px solid var(--border-light); border-radius: var(--radius); }
+.click-icon { font-size: 24px; margin-bottom: 6px; }
+.click-val { font-size: 24px; font-weight: 700; color: var(--ink); }
+.click-label { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+
+.notif-list { display: flex; flex-direction: column; gap: 2px; max-height: 380px; overflow-y: auto; }
+.notif-item { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border-light); font-size: 14px; }
+.notif-item:last-child { border-bottom: none; }
+.notif-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.notif-text { color: var(--ink); flex: 1; }
+.notif-date { font-size: 11px; color: var(--ink-4); white-space: nowrap; }
+
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+.tab { padding: 8px 18px; font-size: 13px; font-weight: 600; border-radius: var(--radius-full); border: 1px solid var(--border); background: var(--surface); color: var(--ink-3); cursor: pointer; transition: all .15s; }
+.tab.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+.tab:hover:not(.active) { border-color: var(--ink-3); }
+
+@media (max-width:800px){ .panel{grid-template-columns:1fr;} .sidebar{position:static;flex-direction:row;overflow-x:auto;} .stats{grid-template-columns:1fr 1fr;} .clicks-row{grid-template-columns:1fr 1fr;} }
+@media (max-width:480px){ .stats{grid-template-columns:1fr;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><div class="panel">
+<div class="sidebar">
+<a href="{% url 'owner_dashboard' provider.slug %}"><span class="si">📊</span> Overview</a>
+<a href="{% url 'owner_edit_profile' provider.slug %}"><span class="si">✏️</span> Edit Profile</a>
+<a href="{% url 'owner_services' provider.slug %}"><span class="si">💰</span> Services</a>
+<a href="{% url 'owner_photos' provider.slug %}"><span class="si">📸</span> Photos & Videos</a>
+<a href="{% url 'owner_social' provider.slug %}"><span class="si">📱</span> Social Links</a>
+<a href="{% url 'owner_bookings' provider.slug %}"><span class="si">📋</span> Bookings</a>
+<a href="{% url 'owner_analytics' provider.slug %}" class="active"><span class="si">📈</span> Analytics</a>
+<a href="{% url 'provider_profile' provider.slug %}" target="_blank"><span class="si">👁</span> View Profile</a>
+</div>
+<div class="main"><h1>Analytics</h1>
+
+<div class="stats">
+<div class="stat"><div class="stat-val">{{ total_profile_views }}</div><div class="stat-label">Profile Views</div><div class="stat-trend">All time</div></div>
+<div class="stat"><div class="stat-val">{{ total_search_appearances }}</div><div class="stat-label">Search Appearances</div><div class="stat-trend">All time</div></div>
+<div class="stat"><div class="stat-val">{{ total_clicks }}</div><div class="stat-label">Total Clicks</div><div class="stat-trend">Phone + Web + Social</div></div>
+<div class="stat"><div class="stat-val">{{ booking_count }}</div><div class="stat-label">Booking Requests</div><div class="stat-trend">All time</div></div>
+<div class="stat"><div class="stat-val">{{ review_count }}</div><div class="stat-label">Reviews</div><div class="stat-trend">{{ avg_rating }} ★ avg</div></div>
+<div class="stat"><div class="stat-val">{{ avg_rating }}</div><div class="stat-label">Average Rating</div><div class="stat-trend">★ out of 5</div></div>
+</div>
+
+<!-- Clicks Breakdown -->
+<div class="card"><h3>Click Breakdown</h3>
+<div class="clicks-row">
+<div class="click-item"><div class="click-icon">📞</div><div class="click-val">{{ click_breakdown.phone }}</div><div class="click-label">Phone Calls</div></div>
+<div class="click-item"><div class="click-icon">🌐</div><div class="click-val">{{ click_breakdown.website }}</div><div class="click-label">Website Visits</div></div>
+<div class="click-item"><div class="click-icon">📷</div><div class="click-val">{{ click_breakdown.instagram }}</div><div class="click-label">Instagram</div></div>
+<div class="click-item"><div class="click-icon">🎵</div><div class="click-val">{{ click_breakdown.tiktok }}</div><div class="click-label">TikTok</div></div>
+</div></div>
+
+<!-- Charts -->
+<div class="card"><h3>Profile Views Over Time</h3>
+<div class="tabs">
+<button class="tab active" onclick="showChart('7d')">Last 7 Days</button>
+<button class="tab" onclick="showChart('30d')">Last 30 Days</button>
+<button class="tab" onclick="showChart('12m')">Last 12 Months</button>
+</div>
+<div class="chart-wrap"><canvas id="chart7d"></canvas><canvas id="chart30d" style="display:none"></canvas><canvas id="chart12m" style="display:none"></canvas></div></div>
+
+<!-- Notifications -->
+<div class="card"><h3>🔔 Notification Center</h3>
+{% if notifications %}
+<div class="notif-list">
+{% for n in notifications %}
+<div class="notif-item"><span class="notif-icon">{{ n.icon }}</span><span class="notif-text">{{ n.text }}</span><span class="notif-date">{{ n.date }}</span></div>
+{% endfor %}</div>
+{% else %}<p style="color:var(--ink-3)">No recent notifications. Activity will appear here as clients interact with your profile.</p>{% endif %}
+</div>
+</div></div></div>
+
+<script>
+// Charts
+var chart7d, chart30d, chart12m;
+
+function makeChart(canvasId, labels, data) {
+    var ctx = document.getElementById(canvasId).getContext('2d');
+    return new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Profile Views',
+                data: data,
+                borderColor: '#b76e79',
+                backgroundColor: 'rgba(183,110,121,.08)',
+                fill: true,
+                tension: .4,
+                pointRadius: 3,
+                pointBackgroundColor: '#b76e79',
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 11 } }, grid: { color: '#f0ece9' } },
+                x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+            }
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    chart7d = makeChart('chart7d', {{ views_7d_dates|safe }}, {{ views_7d|safe }});
+    chart30d = makeChart('chart30d', {{ views_30d_dates|safe }}, {{ views_30d|safe }});
+    chart12m = makeChart('chart12m', {{ views_12m_labels|safe }}, {{ views_12m|safe }});
+});
+
+function showChart(period) {
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+    event.target.classList.add('active');
+    document.getElementById('chart7d').style.display = period === '7d' ? '' : 'none';
+    document.getElementById('chart30d').style.display = period === '30d' ? '' : 'none';
+    document.getElementById('chart12m').style.display = period === '12m' ? '' : 'none';
+}
+</script>
+</body></html>

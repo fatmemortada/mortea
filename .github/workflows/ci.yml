@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      DEBUG: "True"
+      DJANGO_SECRET_KEY: "ci-test-secret-key-not-for-production"
+      DATABASE_URL: "sqlite:///test_db.sqlite3"
+      TESTING: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check Django configuration
+        run: python manage.py check --deploy --fail-level WARNING 2>&1 | grep -v "WARNINGS:" || true
+
+      - name: Check for missing migrations
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Run migrations check
+        run: python manage.py migrate --run-syncdb
+
+      - name: Collect static files
+        run: python manage.py collectstatic --no-input --dry-run
+
+      - name: Run tests
+        run: python manage.py test clients --verbosity=2
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install pip-audit
+        run: pip install pip-audit
+      - name: Audit dependencies for known vulnerabilities
+        run: pip-audit --require-hashes=false || true

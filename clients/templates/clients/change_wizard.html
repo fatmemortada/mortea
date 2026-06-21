@@ -1,0 +1,85 @@
+{% extends "clients/base.html" %}
+{% block title %}Change Wizard — {{ client.name }}{% endblock %}
+{% block topbar_title %}Corporate Change Wizard{% endblock %}
+{% block content %}
+<div style="max-width:720px">
+
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Guided corporate changes — documents, resolutions, and filing instructions</p></div></div>
+
+{% if step == 'select' %}
+<div class="card"><div class="card-header"><span class="card-title">What would you like to do?</span></div>
+<div class="card-body" style="display:grid;gap:8px">
+{% for key, cfg in change_types.items %}
+<a href="{% url 'change_wizard_execute' client.id key %}" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--surface-2);border-radius:8px;text-decoration:none;color:inherit;transition:all var(--transition)" onmouseover="this.style.background='var(--brand-soft)'" onmouseout="this.style.background='var(--surface-2)'">
+    <div><strong>{{ cfg.title }}</strong><div class="text-small text-muted">{{ cfg.description }}</div></div>
+    <div class="text-muted">→</div>
+</a>
+{% endfor %}
+<a href="{% url 'audit_tool' client.id %}" style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#ede9fe;border-radius:8px;text-decoration:none;color:inherit;margin-top:8px">
+    <div><strong>🔍 Records Audit</strong><div class="text-small text-muted">Analyze minute book completeness</div></div>
+    <div class="text-muted">→</div>
+</a>
+</div></div>
+
+{% elif step == 'execute' %}
+<div class="card mb-3"><div class="card-header"><span class="card-title">{{ config.title }}</span></div>
+<div class="card-body">
+<p class="text-muted text-small mb-3">{{ config.description }}</p>
+
+{% if result %}
+<div class="alert alert-success">{{ result }}</div>
+{% if filing_instruction %}<div class="alert alert-info"><strong>Filing Required:</strong> {{ filing_instruction }}</div>{% endif %}
+{% if doc_previews %}
+<div class="card mt-2"><div class="card-header"><span class="card-title">Generated Documents</span></div>
+<div class="card-body"><div style="display:grid;gap:8px">
+{% for doc in doc_previews %}
+<div style="background:var(--surface-2);border-radius:8px;padding:14px;font-family:monospace;font-size:12px;white-space:pre-wrap;max-height:120px;overflow-y:auto">{{ doc.preview }}</div>
+{% endfor %}
+</div></div></div>
+{% endif %}
+<a href="{% url 'change_wizard' client.id %}" class="btn btn-ghost mt-2">← Back to Changes</a>
+{% else %}
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+<form method="POST">{% csrf_token %}
+{% if change_type == 'add_director' %}
+<div class="form-group"><label class="form-label">Full Name *</label><input type="text" name="full_name" class="form-control" required></div>
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Address</label><input type="text" name="address" class="form-control"></div>
+<div class="form-group"><label class="form-label">Appointment Date</label><input type="date" name="appointment_date" class="form-control" value="{{ today|date:'Y-m-d' }}"></div>
+</div>
+<div class="form-group"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" name="is_officer" value="1"> Also appoint as officer</label></div>
+<div class="form-group"><label class="form-label">Officer Title</label><input type="text" name="officer_title" class="form-control" placeholder="President, Secretary, Treasurer"></div>
+
+{% elif change_type == 'remove_director' %}
+<div class="form-group"><label class="form-label">Director to Remove</label>
+<select name="director_id" class="form-control" required>
+<option value="">Select...</option>
+{% for d in directors %}<option value="{{ d.id }}">{{ d.full_name }}</option>{% endfor %}
+</select></div>
+
+{% elif change_type == 'change_address' %}
+<div class="form-group"><label class="form-label">New Registered Address *</label>
+<textarea name="new_address" class="form-control" required placeholder="123 Main St, Suite 400, Toronto, ON M5V 2L7">{{ profile.registered_address|default:'' }}</textarea></div>
+
+{% elif change_type == 'issue_shares' %}
+<div class="form-group"><label class="form-label">Shareholder Name *</label><input type="text" name="shareholder_name" class="form-control" required></div>
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Share Class</label><input type="text" name="share_class" class="form-control" value="Common"></div>
+<div class="form-group"><label class="form-label">Number of Shares *</label><input type="number" name="num_shares" class="form-control" min="1" required></div>
+</div>
+
+{% elif change_type == 'add_officer' %}
+<div class="form-group"><label class="form-label">Director</label>
+<select name="director_id" class="form-control" required><option value="">Select...</option>
+{% for d in directors %}<option value="{{ d.id }}">{{ d.full_name }}</option>{% endfor %}
+</select></div>
+<div class="form-group"><label class="form-label">Officer Title *</label><input type="text" name="officer_title" class="form-control" placeholder="President" required></div>
+{% endif %}
+<button type="submit" class="btn btn-primary">Execute Change</button>
+<a href="{% url 'change_wizard' client.id %}" class="btn btn-ghost">Cancel</a>
+</form>
+{% endif %}
+</div></div>
+{% endif %}
+</div>
+{% endblock %}

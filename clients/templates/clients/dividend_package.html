@@ -1,0 +1,21 @@
+{% extends "clients/base.html" %}{% block title %}Dividend Package — {{ client.name }}{% endblock %}{% block topbar_title %}One-Click Dividend Package{% endblock %}{% block content %}<div style="max-width:700px">
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Generate resolution, journal entry, and dividend documents in one click</p></div></div>
+
+{% if result %}
+<div class="card mb-3"><div class="card-header"><span class="card-title">Dividend Generated</span></div><div class="card-body">
+<div class="mb-3"><strong>Board Resolution</strong><pre style="background:var(--surface-2);padding:14px;border-radius:8px;font-size:12px;white-space:pre-wrap">{{ result.resolution }}</pre></div>
+<div><strong>Journal Entry</strong><pre style="background:var(--surface-2);padding:14px;border-radius:8px;font-size:12px;white-space:pre-wrap">{{ result.journal }}</pre></div>
+<a href="{% url 'dividend_package' client.id %}" class="btn btn-ghost btn-sm mt-2">Generate Another</a></div></div>
+{% else %}
+<div class="card"><div class="card-header"><span class="card-title">Declare Dividend</span></div><div class="card-body">
+<form method="POST">{% csrf_token %}
+<div class="form-group"><label class="form-label">Shareholder *</label>
+<select name="shareholder_name" class="form-control" required><option value="">Select...</option>{% for s in shareholders %}<option>{{ s.full_name }}</option>{% endfor %}<option value="other">Other (type below)</option></select></div>
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Dividend Amount ($) *</label><input type="number" name="dividend_amount" class="form-control" step="0.01" required></div>
+<div class="form-group"><label class="form-label">Declaration Date</label><input type="date" name="declaration_date" class="form-control" value="{{ today|date:'Y-m-d' }}"></div>
+</div>
+<button type="submit" class="btn btn-primary">Generate Dividend Package</button>
+</form></div></div>
+{% endif %}
+</div>{% endblock %}

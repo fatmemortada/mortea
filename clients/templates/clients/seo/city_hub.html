@@ -1,0 +1,46 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }} | Mortea</title><meta name="description" content="{{ meta_desc }}">
+<link rel="canonical" href="https://mortea.com/{{ city_slug }}/">
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; background: var(--bg-warm); }
+.hero { background: linear-gradient(135deg, var(--brand-dark), var(--brand)); color: #fff; padding: 56px 32px; text-align: center; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(30px,5vw,44px); font-weight: 600; }
+.hero .s { font-size: 17px; opacity: .9; margin-top: 8px; }
+.container { max-width: 1040px; margin: 0 auto; padding: 40px 24px; }
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; text-align: center; }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: var(--brand); }
+.stat-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin-top: 4px; }
+.services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 32px; }
+.svc-pill { display: flex; align-items: center; gap: 8px; padding: 14px 18px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--ink); transition: all .2s; font-weight: 500; }
+.svc-pill:hover { border-color: var(--brand); background: var(--brand-light); }
+.svc-pill .icon { font-size: 22px; }
+.provider-card { display: flex; gap: 14px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; text-decoration: none; color: inherit; transition: all .2s; }
+.provider-card:hover { border-color: var(--brand-muted); box-shadow: var(--shadow); }
+.pc-avatar { width: 64px; height: 64px; border-radius: var(--radius); background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--brand); flex-shrink: 0; }
+.pc-info h4 { font-size: 16px; font-weight: 600; }
+.pc-info .stars { color: var(--star); font-size: 13px; }
+.other-cities { display: flex; flex-wrap: wrap; gap: 8px; }
+.other-cities a { padding: 8px 18px; border-radius: var(--radius-full); background: var(--brand-light); color: var(--brand-dark); font-weight: 500; text-decoration: none; font-size: 14px; }
+.other-cities a:hover { background: var(--brand); color: #fff; }
+@media (max-width:700px){ .stats{grid-template-columns:1fr;} .services-grid{grid-template-columns:1fr 1fr;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="{% url 'results_gallery' %}" class="nav-link">Results</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><section class="hero"><h1>{{ title }}</h1><p class="s">Discover the best beauty providers in {{ city }} — rated and reviewed by real clients</p></section>
+<div class="container">
+<div class="stats"><div class="stat"><div class="stat-val">{{ total_providers }}</div><div class="stat-label">Providers</div></div><div class="stat"><div class="stat-val">{{ top_services|length }}</div><div class="stat-label">Services</div></div><div class="stat"><div class="stat-val">{{ results|length }}</div><div class="stat-label">Results</div></div></div>
+
+<h2 style="font-family:'Playfair Display',serif;font-size:24px;margin-bottom:16px">Popular Services in {{ city }}</h2>
+<div class="services-grid">{% for slug, info, count in top_services %}<a href="{% url 'service_city' slug city_slug %}" class="svc-pill"><span class="icon">{{ info.icon }}</span><span>{{ info.name }}<br><small style="color:var(--ink-4)">{{ count }} results</small></span></a>{% endfor %}</div>
+
+<h2 style="font-family:'Playfair Display',serif;font-size:24px;margin-bottom:16px">Top Providers in {{ city }}</h2>
+{% for p in providers %}<a href="{% url 'provider_profile' p.slug %}" class="provider-card"><div class="pc-avatar">{{ p.name|slice:':1' }}</div><div class="pc-info"><h4>{{ p.name }}</h4><div class="stars">★ {{ p.rating }} ({{ p.review_count }}) · {{ p.get_category_display }}</div></div></a>{% endfor %}
+
+<h2 style="font-family:'Playfair Display',serif;font-size:24px;margin:32px 0 16px">More Cities</h2>
+<div class="other-cities">{% for c in all_cities %}{% if c != city_slug %}<a href="{% url 'city_hub' c %}">{{ c|title }}</a>{% endif %}{% endfor %}</div>
+</div></div>
+<script>document.getElementById('hamburger')?.addEventListener('click',function(){this.classList.toggle('active')});window.addEventListener('scroll',function(){document.getElementById('topNav').classList.toggle('scrolled',window.scrollY>10)});</script>
+</body></html>

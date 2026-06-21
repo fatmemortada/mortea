@@ -1,0 +1,50 @@
+{% comment %}Quiz component for end-of-module assessment{% endcomment %}
+<div class="quiz-container" id="quizContainer">
+    <div class="quiz-header">
+        <h2>{{ chapter.title }}</h2>
+        <p>Test your knowledge. Score {{ chapter.content.pass_threshold }}% to pass.</p>
+    </div>
+
+    <form id="quizForm" class="quiz-form">
+        {% csrf_token %}
+        {% for q in chapter.content.questions %}
+        <div class="quiz-question" data-index="{{ forloop.counter0 }}">
+            <div class="quiz-question-num">Question {{ forloop.counter }} of {{ chapter.content.questions|length }}</div>
+            <div class="quiz-question-text">{{ q.question }}</div>
+            <div class="quiz-options">
+                {% for option in q.options %}
+                <label class="quiz-option">
+                    <input type="radio" name="q{{ forloop.parentloop.counter0 }}" value="{{ forloop.counter0 }}" data-index="{{ forloop.counter0 }}">
+                    <span class="quiz-option-indicator">{{ option|slice:":1" }}</span>
+                    <span class="quiz-option-text">{{ option }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <div class="quiz-feedback" style="display:none"></div>
+        </div>
+        {% endfor %}
+
+        <div class="quiz-submit-row">
+            <button type="submit" class="btn btn-primary btn-lg quiz-submit-btn">Submit Answers</button>
+        </div>
+    </form>
+
+    <div id="quizResults" class="quiz-results" style="display:none">
+        <div class="quiz-results-header">
+            <div class="quiz-score-circle" id="quizScoreCircle">
+                <span id="quizScoreNum">0</span>
+                <small>%</small>
+            </div>
+            <div class="quiz-results-status" id="quizResultsStatus"></div>
+        </div>
+        <div class="quiz-results-detail" id="quizResultsDetail"></div>
+        <div class="quiz-results-actions">
+            <a href="{% url 'academy_module' module.id %}" class="btn btn-outline">← Back to Module</a>
+            {% if next_chapter %}
+            <a href="{% url 'academy_chapter' module.id next_chapter.id %}" class="btn btn-primary">Next Chapter →</a>
+            {% else %}
+            <button onclick="location.reload()" class="btn btn-outline">Retry Quiz</button>
+            {% endif %}
+        </div>
+    </div>
+</div>

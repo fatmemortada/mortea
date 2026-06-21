@@ -1,0 +1,17 @@
+{% if module.cta %}
+<div class="academy-cta-banner">
+    <div class="academy-cta-content">
+        <div class="academy-cta-icon">{{ module.icon }}</div>
+        <div class="academy-cta-text">
+            <h3>Need help with {{ module.title|lower }}?</h3>
+            <p>Mortacc automates this process — saving your firm hours per entity. Let us show you how.</p>
+        </div>
+        <div class="academy-cta-actions">
+            <a href="{{ module.cta.primary.url }}" class="btn btn-primary">{{ module.cta.primary.icon }} {{ module.cta.primary.text }}</a>
+            <a href="{{ module.cta.secondary.url }}" class="btn btn-outline">{{ module.cta.secondary.icon }} {{ module.cta.secondary.text }}</a>
+            <a href="mailto:support@mortacc.com?subject=Question about {{ module.title }}" class="btn btn-outline">💬 Speak with a Corporate Specialist</a>
+            <a href="mailto:support@mortacc.com?subject=Contact Mortacc — {{ module.title }}" class="btn btn-outline">📧 Contact Mortacc</a>
+        </div>
+    </div>
+</div>
+{% endif %}

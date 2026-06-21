@@ -1,0 +1,55 @@
+{% extends "clients/base.html" %}
+{% block title %}Structure Visualizer — {{ client.name }}{% endblock %}
+{% block topbar_title %}Interactive Structure Visualizer{% endblock %}
+{% block extra_head %}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>.vis-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;min-height:500px;position:relative}svg{width:100%;height:100%}.node{cursor:pointer}.node circle{stroke-width:2px;transition:all .2s}.node:hover circle{stroke-width:3px;filter:brightness(1.1)}.node text{font-size:11px;pointer-events:none}.link{stroke:#cbd5e1;stroke-width:1.5px}.tooltip{position:absolute;background:var(--ink);color:#fff;padding:8px 12px;border-radius:6px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .2s}</style>
+{% endblock %}
+{% block content %}
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Interactive ownership and governance structure</p></div></div>
+<div class="vis-wrap"><div class="tooltip" id="tooltip"></div><svg id="vis"></svg></div>
+
+<script>
+const data = {
+    nodes: [{% for n in nodes %}{id:"{{ n.id }}",name:"{{ n.name|escapejs }}",type:"{{ n.type }}",pct:{{ n.pct|default:0 }},title:"{{ n.title|default:'' }}"},{% endfor %}],
+    links: [{% for n in nodes %}{% if n.parent %}{source:"{{ n.parent }}",target:"{{ n.id }}"},{% endif %}{% endfor %}]
+};
+const W = document.getElementById('vis').clientWidth || 800;
+const H = 500;
+const svg = d3.select('#vis').attr('viewBox',`0 0 ${W} ${H}`);
+
+const sim = d3.forceSimulation(data.nodes)
+    .force('link', d3.forceLink(data.links).id(d=>d.id).distance(120))
+    .force('charge', d3.forceManyBody().strength(-300))
+    .force('center', d3.forceCenter(W/2, H/2))
+    .force('collision', d3.forceCollide(50));
+
+const link = svg.append('g').selectAll('line').data(data.links).join('line').attr('class','link');
+
+const node = svg.append('g').selectAll('g').data(data.nodes).join('g').attr('class','node')
+    .call(d3.drag().on('start',(e,d)=>{if(!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y})
+        .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y}).on('end',(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null}));
+
+node.append('circle').attr('r', d=>d.type==='corporation'?28:d.type==='shareholder'?20:16)
+    .attr('fill', d=>d.type==='corporation'?'#0f172a':d.type==='shareholder'?'#2563eb':'#16a34a')
+    .attr('stroke', d=>d.type==='corporation'?'#475569':d.type==='shareholder'?'#bfdbfe':'#bbf7d0');
+
+node.append('text').text(d=>d.name.length>18?d.name.slice(0,16)+'..':d.name)
+    .attr('text-anchor','middle').attr('dy', d=>d.type==='corporation'?45:32)
+    .attr('fill','var(--ink-2)');
+
+node.append('text').text(d=>d.type==='shareholder'?d.pct+'%':d.title||'')
+    .attr('text-anchor','middle').attr('dy', d=>d.type==='corporation'?58:44)
+    .attr('fill','var(--ink-4)').attr('font-size','10px');
+
+node.on('mouseenter',(e,d)=>{
+    d3.select('#tooltip').style('opacity',1).html(`<strong>${d.name}</strong><br>${d.type==='corporation'?'Corporation':d.type==='shareholder'?d.pct+'% ownership':d.title||'Director'}`);
+}).on('mousemove',(e)=>{d3.select('#tooltip').style('left',e.offsetX+10+'px').style('top',e.offsetY-30+'px')})
+.on('mouseleave',()=>{d3.select('#tooltip').style('opacity',0)});
+
+sim.on('tick',()=>{
+    link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+    node.attr('transform',d=>`translate(${d.x},${d.y})`);
+});
+</script>
+{% endblock %}

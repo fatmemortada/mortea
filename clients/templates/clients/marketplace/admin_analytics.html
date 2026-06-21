@@ -1,0 +1,26 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Lead Analytics — Mortea Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: #f5f5f5; }
+.container { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: #1a1a1a; }
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin: 24px 0; }
+.stat { background: #fff; border-radius: 12px; padding: 22px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700; color: #b76e79; }
+.stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #8a8a8a; margin-top: 4px; }
+.card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 20px; }
+.card h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; margin-bottom: 14px; }
+.row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0ece9; font-size: 14px; }
+.row:last-child { border-bottom: none; }
+.nav-row { display: flex; gap: 8px; margin-bottom: 24px; }
+.nav-row a { padding: 8px 18px; font-size: 13px; font-weight: 600; border-radius: 20px; border: 1px solid #e2e2e2; color: #555; text-decoration: none; background: #fff; }
+.nav-row a:hover, .nav-row a.active { background: #b76e79; color: #fff; border-color: #b76e79; }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><span style="font-size:12px;color:#8a8a8a;font-weight:600">Admin</span></div></nav>
+<div class="page"><div class="container">
+<div class="nav-row"><a href="{% url 'admin_dashboard' %}">📊 Dashboard</a><a href="{% url 'lead_analytics' %}" class="active">📋 Leads</a></div>
+<h1>Lead Marketplace Analytics</h1>
+<div class="stats"><div class="stat"><div class="stat-val">{{ total_requests }}</div><div class="stat-label">Total Requests</div></div><div class="stat"><div class="stat-val">{{ open_requests }}</div><div class="stat-label">Open</div></div><div class="stat"><div class="stat-val">{{ closed_requests }}</div><div class="stat-label">Closed</div></div><div class="stat"><div class="stat-val">{{ total_quotes }}</div><div class="stat-label">Total Quotes</div></div><div class="stat"><div class="stat-val">{{ accepted_quotes }}</div><div class="stat-label">Accepted</div></div><div class="stat"><div class="stat-val">{{ conversion_rate }}%</div><div class="stat-label">Conversion Rate</div></div></div>
+<div class="card"><h3>Top Providers by Quote Activity</h3>{% for p in top_providers %}<div class="row"><span>{{ p.provider__name }}</span><span>{{ p.c }} quotes · {{ p.won }} won</span></div>{% empty %}<p style="color:#8a8a8a">No quote activity yet.</p>{% endfor %}</div>
+</div></div></body></html>

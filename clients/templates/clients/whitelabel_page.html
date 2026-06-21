@@ -1,0 +1,1 @@
+{% extends "clients/base.html" %}{% block title %}{{ page.title|default:"Portal" }}{% endblock %}{% block topbar_title %}{{ page.title|default:"Portal" }}{% endblock %}{% block content %}<div style="max-width:800px;margin:0 auto;padding:40px 20px;">{{ page.content|safe|default:"<p>Welcome to your branded client portal.</p>" }}</div>{% endblock %}

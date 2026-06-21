@@ -1,0 +1,53 @@
+{% extends "clients/base.html" %}
+{% block title %}Import Clients — Mortacc{% endblock %}
+{% block topbar_title %}Import Clients from CSV{% endblock %}
+
+{% block content %}
+<div style="max-width:720px">
+
+<div class="card mb-3">
+<div class="card-header"><span class="card-title">Upload CSV File</span></div>
+<div class="card-body">
+<p class="text-muted text-small mb-3">Upload a CSV with columns: <strong>name, email, phone, business_type, client_type</strong></p>
+
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+<div class="form-group">
+    <label class="form-label">CSV File (.csv)</label>
+    <input type="file" name="csv_file" accept=".csv" required class="form-control" style="padding:8px">
+</div>
+<button type="submit" class="btn btn-primary">Import Clients</button>
+<a href="{% url 'dashboard' %}" class="btn btn-ghost">Cancel</a>
+</form>
+</div></div>
+
+{% if results.created or results.errors %}
+<div class="card">
+<div class="card-header"><span class="card-title">Results</span></div>
+<div class="card-body">
+{% if results.created %}
+<div class="alert alert-success">{{ results.created }} client(s) created successfully.</div>
+{% endif %}
+{% if results.skipped %}
+<div class="alert alert-warning">{{ results.skipped }} row(s) skipped.</div>
+{% endif %}
+{% for err in results.errors %}
+<div class="alert alert-danger">{{ err }}</div>
+{% endfor %}
+</div></div>
+{% endif %}
+
+{% if preview_rows %}
+<div class="card mt-3">
+<div class="card-header"><span class="card-title">Imported Clients</span></div>
+<div class="card-body">
+<table><thead><tr><th>Name</th><th>Email</th></tr></thead><tbody>
+{% for r in preview_rows %}
+<tr><td>{{ r.name }}</td><td>{{ r.email }}</td></tr>
+{% endfor %}
+</tbody></table>
+</div></div>
+{% endif %}
+
+</div>
+{% endblock %}

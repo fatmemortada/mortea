@@ -1,0 +1,123 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>AI Beauty Consultation | Mortea</title>
+<meta name="description" content="Describe your beauty goals and get personalized service recommendations, provider matches, and before-and-after examples.">
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; height: calc(100vh - 64px); background: #faf9f8; display: flex; flex-direction: column; }
+.chat-header { background: linear-gradient(135deg, #b76e79, #8b4a55); color: #fff; padding: 20px 24px; text-align: center; flex-shrink: 0; }
+.chat-header h1 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+.chat-header .sub { font-size: 13px; opacity: .85; }
+.chat-body { flex: 1; overflow-y: auto; padding: 24px; max-width: 720px; width: 100%; margin: 0 auto; }
+.message { display: flex; gap: 12px; margin-bottom: 20px; animation: fadeIn .3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } }
+.message.user { flex-direction: row-reverse; }
+.msg-avatar { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.msg-avatar.ai { background: #fdf2f4; color: #b76e79; }
+.msg-avatar.user { background: #b76e79; color: #fff; }
+.msg-bubble { max-width: 85%; padding: 12px 18px; border-radius: 18px; font-size: 14px; line-height: 1.7; }
+.msg-bubble.ai { background: #fff; border: 1px solid #e8e3e0; border-top-left-radius: 4px; }
+.msg-bubble.user { background: #b76e79; color: #fff; border-top-right-radius: 4px; }
+.msg-bubble h3 { font-family: 'Playfair Display', serif; font-size: 16px; margin: 12px 0 6px; }
+.msg-bubble p { margin: 4px 0; }
+.msg-bubble a { color: #b76e79; }
+.msg-bubble hr { border: none; border-top: 1px solid #e8e3e0; margin: 12px 0; }
+.chat-input-area { padding: 16px 24px; background: #fff; border-top: 1px solid #e8e3e0; flex-shrink: 0; }
+.chat-input-wrap { max-width: 720px; margin: 0 auto; display: flex; gap: 10px; }
+.chat-input-wrap input { flex: 1; padding: 14px 20px; font-family: 'Inter', sans-serif; font-size: 15px; border: 2px solid #e8e3e0; border-radius: 28px; outline: none; }
+.chat-input-wrap input:focus { border-color: #b76e79; }
+.chat-input-wrap button { padding: 14px 24px; border-radius: 28px; border: none; background: #b76e79; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
+.chat-input-wrap button:hover { background: #8b4a55; }
+.chat-input-wrap button:disabled { opacity: .5; cursor: not-allowed; }
+.suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; max-width: 720px; margin-left: auto; margin-right: auto; padding: 0 24px; }
+.suggestion { padding: 8px 16px; font-size: 13px; border: 1px solid #e8e3e0; border-radius: 20px; background: #fff; cursor: pointer; transition: all .15s; }
+.suggestion:hover { border-color: #b76e79; background: #fdf2f4; color: #b76e79; }
+.city-row { display: flex; align-items: center; gap: 8px; max-width: 720px; margin: 0 auto 8px; padding: 0 24px; font-size: 13px; color: #8a8a8a; }
+.city-row input { padding: 6px 12px; border: 1px solid #e8e3e0; border-radius: 16px; font-size: 13px; font-family: 'Inter', sans-serif; width: 140px; }
+.pr-card { display: flex; align-items: center; gap: 10px; padding: 8px 12px; margin: 6px 0; border: 1px solid #f0ece9; border-radius: 10px; background: #faf9f8; }
+.pr-card .pr-avatar { width: 32px; height: 32px; border-radius: 50%; background: #fdf2f4; display: flex; align-items: center; justify-content: center; font-size: 14px; font-family: 'Playfair Display', serif; color: #b76e79; font-weight: 600; }
+.pr-card a { color: #1a1a1a; text-decoration: none; font-weight: 600; font-size: 13px; }
+.pr-card a:hover { color: #b76e79; }
+.disclaimer { font-size: 11px; color: #8a8a8a; font-style: italic; padding: 8px 0; border-top: 1px solid #f0ece9; margin-top: 6px; }
+@media (max-width:500px){ .chat-body { padding: 16px 12px; } .msg-bubble { max-width: 92%; } .chat-input-wrap input { padding: 12px 16px; font-size: 14px; } }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="{% url 'discovery_feed' %}" class="nav-link">Portfolio</a><a href="{% url 'results_gallery' %}" class="nav-link">Results</a></div></div></nav>
+
+<div class="page">
+<div class="chat-header"><h1>🤖 AI Beauty Consultation</h1><p class="sub">Describe your beauty goals — I'll recommend services and providers</p></div>
+<div class="chat-body" id="chatBody">
+<div class="message"><div class="msg-avatar ai">💬</div><div class="msg-bubble ai">Hi! I'm your Mortea beauty consultant. Tell me about your beauty goals and I'll help you find the right services and providers.<br><br>Try saying:<br>• "I want fuller lips"<br>• "I have acne scars"<br>• "I want to reduce wrinkles"<br>• "I have hair thinning"<br>• "I want healthier skin"</div></div>
+</div>
+<div class="city-row">📍 City (optional): <input type="text" id="cityInput" placeholder="e.g., Montreal" onchange="window.city=this.value"></div>
+<div class="suggestions" id="suggestions">
+<button class="suggestion" onclick="sendMessage('I want fuller lips')">💋 Fuller lips</button>
+<button class="suggestion" onclick="sendMessage('I have acne scars')">✨ Acne scars</button>
+<button class="suggestion" onclick="sendMessage('I want to reduce wrinkles')">💉 Wrinkles</button>
+<button class="suggestion" onclick="sendMessage('I have hair thinning')">🧖 Hair thinning</button>
+<button class="suggestion" onclick="sendMessage('I want healthier skin')">💧 Healthier skin</button>
+<button class="suggestion" onclick="sendMessage('I want laser hair removal')">⚡ Laser hair</button>
+</div>
+<div class="chat-input-area">
+<div class="chat-input-wrap">
+<input type="text" id="msgInput" placeholder="Describe your beauty goals…" onkeydown="if(event.key==='Enter')sendMessage()">
+<button id="sendBtn" onclick="sendMessage()">Send</button>
+</div></div>
+</div>
+
+<script>
+window.city = '';
+function sendMessage(text) {
+    var input = document.getElementById('msgInput');
+    var msg = text || input.value.trim();
+    if (!msg) return;
+    if (!text) input.value = '';
+
+    var body = document.getElementById('chatBody');
+    body.innerHTML += '<div class="message user"><div class="msg-avatar user">👤</div><div class="msg-bubble user">'+msg+'</div></div>';
+    body.innerHTML += '<div class="message"><div class="msg-avatar ai">💬</div><div class="msg-bubble ai"><em>Thinking…</em></div></div>';
+    body.scrollTop = body.scrollHeight;
+    document.getElementById('sendBtn').disabled = true;
+
+    var formData = new FormData();
+    formData.append('message', msg);
+    formData.append('city', window.city || document.getElementById('cityInput').value);
+
+    fetch('/api/consultation/', {method:'POST', body:formData, headers:{'X-CSRFToken':getCookie('csrftoken')}})
+    .then(function(r){return r.json()})
+    .then(function(data){
+        var bubbles = body.querySelectorAll('.msg-bubble.ai');
+        var last = bubbles[bubbles.length-1];
+        last.innerHTML = formatResponse(data.response);
+        body.scrollTop = body.scrollHeight;
+        document.getElementById('sendBtn').disabled = false;
+        if (data.providers && data.providers.length > 0) {
+            var html = '<div style="margin-top:8px">';
+            data.providers.forEach(function(p){
+                html += '<div class="pr-card"><div class="pr-avatar">'+p.name.charAt(0)+'</div><div><a href="/providers/'+p.slug+'/">'+p.name+'</a><br><span style="font-size:11px;color:#8a8a8a">★ '+p.rating+' · '+p.city+'</span></div></div>';
+            });
+            html += '</div>';
+            last.innerHTML += html;
+        }
+    })
+    .catch(function(){
+        var bubbles = body.querySelectorAll('.msg-bubble.ai');
+        bubbles[bubbles.length-1].innerHTML = 'Sorry, something went wrong. Please try again.';
+        document.getElementById('sendBtn').disabled = false;
+    });
+}
+function formatResponse(text) {
+    return text
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n/g, '<br>')
+        .replace(/### (.*)/g, '<h3>$1</h3>')
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="/$2">$1</a>')
+        .replace(/---/g, '<hr>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/⚠️(.*)/g, '<div class="disclaimer">⚠️ $1</div>');
+}
+function getCookie(name) {
+    var m = document.cookie.match(new RegExp('(^| )'+name+'=([^;]+)'));
+    return m ? m[2] : '';
+}
+</script>
+</body></html>

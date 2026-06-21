@@ -1,0 +1,21 @@
+{% extends "clients/base.html" %}
+{% block title %}Risk Scan — {{ client.name }} — Mortacc{% endblock %}
+{% block nav_risk %}active{% endblock %}
+{% block topbar_title %}Risk Scan: {{ client.name }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:560px;margin:40px auto;text-align:center;">
+    <div class="card-body" style="padding:40px;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.5"><path d="M12 9v4m0 2h.01M12 3l9.66 16.5H2.34L12 3z"/></svg>
+        <h3 style="margin-top:12px;font-size:18px;">Confirm Risk Scan</h3>
+        <p style="color:var(--ink-3);font-size:13px;margin:8px 0 20px;">
+            Mortacc will scan <strong>{{ client.name }}</strong> for compliance gaps, missing minute book documents, stale director/shareholder data, overdue filings, and UBO risks.
+        </p>
+        <form method="POST" action="{% url 'run_risk_scan' client.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-lg">Run Risk Scan</button>
+        </form>
+        <p style="margin-top:12px;"><a href="{% url 'risk_dashboard' %}" class="text-muted">Cancel</a></p>
+    </div>
+</div>
+{% endblock %}

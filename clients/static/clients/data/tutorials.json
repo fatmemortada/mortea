@@ -1,0 +1,1124 @@
+[
+  {
+    "id": "morning-briefing",
+    "icon": "🌅",
+    "title": "Morning Briefing — Accountant AI Workspace",
+    "duration": "4:30",
+    "description": "One screen that replaces 2 hours of morning triage. Shows T1s ready, T2s ready, overdue tasks, escalated chases, urgent deadlines, tax opportunities, and estimated work hours.",
+    "category": "tier1",
+    "topics": [
+      "Daily briefing replacing morning triage",
+      "T1s ready for review with completion %",
+      "T2s ready to file with deadlines",
+      "Overdue compliance tasks by client",
+      "Escalated client chases needing action",
+      "Estimated work hours for the day"
+    ],
+    "scenes": [
+      {
+        "title": "Morning Briefing Dashboard",
+        "caption": "Open Mortacc and the Morning Briefing tells you exactly what needs attention today. 8 T1s ready for review, 3 T2s ready to file, 2 overdue annual returns, 1 escalated chase. Estimated work: 2.4 hours. No more hunting through files — the answers find you.",
+        "topbarBadge": "Morning Briefing",
+        "content": "<div class=\"mock-card\" style=\"background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;padding:24px\"><h3 style=\"color:#fff\">🌅 Good morning — June 14, 2026</h3><div style=\"font-size:14px;margin-bottom:12px;opacity:.9\">Estimated work today: <strong>2.4 hours</strong> across 6 action areas</div><div class=\"mock-stat-grid\" style=\"grid-template-columns:repeat(5,1fr)\"><div class=\"mock-stat\" style=\"background:rgba(255,255,255,.15)\"><div class=\"val\" style=\"color:#fff\">8</div><div class=\"lbl\" style=\"color:rgba(255,255,255,.7)\">T1s Ready</div></div><div class=\"mock-stat\" style=\"background:rgba(255,255,255,.15)\"><div class=\"val\" style=\"color:#fff\">3</div><div class=\"lbl\" style=\"color:rgba(255,255,255,.7)\">T2s Ready</div></div><div class=\"mock-stat\" style=\"background:rgba(255,255,255,.15)\"><div class=\"val\" style=\"color:#fff\">2</div><div class=\"lbl\" style=\"color:rgba(255,255,255,.7)\">Overdue</div></div><div class=\"mock-stat\" style=\"background:rgba(255,255,255,.15)\"><div class=\"val\" style=\"color:#fff\">1</div><div class=\"lbl\" style=\"color:rgba(255,255,255,.7)\">Escalated</div></div><div class=\"mock-stat\" style=\"background:rgba(255,255,255,.15)\"><div class=\"val\" style=\"color:#fff\">5</div><div class=\"lbl\" style=\"color:rgba(255,255,255,.7)\">Tax Opps</div></div></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "copilot",
+    "icon": "🧠",
+    "title": "Accountant Copilot",
+    "duration": "4:30",
+    "description": "Open any client file and see everything at once — corporate health score, T2 status, T1 completion, anomalies, missing deductions, deadlines, minute book health, and recommended actions. 3-minute review.",
+    "category": "tier1",
+    "topics": [
+      "One-page client summary",
+      "Corporate health grade A+ through F",
+      "Expense anomaly detection year-over-year",
+      "Missing deduction suggestions",
+      "Prioritized recommended actions",
+      "All deadlines in one view"
+    ],
+    "scenes": [
+      {
+        "title": "Copilot Dashboard",
+        "caption": "Open any client and the Copilot shows everything: health score grade, T2 status, T1 completion, expense anomalies, missing deductions, upcoming deadlines, minute book health, and financial summary. The accountant starts with answers, not questions.",
+        "topbarBadge": "Copilot",
+        "content": "<div class=\"mock-card\"><h3>🧠 Copilot: Maple Tech Holdings Inc.</h3><div style=\"display:flex;gap:12px;align-items:center;margin-bottom:12px\"><div style=\"width:56px;height:56px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#16a34a\">B+</div><div><div style=\"font-weight:700\">Corporate Health: 72/100</div><div style=\"font-size:11px;color:#64748b\">Good — 3 areas need attention</div></div></div><div style=\"font-size:11px\"><strong>⚡ Actions:</strong><br>1. Prepare T2 2025 — 45 days until deadline<br>2. 2 compliance tasks overdue<br>3. 3 minute book items missing<br><strong>🔍 Anomalies:</strong> Meals increased 45%, Office down 32%<br><strong>💡 Missing:</strong> Childcare expenses not claimed</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "deep-t2",
+    "icon": "💰",
+    "title": "Deep T2 Auto-Prepare",
+    "duration": "4:00",
+    "description": "One-click T2 preparation pulling data from invoices, bookkeeping, prior year, and corporate structure. Completeness scoring 0-95%. Auto-created when fiscal year ends. Accountant reviews instead of building from scratch.",
+    "category": "tier1",
+    "topics": [
+      "Auto-fill from 5 data sources",
+      "Revenue from paid invoices within fiscal year",
+      "Prior-year carry-forward of 20+ fields",
+      "CCA auto-calculation from fixed assets",
+      "SBD eligibility auto-detection",
+      "Completeness score 0-95%"
+    ],
+    "scenes": [
+      {
+        "title": "Deep T2 Auto-Prepare",
+        "caption": "One click prepares a T2 from every available data source — invoices, bookkeeping, prior year, corporate structure. The system scores completeness and tells you what's still needed. Accountant reviews and approves instead of building from scratch.",
+        "topbarBadge": "T2 Auto-Prepare",
+        "content": "<div class=\"mock-card\"><h3>⚡ T2 2025 Auto-Prepared — Maple Tech</h3><div class=\"mock-stat-grid\" style=\"grid-template-columns:repeat(3,1fr)\"><div class=\"mock-stat\"><div class=\"val\" style=\"color:#16a34a\">85%</div><div class=\"lbl\">Completeness</div></div><div class=\"mock-stat\"><div class=\"val\">5</div><div class=\"lbl\">Data Sources</div></div><div class=\"mock-stat\"><div class=\"val\">$8,200</div><div class=\"lbl\">Est. Tax Owing</div></div></div><div style=\"font-size:11px\"><strong>✅ Filled:</strong> Revenue from 12 paid invoices ($250K), Prior-year carry (CCA, expenses, credits), SBD eligible ($250K), Bookkeeping data linked<br><strong>⚠ Estimated:</strong> Expenses at 60% of revenue<br><strong>❌ Missing:</strong> No medical/donation credits in prior year</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "corp-change-ai",
+    "icon": "🤖",
+    "title": "Corporate Change AI Assistant",
+    "duration": "4:00",
+    "description": "Type a corporate change in plain English. Mortacc identifies what happened, asks follow-up questions, and auto-generates all required documents — resolutions, registers, filings. No forms, no manual lookups.",
+    "category": "tier1",
+    "topics": [
+      "Natural language corporate changes",
+      "7 change types auto-identified",
+      "Director changes, share changes, dividends, address changes",
+      "Auto-generates all required documents",
+      "One-click execute via minute book triggers"
+    ],
+    "scenes": [
+      {
+        "title": "Corporate Change AI",
+        "caption": "Type \"John Smith resigned as director\" and Mortacc figures out: director resignation → board resolution → register updates → notice of change filing. All documents generated automatically. No forms. No manual lookups. Just conversation.",
+        "topbarBadge": "AI Assistant",
+        "content": "<div class=\"mock-card\"><h3>🤖 Corporate Change AI</h3><div style=\"background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:10px\"><strong>You typed:</strong> \"John Smith resigned as director yesterday\"</div><div style=\"background:#f0fdf4;padding:10px;border-radius:8px\"><strong>✅ Identified: Director Resignation — John Smith</strong><div style=\"font-size:11px;margin-top:4px\">Documents to generate:<br>📄 Board Resolution — Accept Resignation<br>📄 Update Directors Register<br>📄 Update Officers Register<br>📄 Notice of Change Filing</div></div><div style=\"margin-top:8px\"><span class=\"btn-mock\" style=\"background:#16a34a\">⚡ Execute — Generate All Documents</span></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "automation-onboarding",
+    "icon": "🚀",
+    "title": "Client Onboarding Auto-Pilot",
+    "duration": "3:00",
+    "description": "One form creates: client record, engagement letter (e-sign ready), KYC/UBO forms, portal link, corporate intake, tax organizer, bookkeeping setup, payroll package — with invoice.",
+    "category": "tier2",
+    "topics": [
+      "Client record creation",
+      "Engagement letter (e-sign ready)",
+      "KYC/UBO forms",
+      "Portal link generation",
+      "Corporate intake & tax organizer",
+      "Bookkeeping & payroll setup"
+    ],
+    "scenes": [
+      {
+        "title": "One Form = Complete Setup",
+        "caption": "New client? One form creates: client record, engagement letter (e-sign ready), KYC/UBO forms, portal link, corporate intake, tax organizer, bookkeeping setup, payroll package. Everything to start — with invoice.",
+        "topbarBadge": "Onboarding",
+        "content": "<div class=\"mock-card\"><h3>Onboard New Client</h3><div style=\"font-size:11px\">Client: Maple Tech Holdings Inc.</div><div style=\"background:#f0fdf4;padding:10px;margin-top:6px;font-size:10px\">✅ Engagement Letter ✅ KYC/UBO ✅ Portal Link<br>✅ Corporate Intake ✅ Tax Organizer<br>✅ Bookkeeping Setup ✅ Payroll Setup</div><div style=\"margin-top:6px\"><span class=\"btn-mock\">Invoice: $1,050 | Client Created</span></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "automation-annual",
+    "icon": "📅",
+    "title": "Annual Maintenance Auto-Pilot",
+    "duration": "4:00",
+    "description": "One-click annual package: AGM minutes, annual return data, updated registers, T2 prep checklist, GST/HST reminders, and invoice — hours of work in one click.",
+    "category": "tier2",
+    "topics": [
+      "Auto-generated AGM minutes & resolutions",
+      "Pre-filled annual return data",
+      "Updated director/shareholder/officer registers",
+      "T2 prep checklist",
+      "GST/HST filing reminders",
+      "Auto-generated invoice"
+    ],
+    "scenes": [
+      {
+        "title": "One-Click Annual Package",
+        "caption": "Pick an entity. The Auto-Pilot scans compliance deadlines and generates: AGM minutes, annual return data, updated registers, T2 prep checklist, GST/HST reminders, and invoice. Hours of work in one click.",
+        "topbarBadge": "Auto-Pilot",
+        "content": "<div class=\"mock-card\"><h3>Annual Package — Maple Tech</h3><div style=\"background:#f0fdf4;padding:14px;font-size:11px\"><strong>Documents:</strong> AGM Minutes, Annual Return Data, Updated Registers, T2 Prep, GST/HST Reminder</div><div style=\"margin-top:8px\"><span class=\"btn-mock\">Invoice: $1,500 | 6 docs ready</span></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "t1-organizer",
+    "icon": "📋",
+    "title": "T1 Personal Tax Organizer",
+    "duration": "5:00",
+    "description": "Token-based secure client questionnaire. Smart conditional questions, 22 document types, auto risk flags, AI accountant summary, bilingual EN/FR, one-click export.",
+    "category": "tier1",
+    "topics": [
+      "Secure client-facing questionnaire (no login)",
+      "Smart conditional questions — 3 sections",
+      "22 document types with Missing/Uploaded/N.A. status",
+      "Auto risk flags — marital change, capital gains, foreign income",
+      "AI-generated accountant summary",
+      "Document auto-renaming: ClientName_Year_Type_Date.pdf"
+    ],
+    "scenes": [
+      {
+        "title": "Client T1 Questionnaire",
+        "caption": "Clients get a secure, token-based T1 organizer — no password needed. They answer smart conditional questions about income, deductions, and life changes. Upload tax slips directly. The system tracks completion in real-time.",
+        "topbarBadge": "T1 Organizer",
+        "content": "<div class=\"mock-card\"><h3>T1 2025 Tax Organizer — Maple Tech</h3><div class=\"mock-stat-grid\" style=\"grid-template-columns:repeat(3,1fr)\"><div class=\"mock-stat\"><div class=\"val\">78%</div><div class=\"lbl\">Completion</div></div><div class=\"mock-stat\"><div class=\"val\">8</div><div class=\"lbl\">Docs Uploaded</div></div><div class=\"mock-stat\"><div class=\"val\">2</div><div class=\"lbl\">Risk Flags</div></div></div><div style=\"font-size:11px\"><strong>Income:</strong> T4 ✓ · T5 ✓ · RRSP ✓<br><strong>Deductions:</strong> Childcare ✓ · Donations ✓ · Medical ✗<br><strong>⚠ Risk:</strong> Capital gains reported — Schedule 3 required</div></div>"
+      },
+      {
+        "title": "AI Accountant Summary",
+        "caption": "When the client submits, Mortacc generates an AI summary: all income types, deductions, missing items, and risk flags. The accountant opens the file and sees the answers — 3-minute review instead of 20-minute hunt.",
+        "topbarBadge": "AI Summary",
+        "content": "<div class=\"mock-card\"><h3>AI Summary — John Smith, T1 2025</h3><div style=\"font-size:11px\"><strong>Income:</strong> Employment (T4), Investment (T5), Capital Gains<br><strong>Deductions:</strong> RRSP ($5,000), Childcare ($8,200), Donations ($1,500)<br><strong>⚠ Missing:</strong> Medical receipts, T2202 tuition form<br><strong>⚠ Risk:</strong> Capital gains from stock sale — verify ACB<br><strong>✅ 8/10 documents uploaded</strong></div><div style=\"margin-top:8px\"><span class=\"btn-mock\">Export CSV Package</span></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "t1-auto-prepare",
+    "icon": "⚡",
+    "title": "T1 Auto-Prepare Engine",
+    "duration": "4:30",
+    "description": "Combine T1 Organizer + AI Slip Reader. Upload slips → estimated refund, missing docs, tax opportunities, accountant review notes. One click from client uploads to review-ready T1.",
+    "category": "tier6",
+    "topics": [
+      "Estimated refund/owing calculation",
+      "Federal + Ontario 2025 tax brackets",
+      "Missing documents prioritization",
+      "Tax opportunity auto-detection",
+      "Accountant review notes generation"
+    ],
+    "scenes": [
+      {
+        "title": "T1 Auto-Prepare Results",
+        "caption": "Client uploads their slips. One click and Mortacc produces: estimated refund (or balance owing), prioritized list of missing documents, detected tax opportunities, and accountant review notes with risk flags. The accountant starts with the answer, not the hunt.",
+        "topbarBadge": "T1 Auto-Prepare",
+        "content": "<div class=\"mock-card\"><h3>⚡ T1 2025 Auto-Prepared — John Smith</h3><div class=\"mock-stat-grid\" style=\"grid-template-columns:repeat(3,1fr)\"><div class=\"mock-stat\"><div class=\"val\" style=\"color:#16a34a\">$3,200</div><div class=\"lbl\">Est. Refund</div></div><div class=\"mock-stat\"><div class=\"val\">$85,000</div><div class=\"lbl\">Total Income</div></div><div class=\"mock-stat\"><div class=\"val\" style=\"color:#d97706\">29%</div><div class=\"lbl\">Marginal Rate</div></div></div><div style=\"font-size:11px\"><strong>Missing:</strong> T2202 tuition form, Medical receipts<br><strong>Opportunities:</strong> RRSP optimization, Medical expense splitting<br><strong>Review:</strong> Capital gains reported, marital status changed</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "ai-slip-reader",
+    "icon": "🔍",
+    "title": "AI Slip Reader + Anomaly Detection",
+    "duration": "4:15",
+    "description": "Upload any tax PDF — auto-identifies T4, T5, T3, RRSP, T2202, medical, donations. Extracts key numbers. Compares expenses year-over-year and flags anomalies.",
+    "category": "tier2",
+    "topics": [
+      "Auto-identify 9 document types from text",
+      "Extract monetary amounts automatically",
+      "Expense anomaly detection — 8 categories",
+      "Shareholder loan analyzer (ITA 15(2))",
+      "GST/QST review assistant",
+      "Missing deduction detector — 12 smart prompts"
+    ],
+    "scenes": [
+      {
+        "title": "AI Slip Identification",
+        "caption": "Client uploads 15 PDFs. Mortacc auto-identifies each one: T4, T5, T3, RRSP receipt, T2202, medical, donation, rent receipt. Extracts key numbers automatically. The accountant doesn't need to open every PDF.",
+        "topbarBadge": "AI Slip Reader",
+        "content": "<div class=\"mock-card\"><h3>📄 15 Documents Analyzed</h3><table class=\"mock-table\"><tr><th>File</th><th>Identified As</th><th>Confidence</th><th>Amount</th></tr><tr><td>doc1.pdf</td><td>T4 — Employment</td><td style=\"color:#16a34a\">95%</td><td>$85,000</td></tr><tr><td>doc2.pdf</td><td>T5 — Dividends</td><td style=\"color:#16a34a\">92%</td><td>$3,200</td></tr><tr><td>doc3.pdf</td><td>RRSP Receipt</td><td style=\"color:#d97706\">78%</td><td>$5,000</td></tr><tr><td>doc4.pdf</td><td>Medical Receipt</td><td style=\"color:#d97706\">71%</td><td>$2,450</td></tr></table></div>"
+      },
+      {
+        "title": "Expense Anomaly Detection",
+        "caption": "Year-over-year comparison across 8 expense categories. Flags: Meals increased 340%, Vehicle expenses doubled, Rent unchanged but revenue down 22%. Critical anomalies get red flags for immediate review.",
+        "topbarBadge": "Anomalies",
+        "content": "<div class=\"mock-card\"><h3>🔍 Anomalies — Maple Tech (2025 vs 2024)</h3><div style=\"font-size:11px\"><div style=\"background:#fee2e2;padding:8px;border-radius:6px;margin-bottom:6px\"><strong>🔴 Meals & Entertainment:</strong> Increased 45% ($2,100 → $3,045)</div><div style=\"background:#fef3c7;padding:8px;border-radius:6px;margin-bottom:6px\"><strong>🟡 Office Expenses:</strong> Decreased 32% ($10,000 → $6,800)</div><div style=\"background:#eff6ff;padding:8px;border-radius:6px\"><strong>🔵 Salaries & Wages:</strong> Increased 9% ($78,000 → $85,000) — consistent with inflation</div></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "cra-interpreter",
+    "icon": "🏛",
+    "title": "CRA Letter Interpreter",
+    "duration": "3:30",
+    "description": "Client uploads a CRA letter. AI identifies the type (GST audit, T2 review, balance owing, etc.), explains what it means, creates tasks, and suggests responses.",
+    "category": "tier2",
+    "topics": [
+      "6 CRA letter types auto-identified",
+      "GST audit, T2 review, payroll, balance owing, info request, NOA",
+      "Explains what each letter means in plain language",
+      "Auto-creates compliance tasks with deadlines",
+      "Suggests response actions",
+      "Deadline tracking — 30/90 day windows"
+    ],
+    "scenes": [
+      {
+        "title": "CRA Letter Analysis",
+        "caption": "Upload any CRA letter. Mortacc identifies the type, explains what it means in plain language, creates the right tasks, and suggests how to respond. The accountant knows exactly what to do in 30 seconds.",
+        "topbarBadge": "CRA Interpreter",
+        "content": "<div class=\"mock-card\"><h3>📨 CRA Letter Analyzed</h3><div style=\"background:#fef3c7;padding:10px;border-radius:6px;margin-bottom:8px\"><strong>Type:</strong> GST/HST Audit Request<br><strong>Urgency:</strong> High — Respond within 30 days</div><div style=\"font-size:11px\"><strong>What this means:</strong> The CRA is auditing GST/HST returns. They will review ITCs claimed and sales reported.<br><strong>Tasks created:</strong><br>1. Gather sales invoices for audit period<br>2. Compile ITC supporting documents<br>3. Reconcile GST vs T2 revenue<br>4. Prepare representation letter<br><strong>⚠ Deadline:</strong> 30 days from letter date</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "automation-bookkeeping",
+    "icon": "📊",
+    "title": "Bookkeeping Auto-Pilot",
+    "duration": "3:45",
+    "description": "Monthly bank reconciliation, income statements, GL, GST/HST, AR/AP aging. Year-end: adjusting entries, fixed asset schedules, shareholder loan reconciliation, T2 prep handoff.",
+    "category": "tier2",
+    "topics": [
+      "Monthly bank reconciliation",
+      "Income statement & general ledger",
+      "GST/HST ITC reporting",
+      "AR aging & AP summary",
+      "Year-end adjusting entries",
+      "Fixed asset schedule & T2 handoff"
+    ],
+    "scenes": [
+      {
+        "title": "Monthly to Year-End",
+        "caption": "Monthly: bank reconciliation, income statement, GL, GST/HST, AR aging, AP summary. Year-end: adjusting entries, fixed asset schedule (CCA classes), shareholder loan reconciliation, T2 prep handoff. Compilation engagement (CSRS 4200 NTR) support included.",
+        "topbarBadge": "Bookkeeping",
+        "content": "<div class=\"mock-card\"><h3>Bookkeeping — June 2026</h3><div style=\"font-size:11px\">Bank Reconciliation ✓<br>Income Statement MTD ✓<br>General Ledger ✓<br>GST/HST ITC Report ✓<br>AR Aging ✓<br>AP Summary ✓<br><br><strong>Year-End Add-ons:</strong><br>Adjusting JE · Fixed Asset Schedule<br>Shareholder Loan Rec · T2 Data Package</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "automation-tax",
+    "icon": "💰",
+    "title": "Tax Automation Center",
+    "duration": "5:00",
+    "description": "T2 with all schedules, GST/HST data organizer, T4/T5 payroll filings, and advanced tax planning: income splitting, SBD optimization, estate freeze, LCGE.",
+    "category": "tier2",
+    "topics": [
+      "T2 Corporate Tax with S1, S50, S8, CCA, SBD",
+      "GST/HST data organizer and Quick Method",
+      "T4/T5 payroll filings",
+      "Income splitting (TOSI rules)",
+      "SBD optimization & phase-out analysis",
+      "Estate freeze & LCGE planning"
+    ],
+    "scenes": [
+      {
+        "title": "Corporate Tax Services",
+        "caption": "T2 with all schedules (S1,S50,S8,CCA,SBD). GST/HST data organizer and Quick Method. T4/T5 payroll filings. Tax planning: income splitting (TOSI), SBD optimization, estate freeze (Section 86), capital gains exemption ($1.25M LCGE).",
+        "topbarBadge": "Tax Center",
+        "content": "<div class=\"mock-card\"><h3>Tax Services</h3><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px\"><div class=\"mock-card\"><strong>T2 Corporate</strong><br>Schedules S1,S50,S8<br>SBD Calculator</div><div class=\"mock-card\"><strong>GST/HST</strong><br>Data Organizer<br>Quick Method</div><div class=\"mock-card\"><strong>Payroll</strong><br>T4/T5 Package<br>Deduction Calc</div><div class=\"mock-card\"><strong>Tax Planning</strong><br>Income Splitting<br>Estate Freeze/LCGE</div></div></div>"
+      },
+      {
+        "title": "Tax Planning Analysis",
+        "caption": "Advanced: salary vs dividend with TOSI rules, SBD phase-out if capital > $10M, LCGE eligibility ($1.25M lifetime), estate freeze with Section 86 rollover and T2057 election timing, AMT impact analysis.",
+        "topbarBadge": "Tax Planning",
+        "content": "<div class=\"mock-card\"><h3>Tax Planning — Maple Tech</h3><div style=\"font-size:11px\"><div>Income Splitting: Salary vs Dividend — TOSI ✓</div><div>SBD: 9% on first $500K — Eligible ✓</div><div>LCGE: $1.25M — QSBC test Passed ✓</div><div>Estate Freeze: S86 — T2057 within 6 months</div></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "automation-cra",
+    "icon": "🏛",
+    "title": "CRA & Audit Support",
+    "duration": "4:00",
+    "description": "CRA review letter response, document checklist, contact log. Full audit prep: checklist, representation letter (RC59), revenue reconciliation, expense substantiation, issues tracker.",
+    "category": "tier3",
+    "topics": [
+      "CRA review letter response",
+      "Document checklist & contact log",
+      "Full audit preparation checklist",
+      "RC59 representation letter",
+      "Revenue reconciliation (3-way)",
+      "Notice of Objection (90-day deadline)"
+    ],
+    "scenes": [
+      {
+        "title": "CRA Response + Full Audit Prep",
+        "caption": "CRA review letter: response letter template, document checklist, contact log. Full audit: prep checklist, representation letter (RC59), revenue reconciliation (GST vs T2 vs deposits), expense substantiation log, issues tracker with 90-day objection deadline.",
+        "topbarBadge": "CRA",
+        "content": "<div class=\"mock-card\"><h3>CRA Audit Preparation</h3><div style=\"font-size:11px\">Audit Prep Checklist<br>Authorization Letter (RC59)<br>Revenue Reconciliation (3-way)<br>Expense Substantiation Log<br>Audit Issues Log<br><br>Notice of Objection: 90 days<br>Tax Court appeal: 90 days after</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "automation-signatures",
+    "icon": "✍️",
+    "title": "E-Signature Workflow",
+    "duration": "3:15",
+    "description": "Upload document, add unlimited signers, sequential or parallel order, send. Each signer gets a unique link. Full audit trail with IP/timestamps. Legally binding under PIPEDA.",
+    "category": "tier2",
+    "topics": [
+      "Multi-signer e-signature envelopes",
+      "Sequential or parallel signing order",
+      "Unique secure signing links",
+      "Type-to-sign ceremony",
+      "Full audit trail with IP/timestamps",
+      "Certificate of completion"
+    ],
+    "scenes": [
+      {
+        "title": "Multi-Signer E-Signatures",
+        "caption": "Upload document, add unlimited signers, sequential or parallel order, send. Each signer gets a unique secure link. Type name to sign. Full audit trail with IP/timestamps. Certificate of completion. Legally binding under PIPEDA and provincial e-commerce laws.",
+        "topbarBadge": "E-Signature",
+        "content": "<div class=\"mock-card\"><h3>Signature Envelope</h3><div style=\"font-size:11px\">Signers: John Smith → Jane Doe (Sequential)</div><div style=\"border-left:2px solid #2563eb;padding-left:10px;margin-top:8px;font-size:10px\">Jun 14 10:30 — Created<br>Jun 14 10:31 — Sent to 2 signers<br>Jun 14 11:15 — Viewed by John Smith<br>Jun 14 11:16 — Signed ✅</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "workflows",
+    "icon": "⚡",
+    "title": "Workflow Automation",
+    "duration": "4:00",
+    "description": "Build automated workflows — triggers and actions that run when events happen, like new client onboarding or compliance deadline reminders.",
+    "category": "tier2",
+    "topics": [
+      "Creating a new workflow with triggers",
+      "Adding steps: emails, tasks, document generation",
+      "Built-in workflow templates",
+      "Viewing workflow run history and logs",
+      "Pausing, activating, and editing workflows"
+    ],
+    "scenes": [
+      {
+        "title": "Workflow Builder",
+        "caption": "Create automated workflows that trigger when specific events happen. Set up triggers (client created, incorporation completed, compliance due) and chain actions (send emails, create tasks, generate documents).",
+        "topbarBadge": "Workflows",
+        "content": "<div class=\"mock-card\"><h3>Workflows</h3><table class=\"mock-table\"><tr><th>Name</th><th>Trigger</th><th>Status</th></tr><tr><td>New Client Onboarding</td><td>Client Created</td><td><span class=\"mock-badge green\">Active</span></td></tr><tr><td>Annual Maintenance Reminder</td><td>Compliance Due</td><td><span class=\"mock-badge green\">Active</span></td></tr></table></div><div style=\"margin-top:8px\"><span class=\"btn-mock\">+ New Workflow</span></div>"
+      },
+      {
+        "title": "Workflow Steps",
+        "caption": "Each workflow has configurable steps. For example, the \"New Client Onboarding\" workflow: Step 1 → create compliance tasks, Step 2 → send engagement letter, Step 3 → send welcome email after 1 day.",
+        "topbarBadge": "Workflow",
+        "content": "<div class=\"mock-card\"><h3>New Client Onboarding — Steps</h3><div style=\"font-size:12px\"><div style=\"display:flex;align-items:center;gap:8px;padding:8px;border-left:3px solid #2563eb;margin-bottom:6px\"><span style=\"font-weight:600\">1.</span> Create compliance tasks — Auto-generate annual returns, AGM, T2, GST/HST tasks</div><div style=\"display:flex;align-items:center;gap:8px;padding:8px;border-left:3px solid #2563eb;margin-bottom:6px\"><span style=\"font-weight:600\">2.</span> Send engagement letter — Email the standard engagement letter template</div><div style=\"display:flex;align-items:center;gap:8px;padding:8px;border-left:3px solid #2563eb\"><span style=\"font-weight:600\">3.</span> Send welcome email — Delay 1 day, then send welcome + portal link</div></div></div>"
+      },
+      {
+        "title": "Run History",
+        "caption": "View every workflow execution: when it ran, which client triggered it, whether it succeeded or failed, and detailed logs for each step. Re-run failed workflows with one click.",
+        "topbarBadge": "Runs",
+        "content": "<div class=\"mock-card\"><table class=\"mock-table\"><tr><th>Client</th><th>Started</th><th>Status</th><th>Duration</th></tr><tr><td>Pacific Ventures Corp.</td><td>Dec 14, 2025</td><td><span class=\"mock-badge green\">Completed ✓</span></td><td>2.3s</td></tr><tr><td>Great Lakes Consulting</td><td>Jun 14, 2025</td><td><span class=\"mock-badge green\">Completed ✓</span></td><td>1.8s</td></tr></table></div>"
+      }
+    ]
+  },
+  {
+    "id": "automation-incorporation",
+    "icon": "🏢",
+    "title": "Auto-Incorporation Package",
+    "duration": "4:30",
+    "description": "Enter company name, jurisdiction, directors, shareholders. Generates complete 12-doc package with client created automatically.",
+    "category": "tier4",
+    "topics": [
+      "Articles of Incorporation",
+      "By-Law No. 1",
+      "Organizational resolutions",
+      "Director consents",
+      "Share subscriptions & certificates",
+      "All registers, banking resolution, CRA BN"
+    ],
+    "scenes": [
+      {
+        "title": "12-Document Incorporation",
+        "caption": "Enter company name, jurisdiction, directors, shareholders. Generates complete 12-doc package: Articles, By-Law, resolutions, consents, subscriptions, certificates, all registers, banking resolution, CRA BN. Client created automatically.",
+        "topbarBadge": "Auto-Pilot",
+        "content": "<div class=\"mock-card\"><h3>Incorporation — Maple Tech Holdings Inc.</h3><div style=\"font-size:10px;display:grid;grid-template-columns:1fr 1fr;gap:3px\"><div>1-4: Articles, By-Law, Resolutions, Consents</div><div>5-8: Subscriptions, Certificates, Registers</div><div>9-10: Officers, Banking Resolution</div><div>11-12: NUANS, CRA BN (RC1)</div></div><div style=\"margin-top:8px\"><span class=\"btn-mock\">Client Created | Compliance Active | $1,800</span></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "corporate-health",
+    "icon": "💚",
+    "title": "Corporate Health Score",
+    "duration": "3:45",
+    "description": "Every entity gets a 0-100 health score across 10 dimensions. Grades A+ through F. See 'These 43 corporations require attention' instead of finding problems manually.",
+    "category": "tier3",
+    "topics": [
+      "10-dimension health scoring per entity",
+      "A+ through F grading with color coding",
+      "Annual returns, minute books, directors, compliance",
+      "KYC/UBO, T2 filing, bookkeeping, GST/HST, registrations",
+      "Ranked urgency dashboard — worst first",
+      "Firm-wide health overview"
+    ],
+    "scenes": [
+      {
+        "title": "Corporate Health Dashboard",
+        "caption": "Every entity gets scored across 10 dimensions: annual returns, minute books, directors, compliance, KYC, T2, bookkeeping, GST/HST, registrations, and collections. The dashboard ranks entities from worst to best — so you attack the biggest problems first.",
+        "topbarBadge": "Health Score",
+        "content": "<div class=\"mock-card\"><h3>💚 Corporate Health — Firm Overview</h3><div class=\"mock-stat-grid\" style=\"grid-template-columns:repeat(4,1fr)\"><div class=\"mock-stat\"><div class=\"val\" style=\"color:#16a34a\">14</div><div class=\"lbl\">Healthy (A-B)</div></div><div class=\"mock-stat\"><div class=\"val\" style=\"color:#d97706\">8</div><div class=\"lbl\">At Risk (C-D)</div></div><div class=\"mock-stat\"><div class=\"val\" style=\"color:#dc2626\">3</div><div class=\"lbl\">Critical (F)</div></div><div class=\"mock-stat\"><div class=\"val\">72</div><div class=\"lbl\">Avg Score</div></div></div><table class=\"mock-table\"><tr><th>Entity</th><th>Score</th><th>Grade</th><th>Issues</th></tr><tr><td>Maple Tech</td><td>78</td><td style=\"color:#65a30d\">B+</td><td>2</td></tr><tr><td>Pacific Ventures</td><td>42</td><td style=\"color:#dc2626\">D</td><td>7 urgent</td></tr></table></div>"
+      }
+    ]
+  },
+  {
+    "id": "deadline-engine",
+    "icon": "📅",
+    "title": "Jurisdiction Deadline Engine",
+    "duration": "4:00",
+    "description": "Tracks all deadlines per jurisdiction: Federal (CBCA), Ontario (OBCA), BC (BCA), Québec (LSAQ). Annual returns, director changes, AGMs, declarations. Fees, penalties, urgency levels.",
+    "category": "tier3",
+    "topics": [
+      "4 jurisdictions: Federal, Ontario, BC, Québec",
+      "Annual returns, director changes, AGM, declarations",
+      "Fees and penalties per filing type",
+      "Urgency levels: overdue, critical, warning, info",
+      "Firm-wide deadline rollup",
+      "Auto-notify firms and clients"
+    ],
+    "scenes": [
+      {
+        "title": "Deadline Tracking Per Jurisdiction",
+        "caption": "Every entity's deadlines are tracked based on its jurisdiction. Federal corporations have different rules than Ontario, BC, or Québec. Mortacc knows all of them and tells you what's due, when, and what happens if you miss it.",
+        "topbarBadge": "Deadlines",
+        "content": "<div class=\"mock-card\"><h3>📅 Upcoming Deadlines — All Entities</h3><table class=\"mock-table\"><tr><th>Entity</th><th>Deadline</th><th>Jurisdiction</th><th>Days</th></tr><tr><td>Maple Tech</td><td>Annual Return</td><td>Federal (CBCA)</td><td style=\"color:#d97706\">14d</td></tr><tr><td>Pacific Ventures</td><td>BC Annual Report</td><td>BC (BCA)</td><td style=\"color:#dc2626\">3d</td></tr><tr><td>Great Lakes</td><td>Notice of Change</td><td>Ontario (OBCA)</td><td style=\"color:#dc2626\">Overdue</td></tr></table><div style=\"margin-top:8px;font-size:10px\">Federal: $12 online · BC: $43.39 · Ontario: varies · Québec: $37</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "minute-book-health",
+    "icon": "📚",
+    "title": "Minute Book Health Check",
+    "duration": "3:00",
+    "description": "12-point scan of every minute book. Checks registers, resolutions, consents, certificates, by-laws. A-F grade with remediation plan per missing item. One-click generate what's missing.",
+    "category": "tier3",
+    "topics": [
+      "12-point minute book scan",
+      "Registers: directors, shareholders, officers, securities",
+      "Resolutions: annual, banking, director changes",
+      "Consents, certificates, by-laws",
+      "A-F grading per entity",
+      "Remediation: one-click generate missing documents"
+    ],
+    "scenes": [
+      {
+        "title": "Minute Book Health Scan",
+        "caption": "Mortacc scans every minute book and grades it A through F. Missing annual resolutions? Missing director consents? Register not updated? The system shows exactly what's wrong and lets you generate the missing documents in one click.",
+        "topbarBadge": "Minute Book Health",
+        "content": "<div class=\"mock-card\"><h3>📚 Minute Book Health — Maple Tech</h3><div style=\"display:flex;align-items:center;gap:12px;margin-bottom:12px\"><div style=\"font-size:36px;font-weight:800;color:#65a30d\">B</div><div style=\"font-size:11px\">72% complete · 9/12 present · 3 missing</div></div><div style=\"font-size:11px\">✅ Directors Register · ✅ Shareholders Register · ✅ Officers Register<br>✅ Banking Resolution · ✅ By-Law No. 1 · ✅ Share Certificates<br>❌ Annual Resolutions 2025 — <span style=\"color:#2563eb;cursor:pointer\">Generate now →</span><br>❌ Director Consents — <span style=\"color:#2563eb;cursor:pointer\">Generate now →</span><br>❌ Share Transfer Register — N/A (no transfers)</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "compliance",
+    "icon": "📅",
+    "title": "Compliance Calendar & Tasks",
+    "duration": "4:10",
+    "description": "Master the compliance dashboard — auto-generated tasks, calendar view, status updates, reminders, and iCal feed export.",
+    "category": "tier3",
+    "topics": [
+      "How compliance tasks are auto-generated",
+      "Calendar, timeline, and table views",
+      "Marking tasks complete, overdue, or waived",
+      "Bulk status updates across entities",
+      "Sending automated reminders to clients",
+      "Exporting compliance calendar to iCal"
+    ],
+    "scenes": [
+      {
+        "title": "Compliance Dashboard",
+        "caption": "The compliance dashboard shows all tasks across all entities. Filter by status (Pending, Overdue, Completed), search by client name, and switch between table, timeline, and calendar views.",
+        "topbarBadge": "Compliance",
+        "content": "<div class=\"mock-stat-grid\"><div class=\"mock-stat\"><div class=\"val\">48</div><div class=\"lbl\">Total Tasks</div></div><div class=\"mock-stat\"><div class=\"val\" style=\"color:#dc2626\">3</div><div class=\"lbl\">Overdue</div></div><div class=\"mock-stat\"><div class=\"val\">15</div><div class=\"lbl\">Pending</div></div><div class=\"mock-stat\"><div class=\"val\" style=\"color:#16a34a\">30</div><div class=\"lbl\">Completed</div></div></div><div class=\"mock-card\"><table class=\"mock-table\"><tr><th>Client</th><th>Task</th><th>Due</th><th>Status</th></tr><tr><td>Maple Tech</td><td>Annual Return 2026</td><td style=\"color:#dc2626\">Overdue</td><td><span class=\"mock-badge red\">Overdue</span></td></tr><tr><td>Great Lakes</td><td>GST/HST Filing Q1</td><td>Jul 15</td><td><span class=\"mock-badge amber\">Pending</span></td></tr><tr><td>Pacific Ventures</td><td>AGM Resolution</td><td>Aug 30</td><td><span class=\"mock-badge blue\">Pending</span></td></tr></table></div>"
+      },
+      {
+        "title": "Calendar View",
+        "caption": "Switch to calendar view for a visual timeline of all deadlines. Each task appears on its due date. Click any task to mark it complete, add notes, or change the status.",
+        "topbarBadge": "Compliance",
+        "content": "<div class=\"mock-card\"><h3>📅 June 2026</h3><div style=\"display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:11px\"><div style=\"color:#94a3b8\">Mon</div><div style=\"color:#94a3b8\">Tue</div><div style=\"color:#94a3b8\">Wed</div><div style=\"color:#94a3b8\">Thu</div><div style=\"color:#94a3b8\">Fri</div><div style=\"color:#94a3b8\">Sat</div><div style=\"color:#94a3b8\">Sun</div><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div style=\"background:#fee2e2;border-radius:4px;padding:2px\">14<div style=\"font-size:8px;color:#dc2626\">Annual Return</div></div><div>15</div><div>16</div></div></div>"
+      },
+      {
+        "title": "Task Statuses",
+        "caption": "Each task has a status: Pending (not yet due), In Progress (being worked on), Completed (done!), Overdue (past due date), or Waived (intentionally skipped). Status changes update compliance health scores.",
+        "topbarBadge": "Compliance",
+        "content": "<div class=\"mock-card\"><div style=\"display:flex;gap:6px;flex-wrap:wrap\"><span class=\"mock-badge amber\">Pending</span><span class=\"mock-badge blue\">In Progress</span><span class=\"mock-badge green\">Completed ✓</span><span class=\"mock-badge red\">Overdue ⚠</span><span style=\"font-size:9px;padding:2px 7px;border-radius:99px;background:#f1f5f9;color:#64748b\">Waived</span></div><div style=\"margin-top:12px;font-size:12px;color:#64748b\">Custom statuses can be created in Settings</div></div>"
+      },
+      {
+        "title": "Bulk Operations",
+        "caption": "Select multiple tasks with checkboxes, then apply bulk actions: mark as complete, change status, assign to staff, or update due dates — all in one step.",
+        "topbarBadge": "Compliance",
+        "content": "<div class=\"mock-card\"><table class=\"mock-table\"><tr><th><input type=\"checkbox\" checked></th><th>Task</th><th>Due</th></tr><tr style=\"background:#eff6ff\"><td><input type=\"checkbox\" checked></td><td>Annual Return 2026</td><td>Jun 14</td></tr><tr style=\"background:#eff6ff\"><td><input type=\"checkbox\" checked></td><td>AGM Resolution</td><td>Jun 14</td></tr></table></div><div style=\"background:#2563eb;color:#fff;padding:8px 14px;border-radius:6px;font-size:11px;text-align:center;margin-top:8px\">✓ Mark 2 as Complete</div>"
+      },
+      {
+        "title": "Auto-Generated Tasks",
+        "caption": "When you create an entity, Mortacc automatically generates compliance tasks based on the jurisdiction and incorporation date. Tasks include annual returns, AGMs, T2 filings, GST/HST returns, and minute book updates.",
+        "topbarBadge": "New Entity",
+        "content": "<div class=\"mock-card\"><h3>⚡ Auto-Generated for Maple Tech (Federal, Inc. Jun 2024)</h3><table class=\"mock-table\"><tr><th>Task</th><th>Due</th><th>Recurring</th></tr><tr><td>Annual Return (Year 1)</td><td>Jun 2025</td><td>✓ Annual</td></tr><tr><td>Annual Return (Year 2)</td><td>Jun 2026</td><td>✓ Annual</td></tr><tr><td>AGM — Annual General Meeting</td><td>Dec 2025</td><td>✓ 18mo after inc</td></tr><tr><td>T2 Corporate Tax Return</td><td>Jun 2025</td><td>✓ 6mo after FYE</td></tr><tr><td>GST/HST Return</td><td>Jun 2025</td><td>✓ Annual</td></tr><tr><td>Minute Book Update</td><td>Jun 2025</td><td>✓ Annual</td></tr></table></div>"
+      }
+    ]
+  },
+  {
+    "id": "entities",
+    "icon": "🏢",
+    "title": "Entity Records & Corporate Profiles",
+    "duration": "5:20",
+    "description": "Learn how to manage corporate entities — create, view, and edit directors, shareholders, share classes, and key corporate dates.",
+    "category": "tier4",
+    "topics": [
+      "Creating a new entity profile",
+      "Adding directors with appointment/resignation dates",
+      "Managing shareholders and share classes",
+      "Setting jurisdiction, incorporation date, fiscal year end",
+      "Viewing entity overview and quick stats"
+    ],
+    "scenes": [
+      {
+        "title": "Entities List",
+        "caption": "The Entities page shows all your corporations in one place. Each row shows the entity name, jurisdiction, status, and key metrics. Click any entity to open its full profile.",
+        "topbarBadge": "Entities",
+        "sidebar": "<div class=\"nav-label\">Corporate</div><div class=\"nav-item active\">🏢 Entities</div><div class=\"nav-item\">👤 People</div><div class=\"nav-item\">📈 Structures</div>",
+        "content": "<div class=\"mock-stat-grid\" style=\"grid-template-columns:repeat(3,1fr)\"><div class=\"mock-stat\"><div class=\"val\">24</div><div class=\"lbl\">Entities</div></div><div class=\"mock-stat\"><div class=\"val\">5</div><div class=\"lbl\">Jurisdictions</div></div><div class=\"mock-stat\"><div class=\"val\">🇨🇦</div><div class=\"lbl\">Federal & Provincial</div></div></div><div class=\"mock-card\"><table class=\"mock-table\"><tr><th>Name</th><th>Jurisdiction</th><th>Status</th><th>Directors</th></tr><tr style=\"cursor:pointer\"><td style=\"color:#2563eb;font-weight:500\">Maple Tech Holdings Inc.</td><td>Federal</td><td><span class=\"mock-badge green\">Active</span></td><td>3</td></tr><tr><td>Great Lakes Consulting Ltd.</td><td>Ontario</td><td><span class=\"mock-badge green\">Active</span></td><td>1</td></tr><tr><td>Pacific Ventures Corp.</td><td>BC</td><td><span class=\"mock-badge blue\">New</span></td><td>1</td></tr></table></div>"
+      },
+      {
+        "title": "Entity Detail — Overview",
+        "caption": "Each entity has a full corporate profile: jurisdiction, incorporation date, business number, HST number, fiscal year end, and registered address. This data drives compliance task generation.",
+        "topbarBadge": "Maple Tech",
+        "sidebar": "<div class=\"nav-label\">Entity</div><div class=\"nav-item active\">📋 Overview</div><div class=\"nav-item\">👥 Directors</div><div class=\"nav-item\">📈 Shares</div><div class=\"nav-item\">📅 Compliance</div><div class=\"nav-item\">📄 Documents</div>",
+        "content": "<div class=\"mock-card\"><h3>Corporate Profile</h3><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px\"><div><strong>Jurisdiction:</strong> Federal (CBCA)</div><div><strong>Status:</strong> Active</div><div><strong>Incorporated:</strong> June 14, 2024</div><div><strong>Business Number:</strong> 123456789</div><div><strong>Fiscal Year End:</strong> December 31</div><div><strong>Registered Address:</strong> 123 Demo Street, Toronto, ON M5V 2T6</div></div></div>"
+      },
+      {
+        "title": "Directors & Officers",
+        "caption": "Track all directors with appointment dates and resignation dates. Mark officers with their titles (President, Secretary, CFO). Mortacc auto-generates the Directors Register PDF from this data.",
+        "topbarBadge": "Maple Tech",
+        "content": "<div class=\"mock-card\"><h3>Directors & Officers</h3><table class=\"mock-table\"><tr><th>Name</th><th>Position</th><th>Appointed</th><th>Status</th></tr><tr><td>John Smith</td><td>President (Officer)</td><td>Jun 14, 2024</td><td><span class=\"mock-badge green\">Active</span></td></tr><tr><td>Jane Doe</td><td>CFO (Officer)</td><td>Jun 14, 2024</td><td><span class=\"mock-badge green\">Active</span></td></tr><tr><td>Bob Johnson</td><td>Director</td><td>Jun 14, 2024</td><td><span class=\"mock-badge amber\">Resigned Dec 2025</span></td></tr></table></div><div style=\"margin-top:8px\"><span class=\"btn-mock\">+ Add Director</span></div>"
+      },
+      {
+        "title": "Shareholders & Share Classes",
+        "caption": "Record shareholders with their share class, number of shares, and acquisition date. Define share classes with voting rights and authorized shares. The cap table updates automatically.",
+        "topbarBadge": "Maple Tech",
+        "content": "<div class=\"mock-card\"><h3>Share Classes</h3><table class=\"mock-table\"><tr><th>Class</th><th>Voting</th><th>Authorized</th><th>Par Value</th></tr><tr><td>Common</td><td>✓</td><td>Unlimited</td><td>—</td></tr><tr><td>Class A Preferred</td><td>✗</td><td>10,000</td><td>$1.00</td></tr></table></div><div class=\"mock-card\"><h3>Shareholders</h3><table class=\"mock-table\"><tr><th>Name</th><th>Class</th><th>Shares</th><th>%</th></tr><tr><td>John Smith</td><td>Common</td><td>100</td><td>71.4%</td></tr><tr><td>Jane Doe</td><td>Common</td><td>40</td><td>28.6%</td></tr></table></div>"
+      },
+      {
+        "title": "Appointments & Registrations",
+        "caption": "Track officer appointments, signing authorities, and extra-provincial registrations. Each registration has a jurisdiction, registration number, status, and renewal date.",
+        "topbarBadge": "Maple Tech",
+        "content": "<div class=\"mock-card\"><h3>Appointments</h3><table class=\"mock-table\"><tr><th>Person</th><th>Role</th><th>Title</th><th>Since</th></tr><tr><td>John Smith</td><td>Officer</td><td>President</td><td>Jun 2024</td></tr></table></div><div class=\"mock-card\"><h3>Registrations</h3><table class=\"mock-table\"><tr><th>Jurisdiction</th><th>Type</th><th>Number</th><th>Status</th></tr><tr><td>Ontario</td><td>Extra-Provincial</td><td>ON-EP-12345</td><td><span class=\"mock-badge green\">Active</span></td></tr></table></div>"
+      },
+      {
+        "title": "Creating a New Entity",
+        "caption": "Click \"+ New Entity\" from the entities list, fill in the company name, jurisdiction, incorporation date, and business number. The compliance calendar auto-generates on save.",
+        "topbarBadge": "New Entity",
+        "content": "<div class=\"mock-card\"><h3>Create New Entity</h3><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px\"><div><div style=\"font-size:10px;color:#94a3b8;margin-bottom:2px\">Company Name</div><input class=\"mock-input\" placeholder=\"Enter legal name\"></div><div><div style=\"font-size:10px;color:#94a3b8;margin-bottom:2px\">Jurisdiction</div><select class=\"mock-input\"><option>Federal (CBCA)</option><option>Ontario (OBCA)</option><option>BC (BCA)</option></select></div><div><div style=\"font-size:10px;color:#94a3b8;margin-bottom:2px\">Incorporation Date</div><input class=\"mock-input\" type=\"date\"></div><div><div style=\"font-size:10px;color:#94a3b8;margin-bottom:2px\">Business Number</div><input class=\"mock-input\" placeholder=\"123456789\"></div></div><div style=\"margin-top:12px\"><span class=\"btn-mock\">Save & Generate Compliance Calendar</span></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "minute-books",
+    "icon": "📚",
+    "title": "Minute Books & Document Generation",
+    "duration": "6:15",
+    "description": "Build complete minute books — generate 15+ PDF document types, use the minute book builder, and download as ZIP or individual files.",
+    "category": "tier4",
+    "topics": [
+      "Minute Book Builder: step-by-step guided workflow",
+      "Generating Directors & Shareholders Registers",
+      "Creating by-laws, resolutions, and banking docs",
+      "Share certificates with auto-filled shareholder data",
+      "Downloading as combined ZIP or individual PDFs",
+      "Bilingual document generation (EN/FR)"
+    ],
+    "scenes": [
+      {
+        "title": "Minute Book Builder",
+        "caption": "The Minute Book Builder generates a complete corporate minute book step-by-step. Select an entity, choose document types, and Mortacc creates professional PDFs using your entity data — directors, shareholders, and corporate details are auto-filled.",
+        "topbarBadge": "Minute Books",
+        "content": "<div class=\"mock-card\"><h3>📚 Minute Book Builder — Maple Tech Holdings Inc.</h3><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px\"><label style=\"display:flex;align-items:center;gap:6px\"><input type=\"checkbox\" checked> Directors Register</label><label style=\"display:flex;align-items:center;gap:6px\"><input type=\"checkbox\" checked> Shareholders Register</label><label style=\"display:flex;align-items:center;gap:6px\"><input type=\"checkbox\" checked> Officers Register</label><label style=\"display:flex;align-items:center;gap:6px\"><input type=\"checkbox\"> Central Securities Register</label><label style=\"display:flex;align-items:center;gap:6px\"><input type=\"checkbox\"> Shareholder Ledger</label><label style=\"display:flex;align-items:center;gap:6px\"><input type=\"checkbox\"> Share Transfer Register</label><label style=\"display:flex;align-items:center;gap:6px\"><input type=\"checkbox\"> Directors Resolutions</label><label style=\"display:flex;align-items:center;gap:6px\"><input type=\"checkbox\"> Shareholders Resolutions</label><label style=\"display:flex;align-items:center;gap:6px\"><input type=\"checkbox\"> Banking Resolution</label><label style=\"display:flex;align-items:center;gap:6px\"><input type=\"checkbox\"> By-Law No. 1</label></div><div style=\"margin-top:12px\"><span class=\"btn-mock\">Generate Selected PDFs</span> <span style=\"font-size:11px;color:#64748b;margin-left:8px\">or</span> <span style=\"font-size:11px;color:#2563eb;cursor:pointer\">Download as ZIP</span></div></div>"
+      },
+      {
+        "title": "15+ Document Types",
+        "caption": "Mortacc generates over 15 professional PDF document types. Each document is available in English and French. Documents auto-populate with entity-specific data — no manual filling required.",
+        "topbarBadge": "Documents",
+        "content": "<div class=\"mock-card\"><table class=\"mock-table\"><tr><th>Document Type</th><th>Language</th><th>Auto-Filled From</th></tr><tr><td>Directors Register</td><td>EN / FR</td><td>Director records</td></tr><tr><td>Shareholders Register</td><td>EN / FR</td><td>Shareholder records</td></tr><tr><td>Officers Register</td><td>EN / FR</td><td>Appointment records</td></tr><tr><td>Share Certificate</td><td>EN / FR</td><td>Shareholder + class data</td></tr><tr><td>Banking Resolution</td><td>EN / FR</td><td>Director + officer data</td></tr><tr><td>By-Law No. 1</td><td>EN / FR</td><td>Entity profile</td></tr><tr><td>Waiver of Notice</td><td>EN / FR</td><td>Meeting details</td></tr><tr><td>Consent to Act as Director</td><td>EN / FR</td><td>Director name</td></tr></table></div>"
+      },
+      {
+        "title": "Download Options",
+        "caption": "Download documents individually as PDFs, or bundle everything into a single ZIP file. Perfect for sharing with clients, auditors, or filing with government agencies.",
+        "topbarBadge": "Minute Books",
+        "content": "<div style=\"text-align:center;padding:40px\"><div style=\"font-size:40px;margin-bottom:12px\">📦</div><div style=\"font-weight:700;font-size:16px;margin-bottom:4px\">Minute Book Ready!</div><div style=\"font-size:12px;color:#64748b;margin-bottom:16px\">8 documents generated for Maple Tech Holdings Inc.</div><div style=\"display:flex;gap:10px;justify-content:center\"><span class=\"btn-mock\">📥 Download ZIP (3.2 MB)</span><span style=\"font-size:11px;color:#2563eb;cursor:pointer;padding:6px 14px\">📄 Individual PDFs</span></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "cap-tables",
+    "icon": "📈",
+    "title": "Cap Tables & Structure Charts",
+    "duration": "5:00",
+    "description": "Manage share transactions, view real-time cap tables with ownership percentages, and generate interactive D3.js structure charts.",
+    "category": "tier4",
+    "topics": [
+      "Recording share issuances, transfers, cancellations",
+      "Viewing cap table with ownership breakdown",
+      "Creating share classes with voting rights",
+      "Structure charts: interactive org chart visualization",
+      "Saved chart views for recurring reports"
+    ],
+    "scenes": [
+      {
+        "title": "Cap Table View",
+        "caption": "The cap table shows real-time ownership percentages for each entity. Every share issuance, transfer, or cancellation automatically updates the breakdown by shareholder and share class.",
+        "topbarBadge": "Cap Table",
+        "content": "<div class=\"mock-card\"><h3>Cap Table — Maple Tech Holdings Inc.</h3><table class=\"mock-table\"><tr><th>Shareholder</th><th>Class</th><th>Shares</th><th>Ownership</th></tr><tr><td>John Smith</td><td>Common</td><td>100</td><td style=\"font-weight:600\">71.4%</td></tr><tr><td>Jane Doe</td><td>Common</td><td>40</td><td style=\"font-weight:600\">28.6%</td></tr><tr style=\"background:#f8fafc\"><td colspan=\"2\"><strong>Total</strong></td><td><strong>140</strong></td><td><strong>100%</strong></td></tr></table></div><div class=\"mock-card\"><h3>Share Classes</h3><table class=\"mock-table\"><tr><th>Class</th><th>Voting</th><th>Authorized</th></tr><tr><td>Common</td><td>✓ Yes</td><td>Unlimited</td></tr><tr><td>Class A Preferred</td><td>✗ No</td><td>10,000</td></tr></table></div>"
+      },
+      {
+        "title": "Share Transactions",
+        "caption": "Record every share transaction: issuance (new shares created), transfer (between shareholders), cancellation (shares removed), and conversion (class changes). Each transaction has a date, price, and resolution reference.",
+        "topbarBadge": "Transactions",
+        "content": "<div class=\"mock-card\"><h3>Transaction History</h3><table class=\"mock-table\"><tr><th>Date</th><th>Type</th><th>From → To</th><th>Shares</th></tr><tr><td>Jun 14, 2024</td><td><span class=\"mock-badge blue\">Issuance</span></td><td>→ John Smith</td><td>100 Common</td></tr><tr><td>Jun 14, 2024</td><td><span class=\"mock-badge blue\">Issuance</span></td><td>→ Jane Doe</td><td>40 Common</td></tr><tr><td>Dec 1, 2025</td><td><span class=\"mock-badge amber\">Transfer</span></td><td>Jane Doe → John Smith</td><td>20 Common @ $50</td></tr></table></div><div style=\"margin-top:8px\"><span class=\"btn-mock\">+ New Transaction</span></div>"
+      },
+      {
+        "title": "Structure Charts",
+        "caption": "Interactive org charts show entity relationships visually. See parent-subsidiary structures, ownership links, and cross-entity relationships. Drag nodes to rearrange, zoom to explore.",
+        "topbarBadge": "Structure",
+        "content": "<div style=\"text-align:center;padding:30px\"><div style=\"font-size:12px;color:#64748b;margin-bottom:16px\">Entity Relationship Map</div><div style=\"display:flex;flex-direction:column;align-items:center;gap:8px\"><div style=\"background:#2563eb;color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;font-size:12px\">Maple Tech Holdings Inc.</div><div style=\"width:2px;height:20px;background:#94a3b8\"></div><div style=\"display:flex;gap:30px\"><div style=\"background:#fff;border:2px solid #e2e8f0;padding:8px 16px;border-radius:8px;font-size:11px\">John Smith<div style=\"font-size:10px;color:#94a3b8\">71.4%</div></div><div style=\"background:#fff;border:2px solid #e2e8f0;padding:8px 16px;border-radius:8px;font-size:11px\">Jane Doe<div style=\"font-size:10px;color:#94a3b8\">28.6%</div></div></div></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "people",
+    "icon": "👤",
+    "title": "People Registry & KYC",
+    "duration": "3:00",
+    "description": "Maintain a firm-wide KYC database — track identity verification, citizenship, residency, and link people to multiple entities.",
+    "category": "tier4",
+    "topics": [
+      "Adding people to the KYC registry",
+      "Tracking KYC verification status",
+      "ID types and verification dates",
+      "Linking people across multiple entities",
+      "People reports and exports"
+    ],
+    "scenes": [
+      {
+        "title": "Firm-Wide KYC Registry",
+        "caption": "The People registry is your firm-wide KYC database. Each person has identity verification status, citizenship, residency, and ID type. People link to multiple entities they're associated with.",
+        "topbarBadge": "People",
+        "content": "<div class=\"mock-card\"><table class=\"mock-table\"><tr><th>Name</th><th>KYC Status</th><th>Citizenship</th><th>Entities</th></tr><tr><td>John Smith</td><td><span class=\"mock-badge green\">Verified</span></td><td>Canada</td><td>2</td></tr><tr><td>Jane Doe</td><td><span class=\"mock-badge green\">Verified</span></td><td>Canada</td><td>1</td></tr><tr><td>Sarah Wilson</td><td><span class=\"mock-badge amber\">In Progress</span></td><td>Canada</td><td>1</td></tr><tr><td>Mike Chen</td><td><span class=\"mock-badge red\">Not Started</span></td><td>—</td><td>1</td></tr></table></div><div style=\"margin-top:8px\"><span class=\"btn-mock\">+ Add Person</span></div>"
+      },
+      {
+        "title": "KYC Verification",
+        "caption": "Track KYC verification per person: ID type (passport, driver's license, national ID), verification date, and status. Filter by \"Needs Verification\" to see who still needs KYC.",
+        "topbarBadge": "KYC",
+        "content": "<div class=\"mock-card\"><h3>KYC Details — John Smith</h3><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px\"><div><strong>Status:</strong> <span style=\"color:#16a34a\">✓ Verified</span></div><div><strong>ID Type:</strong> Passport</div><div><strong>Verified:</strong> Jun 2024</div><div><strong>Citizenship:</strong> Canada</div><div><strong>Residency:</strong> Ontario</div><div><strong>DOB:</strong> —</div></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "onboarding",
+    "icon": "📋",
+    "title": "Client Onboarding Portal",
+    "duration": "3:30",
+    "description": "Send secure onboarding links to clients, track document uploads, review submissions, and automate follow-up reminders.",
+    "category": "automation",
+    "topics": [
+      "Generating and sending onboarding tokens",
+      "Client view: uploading ID, tax, and banking docs",
+      "Reviewing and approving client documents",
+      "Automatic 7-day reminder emails",
+      "Tracking onboarding completion status"
+    ],
+    "scenes": [
+      {
+        "title": "Sending Onboarding Links",
+        "caption": "Each client gets a unique secure onboarding link — no password needed. Send it via email from the client detail page with one click. The token is unique and can be reset anytime.",
+        "topbarBadge": "Onboarding",
+        "content": "<div class=\"mock-card\"><h3>Client Onboarding — Maple Tech</h3><div style=\"background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px;margin-bottom:10px\"><strong>🔗 Onboarding Link:</strong> <code style=\"font-size:11px\">/onboarding/a3f72b9c.../</code> <span class=\"btn-mock\" style=\"font-size:10px;padding:3px 8px;margin-left:8px\">📋 Copy</span></div><div style=\"font-size:12px;color:#64748b\">✅ Sent: Jun 14, 2026 · ⏳ Status: Awaiting documents · 🔄 Auto-reminders: Every 7 days</div></div>"
+      },
+      {
+        "title": "Client Document Upload",
+        "caption": "Clients see a clean, simple portal. They fill in their details and upload ID, tax, and banking documents. No account required — they just need their unique link.",
+        "topbarBadge": "Client Portal",
+        "content": "<div class=\"mock-card\"><h3>Welcome, Maple Tech Holdings Inc.!</h3><div style=\"font-size:12px;color:#64748b;margin-bottom:12px\">Please complete the form and upload the required documents.</div><div class=\"mock-input\">Legal Full Name: John Smith</div><div class=\"mock-input\">Phone: 416-555-0101</div><div class=\"mock-input\">Address: 123 Tech Road, Toronto</div><div style=\"font-size:10px;color:#94a3b8;margin:8px 0 4px\">Required Documents</div><div style=\"display:flex;flex-direction:column;gap:4px\"><div style=\"border:1px dashed #94a3b8;border-radius:6px;padding:8px;text-align:center;font-size:11px;color:#94a3b8\">📎 Upload ID Document (PDF, JPG, PNG)</div><div style=\"border:1px dashed #94a3b8;border-radius:6px;padding:8px;text-align:center;font-size:11px;color:#94a3b8\">📎 Upload Tax Document</div></div><div style=\"margin-top:12px\"><span class=\"btn-mock\">Submit Documents</span></div></div>"
+      },
+      {
+        "title": "Reviewing Submissions",
+        "caption": "Back in the firm dashboard, review submitted documents. Approve or reject each one with notes. Green checkmark means approved, red X means needs re-upload.",
+        "topbarBadge": "Review",
+        "content": "<div class=\"mock-card\"><h3>Submission Review — Maple Tech</h3><table class=\"mock-table\"><tr><th>Document</th><th>Category</th><th>Status</th><th>Action</th></tr><tr><td>Passport.pdf</td><td>Identity</td><td><span class=\"mock-badge green\">Approved ✓</span></td><td style=\"color:#16a34a\">Done</td></tr><tr><td>CRA_BN_Confirmation.pdf</td><td>Tax</td><td><span class=\"mock-badge green\">Approved ✓</span></td><td style=\"color:#16a34a\">Done</td></tr><tr style=\"background:#fff7ed\"><td>Bank_Statement.pdf</td><td>Banking</td><td><span class=\"mock-badge amber\">Pending</span></td><td><span style=\"font-size:10px;color:#2563eb;cursor:pointer\">Review →</span></td></tr></table></div>"
+      }
+    ]
+  },
+  {
+    "id": "revenue-generator",
+    "icon": "💰",
+    "title": "Revenue Generator Dashboard",
+    "duration": "3:30",
+    "description": "Shows potential billable revenue from pending work. Annual maintenance, minute book cleanup, tax planning, corporate updates — with dollar amounts. Partners see exactly what revenue is sitting in their client base.",
+    "category": "tier1",
+    "topics": [
+      "7 revenue opportunity categories",
+      "Dollar amounts per opportunity",
+      "Annual maintenance, minute books, tax planning",
+      "T2/T1 preparation revenue",
+      "Total opportunity calculation"
+    ],
+    "scenes": [
+      {
+        "title": "Revenue Opportunities",
+        "caption": "Partners care about revenue. Mortacc scans your entire client base and shows exactly what billable work is waiting: annual maintenance, minute book cleanup, tax planning, T2 prep, corporate updates. With dollar amounts. Mortacc is not just saving time — it is making money.",
+        "topbarBadge": "Revenue",
+        "content": "<div class=\"mock-card\" style=\"background:linear-gradient(135deg,#065f46,#059669);color:#fff;padding:20px\"><h3 style=\"color:#fff\">💰 Revenue Opportunities — Your Firm</h3><div style=\"font-size:12px\"><div style=\"display:flex;justify-content:space-between;padding:6px 0\"><span>📅 Annual Maintenance (3 entities)</span><span>$4,500</span></div><div style=\"display:flex;justify-content:space-between;padding:6px 0\"><span>📚 Minute Book Cleanup (2 entities)</span><span>$3,000</span></div><div style=\"display:flex;justify-content:space-between;padding:6px 0\"><span>💡 Tax Planning (5 clients)</span><span>$6,000</span></div><div style=\"display:flex;justify-content:space-between;padding:6px 0;font-weight:800;border-top:1px solid rgba(255,255,255,.2);margin-top:6px;padding-top:10px\"><span>Total Opportunity</span><span>$15,900</span></div></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "email-intelligence",
+    "icon": "📧",
+    "title": "Email Intelligence Center",
+    "duration": "3:30",
+    "description": "Auto-process incoming client emails. Finds the client, classifies the email (documents, CRA notice, signature, inquiry), saves attachments, updates checklists, creates tasks. No manual email triage.",
+    "category": "tier6",
+    "topics": [
+      "8 email categories auto-detected",
+      "Auto-find client by email or name",
+      "Save attachments to document manager",
+      "Update chasing checklists automatically",
+      "Create tasks from email content"
+    ],
+    "scenes": [
+      {
+        "title": "Email Auto-Processing",
+        "caption": "Client emails 'Here are my GST documents' with attachments. Mortacc automatically: finds the client, classifies it as documents, saves attachments, updates the chasing checklist to received, and closes the request. The accountant never touches it.",
+        "topbarBadge": "Email Intelligence",
+        "content": "<div class=\"mock-card\"><h3>📧 Email Processed — Maple Tech</h3><div style=\"background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:8px\"><strong>From:</strong> john@mapletech.com<br><strong>Subject:</strong> \"Here are my GST documents\"<br><strong>Attachments:</strong> GST_return_Q1.pdf, ITC_summary.xlsx</div><div style=\"background:#f0fdf4;padding:10px;border-radius:8px\"><strong>✅ Auto-Processed:</strong><br>• Client found: Maple Tech Holdings<br>• Category: Documents Attached (92% confidence)<br>• 2 attachments saved<br>• Chasing checklist updated: \"GST documents\" → Received<br>• Request closed</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "cra-connector",
+    "icon": "🏛",
+    "title": "CRA / Revenu Québec Connector",
+    "duration": "3:30",
+    "description": "Track GST, payroll, corporate tax, and QST balances across all entities. Filing status, installment monitoring, and balance estimates from T2/bookkeeping data. Ready for API integration.",
+    "category": "tier6",
+    "topics": [
+      "4 account types: GST, Payroll, Corp Tax, QST",
+      "Balance tracking and filing status",
+      "Installment requirement detection",
+      "Auto-estimate from filing data",
+      "Firm-wide CRA dashboard"
+    ],
+    "scenes": [
+      {
+        "title": "CRA Dashboard",
+        "caption": "Instead of logging into CRA 100 times, see all your government account balances in one dashboard. GST balances, payroll balances, corporate tax owing, QST status. Auto-estimated from your Mortacc data. Flags overdue filings and installment requirements.",
+        "topbarBadge": "CRA Dashboard",
+        "content": "<div class=\"mock-card\"><h3>🏛 CRA / Revenu Québec — Your Firm</h3><div class=\"mock-stat-grid\" style=\"grid-template-columns:repeat(4,1fr)\"><div class=\"mock-stat\"><div class=\"val\" style=\"color:#dc2626\">$12,500</div><div class=\"lbl\">Total Owing</div></div><div class=\"mock-stat\"><div class=\"val\">3</div><div class=\"lbl\">Overdue</div></div><div class=\"mock-stat\"><div class=\"val\">2</div><div class=\"lbl\">Due Soon</div></div><div class=\"mock-stat\"><div class=\"val\">3</div><div class=\"lbl\">Installments</div></div></div><table class=\"mock-table\"><tr><th>Entity</th><th>Account</th><th>Balance</th><th>Status</th></tr><tr><td>Maple Tech</td><td>GST/HST</td><td style=\"color:#dc2626\">$2,400</td><td><span class=\"mock-badge amber\">Due Soon</span></td></tr><tr><td>Pacific Ventures</td><td>Corporate Tax</td><td style=\"color:#dc2626\">$8,200</td><td><span class=\"mock-badge red\">Overdue</span></td></tr></table></div>"
+      }
+    ]
+  },
+  {
+    "id": "dashboard",
+    "icon": "📊",
+    "title": "Dashboard & Command Center",
+    "duration": "3:45",
+    "description": "Tour the main dashboard — stat cards, client health scores, quick actions, search & filter, bulk operations, and the command center for firm-wide oversight.",
+    "category": "tier5",
+    "topics": [
+      "Client health scoring explained",
+      "Search & filter clients by status/type",
+      "Bulk actions: send reminders, update statuses",
+      "Quick-action cards for common workflows",
+      "Command center: overdue tasks, missing docs, upcoming deadlines"
+    ],
+    "scenes": [
+      {
+        "title": "Dashboard Overview",
+        "caption": "Welcome to your Mortacc dashboard! This is your command center — see every client and their health status at a glance. The stat cards at the top show firm-wide metrics.",
+        "topbarBadge": "Dashboard",
+        "sidebar": "<div class=\"nav-label\">Workspace</div><div class=\"nav-item active\">📊 Dashboard</div><div class=\"nav-item\">🔍 Search</div><div class=\"nav-label\">Corporate</div><div class=\"nav-item\">🏢 Entities</div><div class=\"nav-item\">👤 People</div><div class=\"nav-label\">Documents</div><div class=\"nav-item\">📁 Documents</div><div class=\"nav-item\">📚 Minute Books</div>",
+        "content": "<div class=\"mock-stat-grid\"><div class=\"mock-stat\"><div class=\"val\">3</div><div class=\"lbl\">Total Entities</div></div><div class=\"mock-stat\"><div class=\"val\">85%</div><div class=\"lbl\">Compliance</div></div><div class=\"mock-stat\"><div class=\"val\">$2.5K</div><div class=\"lbl\">Outstanding</div></div><div class=\"mock-stat\"><div class=\"val\">2</div><div class=\"lbl\">Need Attention</div></div></div><div class=\"mock-card\"><h3>Clients</h3><table class=\"mock-table\"><tr><th>Name</th><th>Status</th><th>Health</th><th>Missing</th></tr><tr><td>Maple Tech Holdings Inc.</td><td><span class=\"mock-badge green\">In Progress</span></td><td style=\"color:#16a34a\">●</td><td style=\"color:#16a34a\">0</td></tr><tr><td>Great Lakes Consulting Ltd.</td><td><span class=\"mock-badge amber\">In Review</span></td><td style=\"color:#d97706\">●</td><td style=\"color:#dc2626\">3</td></tr><tr><td>Pacific Ventures Corp.</td><td><span class=\"mock-badge blue\">New</span></td><td style=\"color:#dc2626\">●</td><td style=\"color:#dc2626\">5</td></tr></table></div>"
+      },
+      {
+        "title": "Reading Health Scores",
+        "caption": "Each client has a health indicator: 🟢 Green means everything is complete. 🟡 Amber means some items need attention. 🔴 Red means critical items are missing — act now!",
+        "topbarBadge": "Dashboard",
+        "sidebar": "<div class=\"nav-label\">Workspace</div><div class=\"nav-item active\">📊 Dashboard</div><div class=\"nav-item\">🔍 Search</div><div class=\"nav-label\">Corporate</div><div class=\"nav-item\">🏢 Entities</div>",
+        "content": "<div class=\"mock-card\"><h3>Clients</h3><table class=\"mock-table\"><tr><th>Name</th><th>Status</th><th>Health</th><th>Missing</th></tr><tr><td>Maple Tech Holdings Inc.</td><td><span class=\"mock-badge green\">In Progress</span></td><td style=\"color:#16a34a;font-size:14px\">●</td><td style=\"color:#16a34a\">0 ✓</td></tr><tr><td>Great Lakes Consulting Ltd.</td><td><span class=\"mock-badge amber\">In Review</span></td><td style=\"color:#d97706;font-size:14px\">●</td><td style=\"color:#dc2626\">3 ⚠</td></tr><tr style=\"background:#fff7ed\"><td>Pacific Ventures Corp.</td><td><span class=\"mock-badge blue\">New</span></td><td style=\"color:#dc2626;font-size:14px\">●</td><td style=\"color:#dc2626;font-weight:600\">5 ⚠</td></tr></table></div>"
+      },
+      {
+        "title": "Quick Actions",
+        "caption": "Use the quick action cards at the top for common tasks: add a new client, start an incorporation, check compliance, or generate documents — all one click away.",
+        "topbarBadge": "Dashboard",
+        "content": "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:10px\"><div class=\"mock-card\" style=\"text-align:center;border-top:3px solid #2563eb\"><div style=\"font-size:20px\">➕</div><div style=\"font-weight:600;font-size:12px;margin:4px 0\">Add Client</div><div style=\"font-size:10px;color:#94a3b8\">Create a new entity profile</div></div><div class=\"mock-card\" style=\"text-align:center;border-top:3px solid #7c3aed\"><div style=\"font-size:20px\">🏢</div><div style=\"font-weight:600;font-size:12px;margin:4px 0\">New Incorporation</div><div style=\"font-size:10px;color:#94a3b8\">Guided incorporation wizard</div></div><div class=\"mock-card\" style=\"text-align:center;border-top:3px solid #16a34a\"><div style=\"font-size:20px\">📅</div><div style=\"font-weight:600;font-size:12px;margin:4px 0\">Compliance</div><div style=\"font-size:10px;color:#94a3b8\">Check deadlines</div></div><div class=\"mock-card\" style=\"text-align:center;border-top:3px solid #d97706\"><div style=\"font-size:20px\">📚</div><div style=\"font-weight:600;font-size:12px;margin:4px 0\">Minute Books</div><div style=\"font-size:10px;color:#94a3b8\">Generate documents</div></div></div>"
+      },
+      {
+        "title": "Search & Filter",
+        "caption": "Type in the search bar to find clients by name instantly. Use the dropdown filters to narrow by status (Active, In Review, Completed) or business type.",
+        "topbarBadge": "Dashboard",
+        "content": "<div style=\"display:flex;gap:10px;margin-bottom:12px\"><input class=\"mock-input\" style=\"width:200px;margin:0\" placeholder=\"🔍 Search clients...\" value=\"Maple\"><select class=\"mock-input\" style=\"width:120px;margin:0\"><option>All Status</option><option>In Progress</option></select></div><div class=\"mock-card\"><table class=\"mock-table\"><tr><th>Name</th><th>Status</th><th>Type</th></tr><tr style=\"background:#eff6ff\"><td>Maple Tech Holdings Inc.</td><td><span class=\"mock-badge green\">In Progress</span></td><td>Technology</td></tr></table></div>"
+      },
+      {
+        "title": "Bulk Operations",
+        "caption": "Select multiple clients with checkboxes to perform bulk actions: send reminders to all selected, update statuses, or export data.",
+        "topbarBadge": "Dashboard",
+        "content": "<div class=\"mock-card\"><table class=\"mock-table\"><tr><th><input type=\"checkbox\" checked></th><th>Name</th><th>Status</th></tr><tr style=\"background:#eff6ff\"><td><input type=\"checkbox\" checked></td><td>Maple Tech Holdings Inc.</td><td><span class=\"mock-badge green\">In Progress</span></td></tr><tr style=\"background:#eff6ff\"><td><input type=\"checkbox\" checked></td><td>Great Lakes Consulting Ltd.</td><td><span class=\"mock-badge amber\">In Review</span></td></tr></table></div><div style=\"background:#2563eb;color:#fff;padding:8px 14px;border-radius:6px;font-size:11px;text-align:center;margin-top:8px\">📨 Send Reminder to 2 selected</div>"
+      },
+      {
+        "title": "Command Center",
+        "caption": "The Command Center gives you a bird's-eye view: total clients, overdue tasks, upcoming deadlines in the next 30 days, missing minute books, and unsigned engagement letters — all in one screen.",
+        "topbarBadge": "Command Center",
+        "content": "<div class=\"mock-stat-grid\"><div class=\"mock-stat\"><div class=\"val\">24</div><div class=\"lbl\">Total Clients</div></div><div class=\"mock-stat\"><div class=\"val\" style=\"color:#dc2626\">3</div><div class=\"lbl\">Overdue Tasks</div></div><div class=\"mock-stat\"><div class=\"val\">12</div><div class=\"lbl\">Pending Tasks</div></div><div class=\"mock-stat\"><div class=\"val\">$4.2K</div><div class=\"lbl\">Outstanding</div></div></div><div class=\"mock-card\"><h3>⚡ Upcoming Deadlines (Next 30 Days)</h3><table class=\"mock-table\"><tr><th>Client</th><th>Task</th><th>Due</th></tr><tr><td>Maple Tech</td><td>Annual Return</td><td style=\"color:#dc2626\">Tomorrow</td></tr><tr><td>Great Lakes</td><td>GST/HST Filing</td><td>In 5 days</td></tr></table></div>"
+      }
+    ]
+  },
+  {
+    "id": "billing",
+    "icon": "💰",
+    "title": "Billing, Invoices & Subscriptions",
+    "duration": "4:50",
+    "description": "Handle all billing — create and send invoices, track payments via Stripe, manage entity subscriptions, and monitor collections.",
+    "category": "tier5",
+    "topics": [
+      "Creating one-time and recurring invoices",
+      "Stripe payment integration for online payments",
+      "Tracking paid, sent, and overdue invoices",
+      "Setting up entity subscription plans",
+      "Payment reminders and collections workflow",
+      "Financial dashboard with revenue analytics"
+    ],
+    "scenes": [
+      {
+        "title": "Billing Dashboard",
+        "caption": "The billing dashboard shows all your invoices, payments, and financial metrics. See total revenue, outstanding amounts, paid-this-month, and collection rates at a glance.",
+        "topbarBadge": "Billing",
+        "content": "<div class=\"mock-stat-grid\"><div class=\"mock-stat\"><div class=\"val\">$12.5K</div><div class=\"lbl\">Revenue YTD</div></div><div class=\"mock-stat\"><div class=\"val\" style=\"color:#d97706\">$3.7K</div><div class=\"lbl\">Outstanding</div></div><div class=\"mock-stat\"><div class=\"val\" style=\"color:#16a34a\">$2.1K</div><div class=\"lbl\">Paid This Month</div></div><div class=\"mock-stat\"><div class=\"val\">85%</div><div class=\"lbl\">Collection Rate</div></div></div><div class=\"mock-card\"><table class=\"mock-table\"><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Status</th></tr><tr><td>INV-0001</td><td>Maple Tech</td><td>$2,500</td><td><span class=\"mock-badge green\">Paid</span></td></tr><tr><td>INV-0002</td><td>Maple Tech</td><td>$1,200</td><td><span class=\"mock-badge red\">Overdue</span></td></tr><tr><td>INV-0003</td><td>Great Lakes</td><td>$850</td><td><span class=\"mock-badge amber\">Sent</span></td></tr></table></div>"
+      },
+      {
+        "title": "Creating an Invoice",
+        "caption": "Create invoices in seconds. Select the client, service type (incorporation, tax filing, maintenance, etc.), enter the amount and description, set the due date, and send. Stripe integration allows clients to pay online.",
+        "topbarBadge": "New Invoice",
+        "content": "<div class=\"mock-card\"><h3>Create Invoice</h3><div class=\"mock-input\" style=\"margin-bottom:6px\">Client: Maple Tech Holdings Inc.</div><div class=\"mock-input\" style=\"margin-bottom:6px\">Description: Annual Corporate Maintenance 2026</div><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:6px\"><div class=\"mock-input\">Amount: $1,500.00</div><div class=\"mock-input\">Tax: $195.00 (HST)</div></div><div style=\"display:flex;gap:6px;margin-top:6px\"><div class=\"mock-input\">Due Date: Jul 14, 2026</div><select class=\"mock-input\"><option>Corporate Maintenance</option></select></div><div style=\"margin-top:12px\"><span class=\"btn-mock\">Create & Send Invoice</span></div></div>"
+      },
+      {
+        "title": "Payment Tracking",
+        "caption": "Track every payment: Stripe online payments, manual bank transfers, checks, and e-transfers. Payments are linked to invoices and update the invoice status automatically.",
+        "topbarBadge": "Payments",
+        "content": "<div class=\"mock-card\"><h3>Payment History</h3><table class=\"mock-table\"><tr><th>Date</th><th>Invoice</th><th>Amount</th><th>Method</th></tr><tr><td>May 1, 2026</td><td>INV-0001</td><td>$2,500</td><td>💳 Stripe</td></tr><tr><td>Apr 15, 2026</td><td>INV-0004</td><td>$500</td><td>🏦 E-Transfer</td></tr></table></div>"
+      }
+    ]
+  },
+  {
+    "id": "reports",
+    "icon": "📋",
+    "title": "Reports Center & CSV Exports",
+    "duration": "2:45",
+    "description": "Generate cross-entity reports, export data to CSV (UTF-8 BOM for Excel), and view firm analytics with benchmarks.",
+    "category": "tier5",
+    "topics": [
+      "Running cross-entity compliance reports",
+      "CSV exports: clients, compliance, invoices",
+      "Firm analytics: revenue trends, collection rates",
+      "Industry benchmarks for firm comparison",
+      "KPI dashboard with target tracking"
+    ],
+    "scenes": [
+      {
+        "title": "Reports Center",
+        "caption": "Run cross-entity reports: compliance summary by jurisdiction, outstanding invoices, entity status report, director/officer lists, and shareholder summaries. All exportable to CSV with UTF-8 BOM for Excel compatibility.",
+        "topbarBadge": "Reports",
+        "content": "<div class=\"mock-card\"><h3>Available Reports</h3><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px\"><div class=\"mock-card\" style=\"text-align:center;cursor:pointer\"><div style=\"font-size:20px\">📅</div><div style=\"font-weight:600;font-size:12px\">Compliance Summary</div><div style=\"font-size:10px;color:#94a3b8\">By jurisdiction & status</div></div><div class=\"mock-card\" style=\"text-align:center;cursor:pointer\"><div style=\"font-size:20px\">💰</div><div style=\"font-weight:600;font-size:12px\">Revenue Report</div><div style=\"font-size:10px;color:#94a3b8\">Invoices & payments</div></div><div class=\"mock-card\" style=\"text-align:center;cursor:pointer\"><div style=\"font-size:20px\">🏢</div><div style=\"font-weight:600;font-size:12px\">Entity Status</div><div style=\"font-size:10px;color:#94a3b8\">All entities overview</div></div><div class=\"mock-card\" style=\"text-align:center;cursor:pointer\"><div style=\"font-size:20px\">👥</div><div style=\"font-weight:600;font-size:12px\">Directors & Officers</div><div style=\"font-size:10px;color:#94a3b8\">Cross-entity list</div></div></div></div>"
+      },
+      {
+        "title": "CSV Exports",
+        "caption": "Export any data to CSV with one click. Exports include UTF-8 BOM for proper Excel rendering of French characters. Available exports: Clients, Compliance Tasks, Invoices, Directors, Shareholders, and more.",
+        "topbarBadge": "Export",
+        "content": "<div class=\"mock-card\"><h3>Export Data</h3><div style=\"display:grid;grid-template-columns:1fr 1fr;gap:6px\"><span class=\"btn-mock\" style=\"text-align:center\">📥 Clients CSV</span><span class=\"btn-mock\" style=\"text-align:center\">📥 Compliance CSV</span><span class=\"btn-mock\" style=\"text-align:center\">📥 Invoices CSV</span><span class=\"btn-mock\" style=\"text-align:center\">📥 Directors CSV</span></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "settings",
+    "icon": "⚙",
+    "title": "Settings & Firm Configuration",
+    "duration": "3:15",
+    "description": "Configure your firm — invite staff, set roles and permissions, manage billing, branding, and white-label portal settings.",
+    "category": "tier5",
+    "topics": [
+      "Inviting staff members via email",
+      "Setting up RBAC roles and permissions",
+      "Managing subscription plan and billing",
+      "White-label portal branding",
+      "Security settings and activity log"
+    ],
+    "scenes": [
+      {
+        "title": "Staff Management",
+        "caption": "Invite team members by email. Assign roles: Partner, Associate, Paralegal, Corporate Clerk, or Bookkeeper. Each role has granular permissions controlling what they can view and edit.",
+        "topbarBadge": "Settings",
+        "content": "<div class=\"mock-card\"><h3>Staff Members</h3><table class=\"mock-table\"><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr><tr><td>Demo User</td><td>demo@mortacc.demo</td><td>Partner</td><td><span class=\"mock-badge green\">Active</span></td></tr><tr><td>—</td><td>invite@firm.com</td><td>Associate</td><td><span class=\"mock-badge amber\">Pending</span></td></tr></table></div><div style=\"margin-top:8px\"><span class=\"btn-mock\">+ Invite Staff</span></div>"
+      },
+      {
+        "title": "Plan & Billing",
+        "caption": "Manage your subscription: view current plan, upgrade or downgrade, switch between monthly and annual billing, update payment method, and view billing history.",
+        "topbarBadge": "Settings",
+        "content": "<div class=\"mock-card\"><h3>Current Plan: Professional</h3><div style=\"font-size:12px;color:#64748b;margin-bottom:8px\">$299/mo · 50 entities · Next billing: Jul 14, 2026</div><div style=\"display:flex;gap:8px\"><span class=\"btn-mock\">Upgrade to Enterprise</span><span style=\"font-size:11px;color:#64748b;padding:6px 14px\">Billing History</span></div></div>"
+      },
+      {
+        "title": "White-Label Portal",
+        "caption": "Brand your client portal with your firm logo, colors, and custom domain. Create portal pages with your own content. Clients see your brand, not Mortacc.",
+        "topbarBadge": "White-Label",
+        "content": "<div class=\"mock-card\"><h3>Portal Branding</h3><div class=\"mock-input\">Portal Name: Smith & Associates Client Portal</div><div class=\"mock-input\">Custom Domain: portal.smithlaw.ca</div><div style=\"display:flex;gap:8px;margin-bottom:6px\"><div style=\"font-size:10px;color:#94a3b8\">Primary Color:</div><div style=\"width:24px;height:24px;border-radius:4px;background:#1e40af\"></div></div><div style=\"margin-top:8px\"><span class=\"btn-mock\">Save Branding</span></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "knowledge-engine",
+    "icon": "📚",
+    "title": "Accountant Knowledge Engine",
+    "duration": "2:30",
+    "description": "Ask any question about Canadian corporate procedures. Built-in knowledge base covers federal, Ontario, BC, and Quebec filings, T2 deadlines, GST/HST, dividends, shareholder loans, and more.",
+    "category": "tier6",
+    "topics": [
+      "8 Canadian corporate procedure topics",
+      "BC, Ontario, Federal, Quebec filings",
+      "T2 deadlines and GST/HST rules",
+      "Dividend procedures and shareholder loan rules",
+      "Category-tagged with confidence scoring"
+    ],
+    "scenes": [
+      {
+        "title": "Knowledge Engine",
+        "caption": "Ask any question about Canadian corporate procedures. How do I file a BC annual report? What are the T2 deadlines? What are the dividend rules? The Knowledge Engine answers from a built-in library of Canadian corporate law and tax procedures.",
+        "topbarBadge": "Knowledge",
+        "content": "<div class=\"mock-card\"><h3>📚 Knowledge Engine</h3><div style=\"background:#f8fafc;padding:10px;border-radius:8px;margin-bottom:10px\"><strong>Q:</strong> \"How do I file a BC annual report?\"</div><div style=\"background:#eff6ff;padding:10px;border-radius:8px\"><strong>A:</strong> File through BC Registries (bcregistries.ca) on the incorporation anniversary date. Fee: $43.39 online. Required: confirm current directors and registered office. Also required: Transparency Register update. Late fee: $25. Non-filing for 2 consecutive years may result in dissolution.</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "ai",
+    "icon": "🤖",
+    "title": "AI Document Extraction & Assistant",
+    "duration": "4:40",
+    "description": "Use Claude AI to extract data from uploaded documents, generate corporate documents, and get answers to Canadian corporate law questions.",
+    "category": "tier6",
+    "topics": [
+      "Uploading documents for AI data extraction",
+      "Auto-populating directors, shareholders from PDFs",
+      "AI document generation: articles, agreements",
+      "AI Assistant: Canadian corporate law Q&A",
+      "AI time reconstruction for billable hours"
+    ],
+    "scenes": [
+      {
+        "title": "AI Document Extraction",
+        "caption": "Upload any corporate document (PDF, scanned image, Word doc) and Claude AI extracts entity data automatically: director names, shareholder details, incorporation dates, and share structure. Review and apply with one click.",
+        "topbarBadge": "AI Extract",
+        "content": "<div class=\"mock-card\"><h3>AI Document Extraction</h3><div style=\"border:2px dashed #94a3b8;border-radius:8px;padding:20px;text-align:center;margin-bottom:10px\"><div style=\"font-size:24px\">📄</div><div style=\"font-size:12px;color:#64748b\">Drop PDF here or click to upload</div></div><div class=\"mock-card\" style=\"background:#f0fdf4;border-color:#bbf7d0\"><strong>✅ Extracted from \"Articles of Incorporation.pdf\":</strong><div style=\"font-size:11px;margin-top:4px\">• Entity: Maple Tech Holdings Inc.<br>• Directors: John Smith, Jane Doe<br>• Jurisdiction: Federal (CBCA)<br>• Incorporation Date: June 14, 2024<br>• Share Classes: Common (unlimited)</div></div></div>"
+      },
+      {
+        "title": "AI Assistant",
+        "caption": "Ask the AI Assistant any Canadian corporate law question. It answers from a built-in knowledge base of CBCA, OBCA, BCA, and LSAQ rules. For complex questions, it connects to Claude API for detailed responses.",
+        "topbarBadge": "AI Assistant",
+        "content": "<div class=\"mock-card\"><div style=\"border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-bottom:10px\"><div style=\"font-size:10px;color:#94a3b8;margin-bottom:4px\">You asked:</div><div style=\"font-size:12px\">\"What are the annual filing requirements for a federal corporation in Canada?\"</div></div><div style=\"border:1px solid #bfdbfe;border-radius:8px;padding:12px;background:#eff6ff\"><div style=\"font-size:10px;color:#2563eb;margin-bottom:4px\">AI Answer:</div><div style=\"font-size:12px;line-height:1.5\">A federal corporation (CBCA) must:<br>1. File an Annual Return with Corporations Canada within 60 days of its anniversary date<br>2. Hold an AGM within 18 months of incorporation and annually thereafter<br>3. File T2 Corporate Tax Return within 6 months of fiscal year end<br>4. Maintain up-to-date minute books and corporate registers</div></div></div>"
+      },
+      {
+        "title": "AI Time Reconstruction",
+        "caption": "Mortacc scans your platform activity and suggests billable time entries. Document generation, compliance updates, email sending — all auto-detected and converted to time entries with client-ready narratives.",
+        "topbarBadge": "AI Time",
+        "content": "<div class=\"mock-stat-grid\" style=\"grid-template-columns:repeat(3,1fr)\"><div class=\"mock-stat\"><div class=\"val\">12.5h</div><div class=\"lbl\">Detected</div></div><div class=\"mock-stat\"><div class=\"val\" style=\"color:#16a34a\">$3,125</div><div class=\"lbl\">Recoverable</div></div><div class=\"mock-stat\"><div class=\"val\">18</div><div class=\"lbl\">Activities</div></div></div><div class=\"mock-card\"><table class=\"mock-table\"><tr><th>Activity</th><th>Minutes</th><th>Value</th></tr><tr><td>Document Generated</td><td>30</td><td>$125</td></tr><tr><td>Compliance Update</td><td>15</td><td>$62.50</td></tr></table></div><div style=\"margin-top:8px\"><span class=\"btn-mock\">Convert All to Billable</span></div>"
+      }
+    ]
+  },
+  {
+    "id": "trust-structure",
+    "icon": "🔗",
+    "title": "Trust/Holding Structure Visualizer",
+    "duration": "3:00",
+    "description": "Enhanced relationship maps showing Family Trust → Holdco → Opco chains. Detects associated corporations, UBO thresholds (>25%), and LCGE planning opportunities.",
+    "category": "tier4",
+    "topics": [
+      "Ownership chain visualization",
+      "Associated corporation detection",
+      "UBO threshold analysis (>25%)",
+      "LCGE eligibility per entity",
+      "Same control group identification"
+    ],
+    "scenes": [
+      {
+        "title": "Structure Visualizer",
+        "caption": "See your full corporate structure: Family Trust → Holding Company → Operating Companies. The system detects associated corporations (same control group), UBO thresholds (>25% ownership), and LCGE planning opportunities. Understand your entire structure at a glance.",
+        "topbarBadge": "Structure",
+        "content": "<div class=\"mock-card\"><h3>🔗 Enhanced Structure Map</h3><div style=\"font-size:11px\"><div style=\"padding:8px 12px;border-left:2px solid #7c3aed;font-weight:600\">🏛 Family Trust</div><div style=\"margin-left:20px;padding:6px 12px;border-left:2px solid #2563eb;font-weight:600\">🏢 Maple Tech Holdings</div><div style=\"margin-left:40px;padding:6px 12px;border-left:2px solid #e2e8f0\">🏢 Opco A <span style=\"color:#94a3b8\">(100%)</span></div><div style=\"margin-left:40px;padding:6px 12px;border-left:2px solid #e2e8f0\">🏢 Real Estate Corp <span style=\"color:#94a3b8\">(100%)</span></div><div style=\"margin-top:8px;background:#fef3c7;padding:8px;border-radius:6px;font-size:10px\">⚠ Associated corporations detected — SBD sharing required<br>⚠ John Smith >25% UBO in 2 entities<br>💡 LCGE eligible: Maple Tech (3+ years)</div></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "entity-relationships",
+    "icon": "🔗",
+    "title": "Entity Relationship Map",
+    "duration": "2:30",
+    "description": "Visual tree showing how entities are connected through shared shareholders. Parent-subsidiary structure inference. See Holding Company → Opco A → Opco B at a glance.",
+    "category": "tier4",
+    "topics": [
+      "Visual entity relationship tree",
+      "Shared shareholder detection",
+      "Parent/subsidiary inference",
+      "Holding company structures",
+      "Cross-entity shareholder mapping",
+      "Interactive org chart"
+    ],
+    "scenes": [
+      {
+        "title": "Entity Relationship Map",
+        "caption": "See how all your entities are connected. Shared shareholders create links between companies. Holding structures become visible. The relationship map shows the full corporate picture — not just individual entities in isolation.",
+        "topbarBadge": "Relationships",
+        "content": "<div class=\"mock-card\"><h3>🔗 Entity Relationships — Your Firm</h3><div style=\"font-size:12px\"><div style=\"padding:6px 12px;border-left:2px solid #2563eb;font-weight:600;font-size:13px\">🏢 Maple Tech Holdings Inc. <span style=\"font-size:10px;color:#94a3b8\">3 shareholders</span></div><div style=\"margin-left:20px;padding:6px 12px;border-left:2px solid #e2e8f0;font-size:12px\">👥 John Smith (71.4%), Jane Doe (28.6%)</div><div style=\"padding:6px 12px;border-left:2px solid #2563eb;font-weight:600;font-size:13px;margin-top:4px\">🏢 Great Lakes Consulting Ltd. <span style=\"font-size:10px;color:#94a3b8\">1 shareholder</span></div><div style=\"margin-left:20px;padding:6px 12px;border-left:2px solid #e2e8f0;font-size:12px\">👥 John Smith (100%)</div><div style=\"margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:11px;color:#64748b\">🔗 Maple Tech ↔ Great Lakes — shared: John Smith</div></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "auto-chasing",
+    "icon": "📨",
+    "title": "Auto Client Chasing",
+    "duration": "3:15",
+    "description": "Zero-touch document follow-up. Auto-generates request lists, sends reminders at escalating intervals (days 1,3,7,10,14), escalates to accountant after threshold. Accountant does nothing.",
+    "category": "automation",
+    "topics": [
+      "Auto-generate request lists from missing items",
+      "Escalating reminders: days 1→3→7→10→14",
+      "Auto-escalate to accountant after 14 days",
+      "Chasing campaign dashboard per client",
+      "Completeness auto-verification"
+    ],
+    "scenes": [
+      {
+        "title": "Auto Chasing Campaign",
+        "caption": "Mortacc automatically tracks what's missing, sends friendly reminders that escalate in urgency, and escalates to the accountant when the client doesn't respond. The accountant does nothing — the system handles all follow-up.",
+        "topbarBadge": "Chasing",
+        "content": "<div class=\"mock-card\"><h3>📨 Chasing: Maple Tech — Annual Docs</h3><div style=\"font-size:11px\"><strong>Campaign:</strong> 2026 Annual Maintenance Documents<br><strong>Status:</strong> Active · 3 reminders sent<br><strong>Items:</strong><br>✅ Signed engagement letter (received)<br>⏳ Annual return questionnaire (pending — 7 days)<br>⏳ Director consent form (pending — 7 days)<br>📅 Next reminder: Tomorrow (escalating to urgent)<br>⚠ Escalation to accountant: In 7 days if no response</div></div>"
+      }
+    ]
+  },
+  {
+    "id": "tax-planning",
+    "icon": "💡",
+    "title": "AI Tax Planning Engine",
+    "duration": "4:00",
+    "description": "Detects 7 tax-saving opportunities automatically: income splitting, CDA, LCGE eligibility, salary vs dividend, SBD optimization, loss carry-back, estate freeze indicators. Each with estimated savings and concrete actions.",
+    "category": "automation",
+    "topics": [
+      "7 opportunity types auto-detected",
+      "Income splitting — salary vs dividend",
+      "Capital Dividend Account (CDA) detection",
+      "LCGE eligibility — $1.25M exemption",
+      "SBD optimization and phase-out warning",
+      "Loss carry-back tax recovery",
+      "Estate freeze indicators for growth companies"
+    ],
+    "scenes": [
+      {
+        "title": "Tax Opportunity Detection",
+        "caption": "Mortacc scans every entity and surfaces tax-saving opportunities automatically. Income splitting, CDA credits, LCGE eligibility, salary vs dividend optimization. Each opportunity shows estimated savings and concrete next steps. Revenue generator, not just compliance.",
+        "topbarBadge": "Tax Planning",
+        "content": "<div class=\"mock-card\"><h3>💡 Tax Opportunities — Maple Tech</h3><div style=\"background:#fef3c7;padding:10px;border-radius:6px;margin-bottom:6px\"><strong>💰 Capital Dividend Account — ~$15,000 available</strong><div style=\"font-size:10px\">Capital gains generate CDA credits. Pay tax-free to shareholders. Savings: ~$4,500</div></div><div style=\"background:#eff6ff;padding:10px;border-radius:6px;margin-bottom:6px\"><strong>📊 Income Splitting Opportunity</strong><div style=\"font-size:10px\">3 shareholders on file. Model salary vs dividend for each family member. TOSI rules apply.</div></div><div style=\"background:#eff6ff;padding:10px;border-radius:6px\"><strong>🏦 Salary vs Dividend Optimization</strong><div style=\"font-size:10px\">SBD rate (9%) on first $500K. Dividends avoid CPP premiums (~$7K/year). Savings: $3K-$12K/year</div></div></div>"
+      }
+    ]
+  },
+  {
+    "id": "client-risk",
+    "icon": "⚠",
+    "title": "Client Risk Scoring",
+    "duration": "2:45",
+    "description": "Behavioral risk scoring per client: late uploads, overdue tasks, payment history, bookkeeping gaps, CRA rejection history. High/Medium/Low with risk bar. Helps firms prioritize work and identify problem clients early.",
+    "category": "automation",
+    "topics": [
+      "Behavioral risk scoring per client",
+      "Late document upload tracking",
+      "Overdue compliance task history",
+      "Payment delinquency detection",
+      "Bookkeeping gap analysis",
+      "CRA rejection history impact"
+    ],
+    "scenes": [
+      {
+        "title": "Client Risk Dashboard",
+        "caption": "Every client gets a behavioral risk score. Late uploads? Frequent overdue tasks? Payment issues? Bookkeeping gaps? CRA rejections? The system flags high-risk clients so you can prioritize intervention before problems escalate.",
+        "topbarBadge": "Risk Score",
+        "content": "<div class=\"mock-card\"><h3>⚠ Client Risk Scores</h3><div style=\"display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f1f5f9\"><span style=\"flex:1\">Pacific Ventures Corp.</span><div style=\"width:80px;height:6px;background:#e2e8f0;border-radius:3px\"><div style=\"width:85%;height:100%;background:#dc2626;border-radius:3px\"></div></div><span class=\"mock-badge red\">High</span></div><div style=\"font-size:10px;color:#94a3b8;margin-bottom:8px\">Took 45 days to onboard · 6 overdue tasks · 4 invoices 30+ days late</div><div style=\"display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f1f5f9\"><span style=\"flex:1\">Great Lakes Consulting</span><div style=\"width:80px;height:6px;background:#e2e8f0;border-radius:3px\"><div style=\"width:45%;height:100%;background:#d97706;border-radius:3px\"></div></div><span class=\"mock-badge amber\">Medium</span></div><div style=\"display:flex;align-items:center;gap:8px;padding:8px 0\"><span style=\"flex:1\">Maple Tech Holdings</span><div style=\"width:80px;height:6px;background:#e2e8f0;border-radius:3px\"><div style=\"width:15%;height:100%;background:#16a34a;border-radius:3px\"></div></div><span class=\"mock-badge green\">Low</span></div></div>"
+      }
+    ]
+  }
+]

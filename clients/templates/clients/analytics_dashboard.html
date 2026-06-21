@@ -1,0 +1,294 @@
+{% extends "clients/base.html" %}
+{% block title %}Analytics — Mortacc{% endblock %}
+{% block nav_analytics %}active{% endblock %}
+{% block topbar_title %}Firm Analytics{% endblock %}
+
+{% block extra_head %}
+<style>
+    .analytics-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px; }
+    .kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; position:relative; overflow:hidden; }
+    .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+    .kpi-card.revenue::before { background:var(--brand); }
+    .kpi-card.compliance::before { background:var(--green); }
+    .kpi-card.collection::before { background:var(--amber); }
+    .kpi-card.hours::before { background:var(--purple); }
+    .kpi-val { font-size:26px; font-weight:800; color:var(--ink); }
+    .kpi-lbl { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-3); margin-top:2px; }
+    .kpi-sub { font-size:11px; color:var(--ink-4); margin-top:4px; }
+    .kpi-sub.up { color:var(--green); }
+    .kpi-sub.down { color:var(--red); }
+
+    .chart-row { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
+    .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; }
+    .chart-card canvas { max-height:240px; }
+
+    .revenue-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .revenue-table th { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-4); padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; }
+    .revenue-table td { padding:8px 10px; border-bottom:1px solid var(--surface-2); }
+    .revenue-table .bar-cell { width:100px; }
+    .revenue-bar { height:6px; background:var(--brand-soft); border-radius:3px; overflow:hidden; }
+    .revenue-fill { height:100%; background:var(--brand); border-radius:3px; }
+
+    .benchmark-row { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--surface-2); font-size:12.5px; }
+    .benchmark-label { flex:1; color:var(--ink-2); }
+    .benchmark-you { font-weight:600; color:var(--ink); }
+    .benchmark-avg { color:var(--ink-4); }
+    .benchmark-delta { font-size:11px; padding:2px 6px; border-radius:99px; }
+    .benchmark-delta.above { background:var(--green-bg); color:var(--green); }
+    .benchmark-delta.below { background:var(--red-bg); color:var(--red); }
+
+    .kpi-section { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px; }
+    .kpi-item { background:var(--surface-2); border-radius:var(--radius); padding:12px; }
+    .kpi-item .name { font-size:12px; font-weight:500; color:var(--ink-2); }
+    .kpi-item .progress { height:6px; background:var(--border); border-radius:3px; margin-top:6px; overflow:hidden; }
+    .kpi-item .progress-fill { height:100%; background:var(--brand); border-radius:3px; }
+    .kpi-item .vals { font-size:11px; color:var(--ink-4); margin-top:4px; display:flex; justify-content:space-between; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Stat Cards -->
+<div class="analytics-stats">
+    <div class="kpi-card revenue">
+        <div class="kpi-val">${{ total_revenue_ytd|floatformat:0|default:"0" }}</div>
+        <div class="kpi-lbl">Revenue YTD</div>
+        <div class="kpi-sub {% if revenue_change >= 0 %}up{% else %}down{% endif %}">
+            {% if revenue_change >= 0 %}↑{% else %}↓{% endif %} {{ revenue_change|default:"0" }}% vs prior
+        </div>
+    </div>
+    <div class="kpi-card compliance">
+        <div class="kpi-val">{{ compliance_rate }}%</div>
+        <div class="kpi-lbl">Compliance Rate</div>
+        <div class="kpi-sub">{{ completed_count }}/{{ total_tasks }} tasks complete</div>
+    </div>
+    <div class="kpi-card collection">
+        <div class="kpi-val">{{ collection_rate }}%</div>
+        <div class="kpi-lbl">Collection Rate</div>
+        <div class="kpi-sub">${{ outstanding|floatformat:0 }} outstanding</div>
+    </div>
+    <div class="kpi-card hours">
+        <div class="kpi-val">{{ total_billable_hours|floatformat:1 }}</div>
+        <div class="kpi-lbl">Billable Hours YTD</div>
+        <div class="kpi-sub">${{ total_unbilled|floatformat:0 }} unbilled</div>
+    </div>
+</div>
+
+<!-- Revenue Trend + Service Breakdown -->
+<div class="chart-row">
+    <div class="chart-card">
+        <div class="card-title" style="margin-bottom:12px;">Monthly Revenue (12-Month Trend)</div>
+        <canvas id="revenueChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="card-title" style="margin-bottom:12px;">Revenue by Service Type</div>
+        {% if service_revenue %}
+        <table class="revenue-table">
+            {% for item in service_revenue %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td class="bar-cell"><div class="revenue-bar"><div class="revenue-fill" style="width:{{ item.amount|floatformat:0 }}%"></div></div></td>
+                <td style="text-align:right;font-weight:500;">${{ item.amount|floatformat:0 }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <svg width="32" height="32" viewBox="0 0 20 20" fill="var(--ink-4)"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>
+            <p style="margin-top:8px;">No revenue data yet this year</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Compliance + Client Metrics -->
+<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-bottom:18px;">
+    <div class="card">
+        <div class="card-header"><span class="card-title">Compliance Overview</span></div>
+        <div class="card-body">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:12px; color:var(--ink-3);">Overdue</span>
+                <span style="font-weight:600; color:var(--red);">{{ overdue_count }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:12px; color:var(--ink-3);">Completed</span>
+                <span style="font-weight:600; color:var(--green);">{{ completed_count }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="font-size:12px; color:var(--ink-3);">Total Tasks</span>
+                <span style="font-weight:600;">{{ total_tasks }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><span class="card-title">Client Growth</span></div>
+        <div class="card-body">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:12px; color:var(--ink-3);">New This Month</span>
+                <span style="font-weight:600; color:var(--green);">+{{ new_clients_month }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:12px; color:var(--ink-3);">New This Year</span>
+                <span style="font-weight:600;">{{ new_clients_year }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="font-size:12px; color:var(--ink-3);">Active Clients</span>
+                <span style="font-weight:600;">{{ active_clients }}/{{ total_clients }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><span class="card-title">Incorporations</span></div>
+        <div class="card-body">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:12px; color:var(--ink-3);">Projects YTD</span>
+                <span style="font-weight:600;">{{ incorp_ytd }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="font-size:12px; color:var(--ink-3);">Completed</span>
+                <span style="font-weight:600; color:var(--green);">{{ incorp_completed }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Industry Benchmarks -->
+{% if benchmarks %}
+<div class="card" style="margin-bottom:18px;">
+    <div class="card-header">
+        <span class="card-title">Industry Benchmarks</span>
+        <span class="card-subtitle">{{ benchmarks.get_firm_size_display }} {{ benchmarks.get_firm_type_display }} firms</span>
+    </div>
+    <div class="card-body">
+        <div class="benchmark-row">
+            <span class="benchmark-label">Average Revenue Per Client</span>
+            <span class="benchmark-you">${{ avg_rev_per_client|floatformat:0 }}</span>
+            <span class="benchmark-avg">Benchmark: ${{ benchmarks.avg_revenue_per_client|floatformat:0 }}</span>
+            {% if avg_rev_per_client > benchmarks.avg_revenue_per_client %}
+            <span class="benchmark-delta above">Above avg</span>
+            {% else %}
+            <span class="benchmark-delta below">Below avg</span>
+            {% endif %}
+        </div>
+        <div class="benchmark-row">
+            <span class="benchmark-label">Compliance Score</span>
+            <span class="benchmark-you">{{ compliance_rate }}%</span>
+            <span class="benchmark-avg">Benchmark: {{ benchmarks.avg_compliance_score }}%</span>
+        </div>
+        <div class="benchmark-row">
+            <span class="benchmark-label">Collection Rate</span>
+            <span class="benchmark-you">{{ collection_rate }}%</span>
+            <span class="benchmark-avg">Benchmark: {{ benchmarks.avg_collection_rate }}%</span>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Active KPIs -->
+{% if kpis %}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">Key Performance Indicators</span>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('add-kpi-modal').style.display='flex'">+ Add KPI</button>
+    </div>
+    <div class="card-body">
+        <div class="kpi-section">
+            {% for kpi in kpis %}
+            <div class="kpi-item">
+                <div class="name">{{ kpi.name }} <span style="color:var(--ink-4);">({{ kpi.get_period_display }})</span></div>
+                <div class="progress"><div class="progress-fill" style="width:{{ kpi.progress_percent|default:0 }}%"></div></div>
+                <div class="vals"><span>{{ kpi.current_value|default:"0" }}{{ kpi.unit }}</span><span>Target: {{ kpi.target_value }}{{ kpi.unit }}</span></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Add KPI Modal -->
+<div class="modal-backdrop" id="add-kpi-modal">
+    <div class="modal">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_kpi">
+            <div class="modal-header">
+                <span class="modal-title">Add KPI</span>
+                <button type="button" class="modal-close" onclick="this.closest('.modal-backdrop').style.display='none'">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">KPI Name</label>
+                    <input class="form-control" name="kpi_name" required placeholder="e.g., Monthly Revenue Growth">
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-control" name="kpi_category">
+                            <option value="revenue">Revenue</option>
+                            <option value="compliance">Compliance</option>
+                            <option value="client">Client Growth</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Period</label>
+                        <select class="form-control" name="kpi_period">
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly" selected>Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Target Value</label>
+                        <input class="form-control" name="kpi_target" type="number" step="0.01" required placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Unit</label>
+                        <select class="form-control" name="kpi_unit">
+                            <option value="$">$</option>
+                            <option value="%">%</option>
+                            <option value="hrs">Hours</option>
+                            <option value="count">Count</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="this.closest('.modal-backdrop').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save KPI</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+    const trend = {{ revenue_trend|safe }};
+    const labels = trend.map(t => t.month);
+    const data = trend.map(t => t.amount);
+    const ctx = document.getElementById('revenueChart');
+    if (!ctx) return;
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{ label: 'Revenue', data: data, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,.06)', fill: true, tension: 0.3, pointRadius: 3 }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { callback: v => '$' + v } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}

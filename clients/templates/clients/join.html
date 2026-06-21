@@ -1,0 +1,39 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Join Mortea — List Your Beauty Business</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.container { max-width: 600px; margin: 0 auto; padding: 48px 24px 80px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.sub { color: var(--ink-3); font-size: 15px; margin-bottom: 28px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 32px 36px; box-shadow: var(--shadow); }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.field input, .field select { width: 100%; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 15px; border: 1.5px solid var(--border); border-radius: var(--radius); outline: none; }
+.field input:focus, .field select:focus { border-color: var(--brand); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.btn { width: 100%; padding: 14px; font-size: 16px; font-weight: 600; border-radius: var(--radius-full); border: none; background: var(--brand); color: #fff; cursor: pointer; transition: all .2s; }
+.btn:hover { background: var(--brand-dark); }
+.error { background: #fff5f5; border: 1px solid #fed7d7; border-radius: var(--radius); padding: 12px 16px; color: #c53030; font-size: 14px; margin-bottom: 20px; }
+.info { background: var(--brand-light); border-radius: var(--radius); padding: 14px 18px; font-size: 13px; color: var(--brand-dark); margin-bottom: 24px; line-height: 1.6; }
+.back { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-3); text-decoration: none; margin-bottom: 20px; }
+@media (max-width:500px){ .row{grid-template-columns:1fr;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="{% url 'for_professionals' %}" class="nav-link">For Professionals</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><div class="container">
+<a href="{% url 'for_professionals' %}" class="back">← Back</a>
+<h1>Join Mortea</h1><p class="sub">List your beauty business and start getting discovered. Takes less than 5 minutes.</p>
+<div class="info">🚀 <strong>Launch offer:</strong> First 100 businesses get an Early Adopter badge and priority placement — free forever.</div>
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+<div class="card">
+<form method="POST">{% csrf_token %}
+<div class="field"><label>Your full name *</label><input type="text" name="full_name" placeholder="e.g., Sophie Tremblay" required></div>
+<div class="field"><label>Business name *</label><input type="text" name="business_name" placeholder="e.g., Clinique Beauté Montreal" required></div>
+<div class="field"><label>Email *</label><input type="email" name="email" placeholder="you@business.com" required></div>
+<div class="row"><div class="field"><label>Phone</label><input type="tel" name="phone" placeholder="(514) 555-0123"></div><div class="field"><label>City</label><input type="text" name="city" placeholder="Montreal, Laval…"></div></div>
+<div class="field"><label>Category</label><select name="category"><option value="">Select…</option>{% for val, label in categories %}<option value="{{ val }}">{{ label }}</option>{% endfor %}</select></div>
+<div class="field"><label>Anything else? (optional)</label><input type="text" name="notes" placeholder="Tell us about your business…"></div>
+<button type="submit" class="btn">Join Mortea</button>
+</form></div>
+</div></div></body></html>

@@ -1,0 +1,207 @@
+{% extends "clients/base.html" %}
+{% block title %}Engagements — Mortacc{% endblock %}
+{% block nav_engagements %}active{% endblock %}
+{% block topbar_title %}Engagements{% endblock %}
+
+{% block extra_head %}
+<style>
+    .eng-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .eng-stat {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    }
+    .eng-stat .label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: var(--gray-500);
+        margin-bottom: 6px;
+    }
+    .eng-stat .value {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--gray-900);
+        line-height: 1;
+    }
+
+    .eng-card {
+        background: rgba(255,255,255,.92);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        box-shadow: 0 2px 12px rgba(0,0,0,.04);
+        overflow: hidden;
+    }
+    .eng-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .eng-card-title { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+
+    .eng-table { width: 100%; border-collapse: collapse; }
+    .eng-table th {
+        padding: 10px 16px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--gray-500);
+        border-bottom: 1px solid var(--gray-100);
+        background: var(--gray-50);
+    }
+    .eng-table td {
+        padding: 14px 16px;
+        font-size: 13px;
+        border-bottom: 1px solid var(--gray-100);
+        vertical-align: middle;
+    }
+    .eng-table tr:last-child td { border-bottom: none; }
+    .eng-table tr:hover td { background: var(--gray-50); }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .badge-green { background: #dcfce7; color: #15803d; }
+    .badge-gray  { background: var(--gray-100); color: var(--gray-500); }
+
+    .signer-name { font-weight: 600; color: var(--gray-900); }
+    .signer-email { font-size: 12px; color: var(--gray-400); }
+
+    .btn-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid var(--gray-200);
+        background: var(--gray-50);
+        color: var(--gray-700);
+        transition: all .15s;
+    }
+    .btn-sm:hover { background: var(--gray-100); color: var(--gray-900); }
+
+    .search-wrap { margin-bottom: 20px; }
+    .search-input {
+        width: 100%;
+        background: #fff;
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 10px 14px;
+        font-size: 13px;
+        font-family: inherit;
+        outline: none;
+        box-sizing: border-box;
+    }
+    .search-input:focus { border-color: var(--blue); }
+
+    .no-data { padding: 48px; text-align: center; color: var(--gray-400); font-size: 13px; }
+    .no-data .icon { font-size: 32px; margin-bottom: 8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="eng-stats">
+    <div class="eng-stat">
+        <div class="label">Total Engagements</div>
+        <div class="value">{{ total }}</div>
+    </div>
+    <div class="eng-stat">
+        <div class="label">Signed</div>
+        <div class="value" style="color:#15803d;">{{ signed_count }}</div>
+    </div>
+    <div class="eng-stat">
+        <div class="label">This Month</div>
+        <div class="value">{{ this_month_count }}</div>
+    </div>
+</div>
+
+<div class="search-wrap">
+    <input type="text" class="search-input" id="engSearch" placeholder="Search by name or email…" oninput="filterTable()">
+</div>
+
+<div class="eng-card">
+    <div class="eng-card-header">
+        <div class="eng-card-title">Signed Engagement Letters</div>
+    </div>
+    {% if records %}
+    <table class="eng-table" id="engTable">
+        <thead>
+            <tr>
+                <th>Signer</th>
+                <th>Phone</th>
+                <th>Linked Client</th>
+                <th>Version</th>
+                <th>Signed</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rec in records %}
+            <tr>
+                <td>
+                    <div class="signer-name">{{ rec.full_name }}</div>
+                    <div class="signer-email">{{ rec.email }}</div>
+                </td>
+                <td style="color:var(--gray-600);">{{ rec.phone|default:"—" }}</td>
+                <td>
+                    {% if rec.client %}
+                        <a href="{% url 'client_detail' rec.client.id %}" style="color:var(--blue);font-weight:600;text-decoration:none;">
+                            {{ rec.client.name }}
+                        </a>
+                    {% elif rec.lead %}
+                        <span style="color:var(--gray-500);">Lead: {{ rec.lead.company_name }}</span>
+                    {% else %}
+                        <span style="color:var(--gray-400);">—</span>
+                    {% endif %}
+                </td>
+                <td><span class="badge badge-gray">{{ rec.version }}</span></td>
+                <td style="color:var(--gray-600);">{{ rec.signed_at|date:"M j, Y" }}<br><span style="font-size:11px;color:var(--gray-400);">{{ rec.signed_at|date:"g:i A" }}</span></td>
+                <td><span class="badge badge-green">✓ Signed</span></td>
+                <td>
+                    <a href="{% url 'view_letter' rec.id %}" class="btn-sm">View →</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="no-data">
+        <div class="icon">📋</div>
+        No engagement letters signed yet. They appear here when clients sign incorporation engagement letters.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function filterTable() {
+    const q = document.getElementById('engSearch').value.toLowerCase();
+    document.querySelectorAll('#engTable tbody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

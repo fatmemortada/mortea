@@ -1,0 +1,22 @@
+{% extends "clients/base.html" %}{% block title %}Services Marketplace — Mortacc{% endblock %}{% block topbar_title %}Corporate Services Marketplace{% endblock %}{% block content %}
+<div class="page-header"><div class="page-header-text"><h1>Corporate Services Marketplace</h1><p>Find corporate service providers across Canada — or list your own services</p></div><a href="{% url 'marketplace_add' %}" class="btn btn-primary">List Your Services</a></div>
+<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+<form method="GET" style="display:flex;gap:8px;flex-wrap:wrap">
+<select name="category" class="form-control" style="width:auto" onchange="this.form.submit()"><option value="">All Categories</option>{% for k,v in categories %}<option value="{{ k }}" {% if category_filter == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+<select name="jurisdiction" class="form-control" style="width:auto" onchange="this.form.submit()"><option value="">All Jurisdictions</option>{% for k,v in jurisdictions %}<option value="{{ k }}" {% if jurisdiction_filter == k %}selected{% endif %}>{{ v }}</option>{% endfor %}</select>
+</form></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px">
+{% for p in providers %}
+<div class="card"><div class="card-body">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+<strong>{{ p.name }}</strong>{% if p.is_featured %}<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:99px">Featured</span>{% endif %}
+</div>
+<div class="text-small text-muted mb-2">{{ p.get_category_display }} · {{ p.city|default:"Remote" }}{% if p.province %}, {{ p.province }}{% endif %}</div>
+<p class="text-small" style="line-height:1.6;margin-bottom:8px">{{ p.description|truncatechars:150 }}</p>
+{% if p.hourly_rate %}<div class="text-small"><strong>{{ p.hourly_rate }}</strong></div>{% endif %}
+<div style="margin-top:10px;display:flex;gap:8px">
+<a href="{% url 'marketplace_inquire' p.id %}" class="btn btn-primary btn-sm">Inquire</a>
+{% if p.website %}<a href="{{ p.website }}" target="_blank" class="btn btn-ghost btn-sm">Website</a>{% endif %}
+</div></div></div>
+{% empty %}<div class="empty-state"><p>No providers found. <a href="{% url 'marketplace_add' %}">Be the first to list!</a></p></div>{% endfor %}
+</div>{% endblock %}

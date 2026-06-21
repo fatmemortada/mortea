@@ -1,0 +1,45 @@
+{% extends "clients/base.html" %}{% block title %}Email Triage — Mortacc{% endblock %}{% block nav_emailtriage %}active{% endblock %}{% block topbar_title %}AI Email Triage{% endblock %}{% block topbar_actions %}<button class="btn btn-primary" onclick="document.getElementById('ingest-modal').style.display='flex'">+ Ingest Email</button>{% endblock %}
+{% block extra_head %}<style>.triage-layout{display:grid;grid-template-columns:1fr 300px;gap:20px}@media(max-width:900px){.triage-layout{grid-template-columns:1fr}}.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center}.stat .v{font-size:20px;font-weight:800;color:var(--ink)}.stat .l{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3)}.email-list{display:flex;flex-direction:column;gap:6px}.email-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;font-size:12px;transition:var(--transition)}.email-item:hover{border-color:var(--brand-muted)}.email-item.pending{border-left:3px solid var(--brand)}.email-item.urgent{border-left:3px solid var(--red)}.email-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.email-from{font-weight:600}.email-subject{color:var(--ink-2);margin-bottom:4px}.email-meta{display:flex;gap:12px;align-items:center;font-size:10px;color:var(--ink-3)}.badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:99px}.badge.pending{background:var(--brand-soft);color:var(--brand)}.badge.approved{background:var(--green-bg);color:var(--green)}.badge.escalated{background:#fef3c7;color:#b45309}.conf-bar{display:inline-block;height:4px;background:var(--surface-2);border-radius:2px;width:50px;vertical-align:middle;margin-left:4px}.conf-fill{height:100%;border-radius:2px;background:var(--green)}.action-btns{display:flex;gap:4px;margin-top:8px}.action-btns button,.action-btns form{font-size:10px}.draft-box{background:var(--surface-2);border-radius:var(--radius);padding:10px;font-size:11px;color:var(--ink-2);max-height:120px;overflow-y:auto;white-space:pre-wrap;font-family:monospace}</style>{% endblock %}
+{% block content %}
+<div class="stat-row"><div class="stat"><div class="v">{{ pending.count }}</div><div class="l">Pending Review</div></div><div class="stat"><div class="v">{{ this_week }}</div><div class="l">This Week</div></div><div class="stat"><div class="v">{{ auto_handled }}</div><div class="l">Auto-Handled</div></div><div class="stat"><div class="v">{{ triages.count }}</div><div class="l">Total Triaged</div></div></div>
+
+<div class="triage-layout"><div>
+<h3 style="font-size:13px;font-weight:600;color:var(--ink);margin:0 0 8px">Pending Review ({{ pending.count }})</h3>
+<div class="email-list">{% for t in pending %}
+<div class="email-item pending {% if t.sentiment == 'urgent' %}urgent{% endif %}">
+    <div class="email-header"><span class="email-from">{{ t.from_email }}</span><span class="badge pending">{{ t.get_category_display }}</span></div>
+    <div class="email-subject"><strong>{{ t.subject }}</strong></div>
+    <div class="email-meta"><span>{{ t.received_at|date:"M d H:i" }}</span><span>Sentiment: {{ t.sentiment }}</span><span>Confidence: {{ t.confidence|floatformat:0 }}%</span>{% if t.client %}<span>{{ t.client.name }}</span>{% endif %}</div>
+    {% if t.action_items %}<div class="email-meta">📋 {{ t.action_items|length }} action item(s)</div>{% endif %}
+    <div class="draft-box">{{ t.draft_response|truncatechars:300 }}</div>
+    <div class="action-btns">
+        <form method="POST">{% csrf_token %}<input type="hidden" name="action" value="approve_response"><input type="hidden" name="triage_id" value="{{ t.id }}"><button type="submit" class="btn btn-primary btn-sm">Approve & Send</button></form>
+        <form method="POST">{% csrf_token %}<input type="hidden" name="action" value="modify_response"><input type="hidden" name="triage_id" value="{{ t.id }}"><input type="text" name="final_response" value="{{ t.draft_response }}" style="display:none"><button type="submit" class="btn btn-outline btn-sm">Edit</button></form>
+        <form method="POST">{% csrf_token %}<input type="hidden" name="action" value="dismiss"><input type="hidden" name="triage_id" value="{{ t.id }}"><button type="submit" class="btn btn-outline btn-sm">Dismiss</button></form>
+        <form method="POST">{% csrf_token %}<input type="hidden" name="action" value="escalate"><input type="hidden" name="triage_id" value="{{ t.id }}"><button type="submit" class="btn btn-outline btn-sm">Escalate</button></form>
+    </div>
+</div>{% empty %}<div class="empty-state"><p>Inbox zero! 🎉</p></div>{% endfor %}</div>
+
+{% if approved %}
+<h3 style="font-size:13px;font-weight:600;color:var(--ink);margin:16px 0 8px">Recently Handled</h3>
+<div class="email-list">{% for t in approved|slice:":10" %}<div class="email-item"><div class="email-header"><span class="email-from">{{ t.from_email }}</span><span class="badge approved">✓ Sent</span></div><div class="email-subject">{{ t.subject }}</div><div class="email-meta">{{ t.response_sent_at|date:"M d H:i" }} · {{ t.get_category_display }}</div></div>{% endfor %}</div>
+{% endif %}
+</div>
+
+<aside>
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px"><h3 style="font-size:12px;font-weight:600;margin:0 0 8px">Quick Ingest</h3>
+<form method="POST">{% csrf_token %}<input type="hidden" name="action" value="ingest_email">
+    <select name="client_id" style="width:100%;padding:7px;margin-bottom:6px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:12px"><option value="">Client (optional)</option>{% for c in clients %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select>
+    <input type="email" name="from_email" placeholder="From: client@example.com" style="width:100%;padding:7px;margin-bottom:4px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:12px;box-sizing:border-box" required>
+    <input type="text" name="subject" placeholder="Subject" style="width:100%;padding:7px;margin-bottom:4px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:12px;box-sizing:border-box" required>
+    <textarea name="body" rows="3" placeholder="Email body..." style="width:100%;padding:7px;margin-bottom:6px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:12px;box-sizing:border-box"></textarea>
+    <button type="submit" class="btn btn-primary btn-sm" style="width:100%">AI Triage →</button>
+</form></div>
+
+{% if templates %}
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:12px"><h3 style="font-size:12px;font-weight:600;margin:0 0 8px">Response Templates ({{ templates.count }})</h3>
+{% for t in templates %}<div style="font-size:11px;padding:4px 0;border-bottom:1px solid var(--surface-2)"><strong>{{ t.name }}</strong> <span style="color:var(--ink-3)">· {{ t.get_category_display }}</span> <span style="font-size:9px;color:var(--ink-4)">(used {{ t.use_count }}×)</span></div>{% endfor %}</div>{% endif %}
+
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px"><h3 style="font-size:12px;font-weight:600;margin:0 0 8px">Add Template</h3><form method="POST">{% csrf_token %}<input type="hidden" name="action" value="save_template"><input type="text" name="template_name" placeholder="Template name" style="width:100%;padding:6px;margin-bottom:4px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:11px;box-sizing:border-box" required><select name="template_category" style="width:100%;padding:6px;margin-bottom:4px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:11px">{% for cat in categories %}<option value="{{ cat.0 }}">{{ cat.1 }}</option>{% endfor %}</select><input type="text" name="template_subject" placeholder="Subject template" value="Re: {{ original_subject }}" style="width:100%;padding:6px;margin-bottom:4px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:11px;box-sizing:border-box"><textarea name="template_body" rows="3" placeholder="Body template..." style="width:100%;padding:6px;margin-bottom:4px;border:1px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:11px;box-sizing:border-box"></textarea><button type="submit" class="btn btn-outline btn-sm" style="width:100%">Save Template</button></form></div>
+</aside></div>
+{% endblock %}

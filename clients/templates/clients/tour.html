@@ -1,0 +1,420 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Tour — See Every Mortacc Feature in Action | Interactive Walkthroughs</title>
+  <meta name="description" content="Browse {{ total_count }} interactive walkthroughs of every Mortacc feature — entity management, compliance, minute books, billing, cap tables, AI, automation, and more. No signup required.">
+  <meta property="og:title" content="Mortacc Product Tour — Interactive Walkthroughs of Every Feature">
+  <meta property="og:description" content="Browse {{ total_count }} step-by-step interactive demos. See entity management, compliance, minute books, billing, automation, and more. No signup needed.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mortacc.com/tour/">
+  <meta property="og:site_name" content="Mortacc">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Mortacc Product Tour — See Every Feature in Action">
+  <meta name="twitter:description" content="Browse {{ total_count }} interactive walkthroughs. No signup needed.">
+  <link rel="canonical" href="https://mortacc.com/tour/">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>⚖</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'clients/css/tour.css' %}">
+  <style>html{scroll-behavior:smooth}</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- NAVIGATION -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<nav class="tour-nav">
+  <a href="/" class="tour-nav-logo">Mort<span>acc</span></a>
+  <div class="tour-nav-cta">
+    <a href="{% url 'demo' %}" class="btn btn-outline">🎓 Try Instant Demo</a>
+    <a href="{% url 'accountant_signup' %}" class="btn btn-primary">Start Free Trial</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="tour-hero">
+  <div class="tour-hero-badge">🎬 Interactive Product Tour</div>
+  <h1>See every feature in action</h1>
+  <p>Browse {{ total_count }} interactive walkthroughs covering every part of Mortacc. Click any card to watch a step-by-step demo — no signup needed.</p>
+  <div class="tour-hero-cta">
+    <a href="{% url 'accountant_signup' %}" class="btn btn-primary">Start Free Trial →</a>
+    <a href="{% url 'demo' %}" class="btn btn-outline">🎓 Try Instant Demo</a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- STATS BAR -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tour-stats">
+  <div class="tour-stat">
+    <div class="tour-stat-num">{{ total_count }}</div>
+    <div class="tour-stat-label">Interactive Tutorials</div>
+  </div>
+  <div class="tour-stat">
+    <div class="tour-stat-num">{{ total_scenes }}+</div>
+    <div class="tour-stat-label">Walkthrough Scenes</div>
+  </div>
+  <div class="tour-stat">
+    <div class="tour-stat-num">~60m</div>
+    <div class="tour-stat-label">Total Watch Time</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- CATEGORY FILTERS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tour-categories" id="categoryFilters">
+  <button class="tour-cat-tab active" data-cat="all">All<span class="tour-cat-count">{{ total_count }}</span></button>
+  <button class="tour-cat-tab" data-cat="core">🧩 Core Platform<span class="tour-cat-count">{{ core_tutorials|length }}</span></button>
+  <button class="tour-cat-tab" data-cat="automation">⚡ Automation Center<span class="tour-cat-count">{{ automation_tutorials|length }}</span></button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TUTORIAL CARDS GRID (pre-rendered server-side) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tour-grid" id="tourGrid">
+  {% for t in tutorials %}
+  <div class="tour-card" data-category="{{ t.category }}" data-idx="{{ forloop.counter0 }}" onclick="openLightbox({{ forloop.counter0 }})">
+    <div class="tour-card-header">
+      <div class="tour-card-icon">{{ t.icon }}</div>
+      <div class="tour-card-info">
+        <div class="tour-card-title">{{ t.title }}</div>
+        <span class="tour-card-duration">⏱ {{ t.duration }}</span>
+      </div>
+    </div>
+    <div class="tour-card-desc">{{ t.description|truncatewords:30 }}</div>
+    <div class="tour-card-topics">
+      {% for topic in t.topics|slice:":3" %}
+      <span class="tour-card-topic">{{ topic }}</span>
+      {% endfor %}
+      {% if t.topics|length > 3 %}
+      <span class="tour-card-topic">+{{ t.topics|length|add:"-3" }} more</span>
+      {% endif %}
+    </div>
+    <div class="tour-card-action">▶ Watch Walkthrough →</div>
+  </div>
+  {% empty %}
+  <div class="tour-empty">
+    <div class="tour-empty-icon">📭</div>
+    <div class="tour-empty-text">No tutorials found. Please check back soon.</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- LIGHTBOX MODAL -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<div class="tour-lightbox" id="lightbox">
+  <div class="tour-lb-header">
+    <div class="tour-lb-title">
+      <span id="lbIcon"></span>
+      <span id="lbTitle"></span>
+    </div>
+    <div class="tour-lb-nav">
+      <button class="tour-lb-nav-btn" id="lbPrevTutorial" title="Previous tutorial">◀</button>
+      <button class="tour-lb-nav-btn" id="lbNextTutorial" title="Next tutorial">▶</button>
+      <button class="tour-lb-close" id="lbClose" title="Back to gallery">✕</button>
+    </div>
+  </div>
+  <div class="tour-lb-body">
+    <div class="tour-player">
+      <div class="tour-player-topbar">
+        <div class="tour-player-dots"><span></span><span></span><span></span></div>
+        <div class="tour-player-title" id="playerSceneTitle"></div>
+        <div class="tour-player-badge" id="playerBadge">Demo</div>
+      </div>
+      <div class="tour-player-content" id="playerContent"></div>
+      <div class="tour-player-caption">
+        <span class="tour-player-step" id="playerStep">1/1</span>
+        <span class="tour-player-caption-text" id="playerCaption"></span>
+      </div>
+      <div class="tour-player-controls">
+        <button class="tour-ctrl-btn" id="ctrlPrev" title="Previous scene">⏮</button>
+        <button class="tour-ctrl-btn play-btn" id="ctrlPlay" title="Play/Pause">▶</button>
+        <button class="tour-ctrl-btn" id="ctrlNext" title="Next scene">⏭</button>
+        <div class="tour-ctrl-dots" id="ctrlDots"></div>
+        <span class="tour-player-info" id="ctrlInfo"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- BOTTOM CTA -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<section class="tour-bottom-cta">
+  <h2>Ready to try it yourself?</h2>
+  <p>Get a pre-loaded demo account with sample data — no credit card, no signup.</p>
+  <a href="{% url 'demo' %}" class="btn btn-primary">🎓 Launch Instant Demo</a>
+  <a href="{% url 'accountant_signup' %}" class="btn btn-outline">Start Free Trial →</a>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<footer class="tour-footer">
+  © 2026 <a href="/">Mortacc</a> — Canadian Corporate Governance Platform ·
+  <a href="{% url 'pricing' %}">Pricing</a> ·
+  <a href="{% url 'security' %}">Security</a> ·
+  <a href="mailto:support@mortacc.com">Contact</a>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script>
+// ── Tutorial scene data (loaded from JSON for the lightbox player) ──
+var TUTORIAL_SCENES = {{ tutorials|safe }};
+var currentTutorialIdx = -1;
+var currentScene = 0;
+var isPlaying = false;
+var playTimer = null;
+var visibleCardIndices = []; // indices of currently visible cards
+
+// Build initial visible card list
+(function initVisibleCards() {
+  var cards = document.querySelectorAll('#tourGrid .tour-card');
+  visibleCardIndices = [];
+  cards.forEach(function(card) {
+    visibleCardIndices.push(parseInt(card.getAttribute('data-idx')));
+  });
+})();
+
+// ── Category Filters ───────────────────────────────────────────────
+document.getElementById('categoryFilters').addEventListener('click', function(e) {
+  var tab = e.target.closest('.tour-cat-tab');
+  if (!tab) return;
+  document.querySelectorAll('.tour-cat-tab').forEach(function(t) { t.classList.remove('active'); });
+  tab.classList.add('active');
+  filterCards(tab.dataset.cat);
+});
+
+function filterCards(category) {
+  var cards = document.querySelectorAll('#tourGrid .tour-card');
+  var newVisible = [];
+  cards.forEach(function(card) {
+    if (category === 'all' || card.getAttribute('data-category') === category) {
+      card.style.display = '';
+      newVisible.push(parseInt(card.getAttribute('data-idx')));
+    } else {
+      card.style.display = 'none';
+    }
+  });
+  visibleCardIndices = newVisible;
+
+  // Show/hide empty state
+  var empty = document.getElementById('tourEmpty');
+  if (!newVisible.length) {
+    if (!empty) {
+      empty = document.createElement('div');
+      empty.id = 'tourEmpty';
+      empty.className = 'tour-empty';
+      empty.innerHTML = '<div class="tour-empty-icon">🔍</div><div class="tour-empty-text">No tutorials found for this category.</div>';
+      document.getElementById('tourGrid').appendChild(empty);
+    }
+    empty.style.display = '';
+  } else if (empty) {
+    empty.style.display = 'none';
+  }
+}
+
+// ── Lightbox ───────────────────────────────────────────────────────
+function openLightbox(idx) {
+  // Find the global tutorial index from the card's data-idx
+  currentTutorialIdx = idx;
+  currentScene = 0;
+  stopPlay();
+  renderLightboxScene();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  stopPlay();
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function navLightbox(direction) {
+  // Find current idx position in visibleCardIndices
+  var pos = visibleCardIndices.indexOf(currentTutorialIdx);
+  if (pos === -1) return;
+  var newPos = pos + direction;
+  if (newPos >= 0 && newPos < visibleCardIndices.length) {
+    currentTutorialIdx = visibleCardIndices[newPos];
+    currentScene = 0;
+    stopPlay();
+    renderLightboxScene();
+  }
+}
+
+// ── Lightbox Scene Rendering ───────────────────────────────────────
+function renderLightboxScene() {
+  var t = TUTORIAL_SCENES[currentTutorialIdx];
+  if (!t) return;
+  var s = t.scenes[currentScene];
+  if (!s) return;
+
+  document.getElementById('lbIcon').textContent = t.icon;
+  document.getElementById('lbTitle').textContent = t.title;
+  document.getElementById('playerSceneTitle').textContent = s.title;
+  document.getElementById('playerBadge').textContent = s.topbarBadge || 'Demo';
+  document.getElementById('playerContent').innerHTML = s.content || '';
+  document.getElementById('playerStep').textContent = (currentScene + 1) + '/' + t.scenes.length;
+  document.getElementById('playerCaption').textContent = s.caption || '';
+  document.getElementById('ctrlInfo').textContent = 'Scene ' + (currentScene + 1) + '/' + t.scenes.length;
+
+  // Update prev/next tutorial buttons
+  var pos = visibleCardIndices.indexOf(currentTutorialIdx);
+  document.getElementById('lbPrevTutorial').style.visibility = pos > 0 ? 'visible' : 'hidden';
+  document.getElementById('lbNextTutorial').style.visibility = pos < visibleCardIndices.length - 1 ? 'visible' : 'hidden';
+
+  // Update scene dots
+  var dots = document.getElementById('ctrlDots');
+  dots.innerHTML = '';
+  t.scenes.forEach(function(_, i) {
+    var dot = document.createElement('div');
+    dot.className = 'tour-ctrl-dot';
+    if (i === currentScene) dot.classList.add('active');
+    if (i < currentScene) dot.classList.add('done');
+    dot.onclick = function() { currentScene = i; stopPlay(); renderLightboxScene(); };
+    dots.appendChild(dot);
+  });
+}
+
+// ── Lightbox Controls ──────────────────────────────────────────────
+function nextScene() {
+  var t = TUTORIAL_SCENES[currentTutorialIdx];
+  if (!t) return;
+  if (currentScene < t.scenes.length - 1) {
+    currentScene++;
+  } else {
+    navLightbox(1);
+    return;
+  }
+  renderLightboxScene();
+}
+
+function prevScene() {
+  var t = TUTORIAL_SCENES[currentTutorialIdx];
+  if (!t) return;
+  if (currentScene > 0) {
+    currentScene--;
+  } else {
+    navLightbox(-1);
+    return;
+  }
+  renderLightboxScene();
+}
+
+function togglePlay() {
+  if (isPlaying) { stopPlay(); } else { startPlay(); }
+}
+
+function startPlay() {
+  isPlaying = true;
+  document.getElementById('ctrlPlay').textContent = '⏸';
+  autoAdvance();
+}
+
+function stopPlay() {
+  isPlaying = false;
+  document.getElementById('ctrlPlay').textContent = '▶';
+  if (playTimer) clearTimeout(playTimer);
+}
+
+function autoAdvance() {
+  if (!isPlaying) return;
+  var t = TUTORIAL_SCENES[currentTutorialIdx];
+  if (!t) { stopPlay(); return; }
+  if (currentScene < t.scenes.length - 1) {
+    currentScene++;
+    renderLightboxScene();
+  } else if (visibleCardIndices.indexOf(currentTutorialIdx) < visibleCardIndices.length - 1) {
+    navLightbox(1);
+  } else {
+    stopPlay();
+    return;
+  }
+  playTimer = setTimeout(autoAdvance, 4000);
+}
+
+// ── Event Listeners ────────────────────────────────────────────────
+document.getElementById('lbClose').addEventListener('click', closeLightbox);
+document.getElementById('lbPrevTutorial').addEventListener('click', function() { navLightbox(-1); });
+document.getElementById('lbNextTutorial').addEventListener('click', function() { navLightbox(1); });
+document.getElementById('ctrlPrev').addEventListener('click', prevScene);
+document.getElementById('ctrlNext').addEventListener('click', nextScene);
+document.getElementById('ctrlPlay').addEventListener('click', togglePlay);
+
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); nextScene(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevScene(); }
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  if (e.key === 'Escape') { e.preventDefault(); closeLightbox(); }
+  if (e.key === 'p' || e.key === 'P') { togglePlay(); }
+});
+
+// Close lightbox on backdrop click
+document.getElementById('lightbox').addEventListener('click', function(e) {
+  if (e.target === this) closeLightbox();
+});
+
+// ── Touch / Swipe Support ──────────────────────────────────────────
+(function(){
+  var touchStartX = 0, touchStartY = 0;
+  var lb = document.getElementById('lightbox');
+  lb.addEventListener('touchstart', function(e){
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, {passive:true});
+  lb.addEventListener('touchend', function(e){
+    if(!lb.classList.contains('open')) return;
+    var dx = e.changedTouches[0].screenX - touchStartX;
+    var dy = e.changedTouches[0].screenY - touchStartY;
+    if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 60){
+      if(dx < -40) nextScene(); else if(dx > 40) prevScene();
+    }
+    if(dy > 80 && Math.abs(dy) > Math.abs(dx)){ closeLightbox(); }
+  });
+})();
+
+// ── Card entrance animation ─────────────────────────────────────────
+(function(){
+  var cards = document.querySelectorAll('.tour-card');
+  cards.forEach(function(card, i){
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = 'opacity .4s ease, transform .4s cubic-bezier(.4,0,.2,1)';
+    card.style.transitionDelay = (i * 0.04) + 's';
+  });
+  setTimeout(function(){
+    cards.forEach(function(card){
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    });
+  }, 80);
+})();
+</script>
+
+<!-- Scroll to Top -->
+<button id="scrollTopBtn" title="Back to top" aria-label="Scroll to top">↑</button>
+<style>
+#scrollTopBtn{position:fixed;bottom:28px;right:28px;z-index:999;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);color:var(--ink-2);font-size:18px;cursor:pointer;opacity:0;visibility:hidden;transform:translateY(12px);transition:all .3s;box-shadow:0 4px 12px rgba(15,23,42,.1)}
+#scrollTopBtn.visible{opacity:1;visibility:visible;transform:translateY(0)}
+#scrollTopBtn:hover{background:var(--brand);color:#fff;border-color:var(--brand);transform:translateY(-2px);box-shadow:0 8px 20px rgba(37,99,235,.25)}
+</style>
+<script>
+(function(){
+  var btn = document.getElementById('scrollTopBtn');
+  window.addEventListener('scroll', function(){btn.classList.toggle('visible',window.scrollY>500);});
+  btn.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+})();
+</script>
+</body>
+</html>

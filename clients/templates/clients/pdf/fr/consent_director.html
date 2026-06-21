@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: letter; margin: 2cm 2.2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; font-size: 11pt; color: #1a1a1a; line-height: 1.8; }
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 24px; }
+  .doc-logo { font-size: 20pt; font-weight: bold; } .doc-logo span { color: #b8956a; }
+  .doc-meta { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.6; }
+  .doc-title { text-align: center; margin: 20px 0 36px; }
+  .doc-title h1 { font-size: 15pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .doc-title .corp-name { font-size: 12pt; font-style: italic; color: #333; }
+  .doc-title .jurisdiction { font-size: 9pt; color: #666; margin-top: 4px; }
+  .body-text p { margin-bottom: 14px; }
+  .field-block { margin: 24px 0; padding: 16px 20px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; }
+  .field { display: flex; margin-bottom: 10px; }
+  .field-label { width: 200px; font-weight: bold; font-size: 9.5pt; color: #555; flex-shrink: 0; }
+  .field-value { font-size: 10.5pt; }
+  .sig-block { margin-top: 60px; }
+  .sig-line-wrap { display: flex; gap: 60px; margin-top: 40px; }
+  .sig-item { flex: 1; }
+  .sig-item .line { border-bottom: 1px solid #1a1a1a; margin-bottom: 6px; height: 50px; }
+  .sig-item .name { font-size: 9.5pt; font-weight: bold; }
+  .sig-item .label { font-size: 8.5pt; color: #555; }
+  p { margin-bottom: 10px; }
+  .small { font-size: 8.5pt; color: #666; }
+  .mt { margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="doc-logo">Mort<span>acc</span></div>
+  <div class="doc-meta">{{ client.name }}<br>Consentement à agir comme administrateur<br>{{ today|date:"j F Y" }}</div>
+</div>
+
+<div class="doc-title">
+  <h1>Consentement à Agir comme Administrateur</h1>
+  <div class="corp-name">{{ client.name }}</div>
+  <div class="jurisdiction">
+    {% if jurisdiction_display %}Constituée en vertu des lois de {{ jurisdiction_display }} · {% endif %}Canada
+  </div>
+</div>
+
+<div class="body-text">
+  <p>Le soussigné consent par les présentes à agir à titre d'administrateur de <strong>{{ client.name }}</strong> (la « Société »), société constituée en vertu des lois de {{ jurisdiction_display|default:"Canada" }}.</p>
+
+  <div class="field-block">
+    <div class="field">
+      <span class="field-label">Nom complet :</span>
+      <span class="field-value">{{ director.full_name }}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Adresse :</span>
+      <span class="field-value">{{ director.address|default:"—" }}</span>
+    </div>
+    {% if director.officer_title %}
+    <div class="field">
+      <span class="field-label">Titre de dirigeant :</span>
+      <span class="field-value">{{ director.officer_title }}</span>
+    </div>
+    {% endif %}
+    <div class="field">
+      <span class="field-label">Date de nomination :</span>
+      <span class="field-value">{{ director.appointment_date|date:"j F Y"|default:"—" }}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Société :</span>
+      <span class="field-value">{{ client.name }}</span>
+    </div>
+    {% if profile and profile.business_number %}
+    <div class="field">
+      <span class="field-label">Numéro d'entreprise :</span>
+      <span class="field-value">{{ profile.business_number }}</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <p>Je confirme que je suis qualifié pour agir à titre d'administrateur de la Société conformément à la législation applicable en matière de droit des sociétés, que je ne suis pas inhabile à agir comme administrateur, et que je consens à agir en cette qualité à compter de la date indiquée ci-dessous.</p>
+
+  <p>Je reconnais avoir lu et compris les devoirs et responsabilités d'un administrateur de la Société et je m'engage à m'acquitter fidèlement de ces devoirs.</p>
+</div>
+
+<div class="sig-block">
+  <p><strong>EN FOI DE QUOI</strong>, j'ai signé le présent consentement le <strong>{{ director.appointment_date|date:"j F Y"|default:today|date:"j F Y" }}</strong>.</p>
+
+  <div class="sig-line-wrap">
+    <div class="sig-item">
+      <div class="line"></div>
+      <div class="name">{{ director.full_name }}</div>
+      <div class="label">Administrateur{% if director.officer_title %} · {{ director.officer_title }}{% endif %}</div>
+    </div>
+    <div class="sig-item">
+      <div class="line"></div>
+      <div class="label">Date</div>
+    </div>
+  </div>
+</div>
+
+<p class="small mt">Préparé par Mortacc Solutions Inc. · support@mortacc.com · mortacc.com</p>
+
+</body>
+</html>

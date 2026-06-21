@@ -1,0 +1,37 @@
+{% extends "clients/base.html" %}{% block title %}Intake Results — Mortacc{% endblock %}{% block nav_intake %}active{% endblock %}{% block topbar_title %}Intake Processing Results{% endblock %}
+{% block extra_head %}<style>.result-card{max-width:800px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px}.success-header{text-align:center;padding:24px;margin-bottom:20px;background:var(--green-bg);border:2px solid var(--green);border-radius:var(--radius)}.success-header h2{color:var(--green);font-size:22px;margin:0 0 6px}.created-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:20px}.created-item{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}.created-item .icon{font-size:24px;margin-bottom:4px}.created-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3)}.created-item .value{font-size:14px;font-weight:700;color:var(--ink);margin-top:2px}.log-list{list-style:none;padding:0;margin:0;font-size:12px}.log-list li{padding:6px 12px;border-bottom:1px solid var(--surface-2);display:flex;align-items:center;gap:8px}.log-list li::before{content:'✓';color:var(--green);font-weight:700}.log-list li.warning::before{content:'⚠';color:#d97706}.log-list li.error::before{content:'✗';color:var(--red)}.actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}</style>{% endblock %}
+{% block content %}
+<div class="result-card">
+{% if intake.status == 'completed' %}
+<div class="success-header"><h2>✅ Incorporation Ready!</h2><p style="font-size:14px;color:var(--ink-2);margin:4px 0">{{ intake.client_email }} · {{ intake.get_jurisdiction_display }} · {{ intake.get_structure_type_display }}</p><p style="font-size:12px;color:var(--ink-3)">All records created automatically from intake form</p></div>
+
+<div class="created-grid">
+    <div class="created-item"><div class="icon">🏢</div><div class="label">Client</div><div class="value">{% if client %}<a href="{% url 'client_detail' client.id %}" style="color:var(--brand)">{{ client.name }}</a>{% else %}—{% endif %}</div></div>
+    <div class="created-item"><div class="icon">📋</div><div class="label">Corporate Profile</div><div class="value">{{ intake.get_jurisdiction_display }}</div></div>
+    <div class="created-item"><div class="icon">👥</div><div class="label">Directors</div><div class="value">{{ intake.total_directors }} created</div></div>
+    <div class="created-item"><div class="icon">📊</div><div class="label">Shareholders</div><div class="value">{{ intake.total_shareholders }} created</div></div>
+    <div class="created-item"><div class="icon">📝</div><div class="label">Compliance Tasks</div><div class="value">Auto-generated</div></div>
+    <div class="created-item"><div class="icon">💰</div><div class="label">Invoice</div><div class="value">${{ intake.total_estimated|floatformat:0 }}</div></div>
+    {% if intake.create_subscription %}<div class="created-item"><div class="icon">🔄</div><div class="label">Subscription</div><div class="value">{{ intake.get_subscription_plan_tier_display }}</div></div>{% endif %}
+    {% if intake.include_engagement_letter %}<div class="created-item"><div class="icon">📄</div><div class="label">Engagement Letter</div><div class="value">Generated</div></div>{% endif %}
+</div>
+
+{% if processing_log %}
+<h3 style="font-size:13px;font-weight:600;color:var(--ink);margin:16px 0 8px">Processing Log</h3>
+<ul class="log-list">{% for entry in processing_log %}<li class="{% if entry.level == 'warning' %}warning{% elif entry.level == 'error' %}error{% endif %}">{{ entry.step }}</li>{% endfor %}</ul>
+{% endif %}
+
+<div class="actions">
+    <a href="{% url 'incorporation_wizard' project.id %}" class="btn btn-primary btn-lg" style="flex:1">Continue in Incorporation Wizard →</a>
+    <a href="{% url 'intake_form_create' %}" class="btn btn-outline btn-lg">New Intake</a>
+    <a href="{% url 'intake_form_list' %}" class="btn btn-outline btn-lg">View All</a>
+</div>
+
+{% elif intake.status == 'failed' %}
+<div style="text-align:center;padding:24px;background:var(--red-bg);border:2px solid var(--red);border-radius:var(--radius);margin-bottom:16px"><h2 style="color:var(--red);font-size:20px;margin:0">❌ Processing Failed</h2><p style="font-size:13px;color:var(--red-dark);margin:4px 0">{{ intake.processing_error }}</p></div>
+<div class="actions"><a href="{% url 'intake_form_detail' intake.id %}" class="btn btn-primary">Retry</a><a href="{% url 'intake_form_list' %}" class="btn btn-outline">Back to List</a></div>
+{% else %}
+<div style="text-align:center;padding:24px"><p style="font-size:14px;color:var(--ink-3)">Intake status: {{ intake.get_status_display }}</p></div>
+{% endif %}
+</div>
+{% endblock %}

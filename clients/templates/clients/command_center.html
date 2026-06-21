@@ -1,0 +1,320 @@
+{% extends "clients/base.html" %}
+{% block title %}Command Center — {{ firm.name }}{% endblock %}
+{% block topbar_title %}Command Center{% endblock %}
+{% block topbar_breadcrumb %}{{ firm.name }} · {{ today|date:"F j, Y" }}{% endblock %}
+{% block nav_command %}active{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  .cc-hero { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+  .cc-stat { background:var(--surface); border-radius:var(--radius-lg); padding:18px 20px; border:1px solid var(--border); transition:var(--transition); }
+  .cc-stat:hover { box-shadow:var(--shadow-sm); }
+  .cc-stat .cc-stat-icon { font-size:22px; margin-bottom:10px; }
+  .cc-stat .cc-stat-val { font-size:28px; font-weight:700; color:var(--ink); line-height:1.2; }
+  .cc-stat .cc-stat-label { font-size:12px; color:var(--ink-3); margin-top:2px; font-weight:500; }
+  .cc-stat .cc-stat-sub { font-size:11px; color:var(--ink-4); margin-top:1px; }
+  .cc-stat.warn .cc-stat-val { color:var(--amber); }
+  .cc-stat.danger .cc-stat-val { color:var(--red); }
+  .cc-stat.success .cc-stat-val { color:var(--green); }
+
+  .cc-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px; }
+  .cc-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:24px; }
+
+  .needs-row { display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:var(--radius); margin-bottom:4px; transition:var(--transition); }
+  .needs-row:hover { background:var(--surface-2); }
+  .needs-row .needs-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+  .needs-row .needs-dot.red { background:var(--red); }
+  .needs-row .needs-dot.amber { background:var(--amber); }
+  .needs-row .needs-name { flex:1;font-weight:500;font-size:13px;color:var(--ink); }
+  .needs-row .needs-name a { color:inherit;text-decoration:none; }
+  .needs-row .needs-name a:hover { color:var(--brand); }
+  .needs-row .needs-badge { font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--radius-full); }
+  .needs-row .needs-badge.overdue { background:#fef2f2;color:#dc2626; }
+  .needs-row .needs-badge.unpaid { background:#fffbeb;color:#d97706; }
+  .needs-row .needs-badge.missing { background:#fefce8;color:#ca8a04; }
+
+  .deadline-item { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px; }
+  .deadline-item:last-child { border-bottom:none; }
+  .deadline-item .dl-days { width:42px;text-align:center;font-weight:700;font-size:14px;flex-shrink:0; }
+  .deadline-item .dl-days.urgent { color:var(--red); }
+  .deadline-item .dl-days.soon { color:var(--amber); }
+  .deadline-item .dl-info { flex:1; }
+  .deadline-item .dl-client { font-weight:500;color:var(--ink); }
+  .deadline-item .dl-title { font-size:11px;color:var(--ink-3); }
+  .deadline-item .dl-date { font-size:11px;color:var(--ink-4);text-align:right;white-space:nowrap; }
+
+  .activity-item { display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px; }
+  .activity-item:last-child { border-bottom:none; }
+  .activity-item .act-icon { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0; }
+  .activity-item .act-text { flex:1;color:var(--ink-2);line-height:1.4; }
+  .activity-item .act-time { font-size:10px;color:var(--ink-4);white-space:nowrap; }
+
+  .quick-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+  .qa-card { display:flex;align-items:center;gap:12px;padding:16px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);text-decoration:none;color:var(--ink);transition:var(--transition); }
+  .qa-card:hover { box-shadow:var(--shadow-sm);border-color:var(--brand); }
+  .qa-card .qa-icon { font-size:24px; }
+  .qa-card .qa-label { font-size:13px;font-weight:600; }
+
+  .chart-wrap { position:relative; height:240px; }
+  .chart-wrap-sm { position:relative; height:200px; }
+
+  @media (max-width:1100px) { .cc-hero{grid-template-columns:repeat(3,1fr);} .cc-grid,.cc-grid-3{grid-template-columns:1fr;} .quick-actions{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:768px) { .cc-hero{grid-template-columns:1fr 1fr;} .quick-actions{grid-template-columns:1fr 1fr;} }
+  @media (max-width:480px) { .cc-hero{grid-template-columns:1fr;} .quick-actions{grid-template-columns:1fr;} }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-text">
+    <h1>{{ firm.name }}</h1>
+    <p>{{ total_clients }} corporation{{ total_clients|pluralize }} · {{ today|date:"l, F j, Y" }}</p>
+  </div>
+</div>
+
+<!-- ═══ HERO STATS ═══ -->
+<div class="cc-hero">
+  <div class="cc-stat">
+    <div class="cc-stat-icon">🏢</div>
+    <div class="cc-stat-val">{{ total_clients }}</div>
+    <div class="cc-stat-label">Corporations Managed</div>
+  </div>
+  <div class="cc-stat {% if filings_due_month %}warn{% endif %}">
+    <div class="cc-stat-icon">📋</div>
+    <div class="cc-stat-val">{{ filings_due_month }}</div>
+    <div class="cc-stat-label">Filings Due This Month</div>
+    {% if annual_returns_due %}<div class="cc-stat-sub">{{ annual_returns_due }} annual return{{ annual_returns_due|pluralize }}</div>{% endif %}
+  </div>
+  <div class="cc-stat {% if overdue_tasks %}danger{% endif %}">
+    <div class="cc-stat-icon">⚠️</div>
+    <div class="cc-stat-val">{{ overdue_tasks }}</div>
+    <div class="cc-stat-label">Overdue Tasks</div>
+    {% if overdue_filings %}<div class="cc-stat-sub">{{ overdue_filings }} overdue filing{{ overdue_filings|pluralize }}</div>{% endif %}
+  </div>
+  <div class="cc-stat">
+    <div class="cc-stat-icon">✍️</div>
+    <div class="cc-stat-val">{{ pending_signatures }}</div>
+    <div class="cc-stat-label">Pending Signatures</div>
+  </div>
+</div>
+
+<!-- ═══ SECONDARY STATS ═══ -->
+<div class="cc-hero">
+  <div class="cc-stat {% if quebec_due %}warn{% endif %}">
+    <div class="cc-stat-icon">⚜️</div>
+    <div class="cc-stat-val">{{ quebec_due }}</div>
+    <div class="cc-stat-label">Quebec Declarations Due</div>
+  </div>
+  <div class="cc-stat {% if outstanding_inv > 0 %}warn{% endif %}">
+    <div class="cc-stat-icon">💲</div>
+    <div class="cc-stat-val">${{ outstanding_inv|floatformat:0 }}</div>
+    <div class="cc-stat-label">Outstanding Revenue</div>
+    <div class="cc-stat-sub">{{ unpaid_count }} unpaid invoice{{ unpaid_count|pluralize }}</div>
+  </div>
+  <div class="cc-stat {% if missing_minute %}warn{% endif %}">
+    <div class="cc-stat-icon">📚</div>
+    <div class="cc-stat-val">{{ missing_minute }}</div>
+    <div class="cc-stat-label">Missing Minute Books</div>
+    {% if missing_ubo %}<div class="cc-stat-sub">{{ missing_ubo }} missing UBO{{ missing_ubo|pluralize }}</div>{% endif %}
+  </div>
+  <div class="cc-stat success">
+    <div class="cc-stat-icon">✅</div>
+    <div class="cc-stat-val">{{ completed_month }}</div>
+    <div class="cc-stat-label">Completed This Month</div>
+  </div>
+</div>
+
+<!-- ═══ CHARTS ROW ═══ -->
+<div class="cc-grid">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Firm Health Distribution</span></div>
+    <div class="chart-wrap">
+      <canvas id="healthChart"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">Compliance Activity (6 Months)</span></div>
+    <div class="chart-wrap">
+      <canvas id="complianceChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="cc-grid-3">
+  <!-- ═══ NEEDS ATTENTION ═══ -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">⚠️ Needs Attention</span>
+      <span class="badge badge-needs-attention">{{ needs_attention|length }}</span>
+    </div>
+    <div style="max-height:320px;overflow-y:auto;">
+      {% for item in needs_attention %}
+      <div class="needs-row">
+        <span class="needs-dot {{ item.health }}"></span>
+        <span class="needs-name"><a href="{% url 'client_detail' item.id %}">{{ item.name }}</a></span>
+        {% if item.overdue %}<span class="needs-badge overdue">{{ item.overdue }} overdue</span>{% endif %}
+        {% if item.unpaid %}<span class="needs-badge unpaid">{{ item.unpaid }} unpaid</span>{% endif %}
+        {% if item.missing %}<span class="needs-badge missing">{{ item.missing }} missing</span>{% endif %}
+      </div>
+      {% empty %}
+      <div style="text-align:center;padding:40px 20px;color:var(--ink-4);">
+        <div style="font-size:32px;margin-bottom:8px;">🎉</div>
+        <div style="font-size:13px;">All clear — nothing needs attention</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ═══ UPCOMING DEADLINES ═══ -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📅 Upcoming Deadlines</span>
+      <span style="font-size:11px;color:var(--ink-4);">Next 30 days</span>
+    </div>
+    <div style="max-height:320px;overflow-y:auto;">
+      {% for dl in upcoming %}
+      <div class="deadline-item">
+        <span class="dl-days {% if dl.days <= 3 %}urgent{% elif dl.days <= 7 %}soon{% endif %}">
+          {% if dl.days == 0 %}Today{% else %}{{ dl.days }}d{% endif %}
+        </span>
+        <div class="dl-info">
+          <div class="dl-client">{{ dl.client_name }}</div>
+          <div class="dl-title">{{ dl.title }}</div>
+        </div>
+        <div class="dl-date">{{ dl.due_date|date:"M j" }}</div>
+      </div>
+      {% empty %}
+      <div style="text-align:center;padding:40px 20px;color:var(--ink-4);">
+        <div style="font-size:13px;">No upcoming deadlines</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ═══ RECENT ACTIVITY ═══ -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">🕐 Recent Activity</span>
+      <a href="{% url 'activity_log' %}" style="font-size:11px;color:var(--brand);text-decoration:none;">View all →</a>
+    </div>
+    <div style="max-height:320px;overflow-y:auto;">
+      {% for act in recent_activity %}
+      <div class="activity-item">
+        <div class="act-icon" style="background:var(--surface-2);">📝</div>
+        <div class="act-text">
+          <strong>{{ act.user.get_full_name|default:act.user.username }}</strong>
+          {{ act.description|default:act.get_action_display }}
+          {% if act.target_name %}· <span style="color:var(--ink-3);">{{ act.target_name }}</span>{% endif %}
+        </div>
+        <div class="act-time">{{ act.created_at|date:"M j" }}</div>
+      </div>
+      {% empty %}
+      <div style="text-align:center;padding:40px 20px;color:var(--ink-4);">
+        <div style="font-size:13px;">No recent activity</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TASK TYPE BREAKDOWN ═══ -->
+{% if task_type_labels %}
+<div class="cc-grid">
+  <div class="card">
+    <div class="card-header"><span class="card-title">Pending Tasks by Type</span></div>
+    <div class="chart-wrap-sm">
+      <canvas id="taskTypeChart"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="card-title">Quick Actions</span></div>
+    <div class="quick-actions" style="padding:8px;">
+      <a href="{% url 'corporate' %}" class="qa-card">
+        <span class="qa-icon">🏢</span><span class="qa-label">New Incorporation</span>
+      </a>
+      <a href="{% url 'compliance_dashboard' %}" class="qa-card">
+        <span class="qa-icon">📋</span><span class="qa-label">Compliance Tasks</span>
+      </a>
+      <a href="{% url 'billing_dashboard' %}" class="qa-card">
+        <span class="qa-icon">💲</span><span class="qa-label">Billing Dashboard</span>
+      </a>
+      <a href="{% url 'reminders' %}" class="qa-card">
+        <span class="qa-icon">🔔</span><span class="qa-label">Send Reminders</span>
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Health distribution chart
+new Chart(document.getElementById('healthChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Healthy', 'Needs Review', 'Critical'],
+    datasets: [{
+      data: [{{ health_counts.green|default:0 }}, {{ health_counts.amber|default:0 }}, {{ health_counts.red|default:0 }}],
+      backgroundColor: ['#22c55e', '#f59e0b', '#ef4444'],
+      borderWidth: 2,
+      borderColor: '#fff',
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } },
+  }
+});
+
+// Compliance activity chart
+new Chart(document.getElementById('complianceChart'), {
+  type: 'bar',
+  data: {
+    labels: [{% for l in monthly_labels %}'{{ l|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+      label: 'Completed Filings',
+      data: [{% for c in monthly_completed %}{{ c }}{% if not forloop.last %},{% endif %}{% endfor %}],
+      backgroundColor: '#b76e79',
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+      x: { grid: { display: false } },
+    },
+  }
+});
+
+{% if task_type_labels %}
+// Task type chart
+new Chart(document.getElementById('taskTypeChart'), {
+  type: 'bar',
+  data: {
+    labels: [{% for l in task_type_labels %}'{{ l|escapejs }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+    datasets: [{
+      label: 'Pending',
+      data: [{% for c in task_type_counts %}{{ c }}{% if not forloop.last %},{% endif %}{% endfor %}],
+      backgroundColor: '#8b4a55',
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+      y: { grid: { display: false } },
+    },
+  }
+});
+{% endif %}
+</script>
+{% endblock %}

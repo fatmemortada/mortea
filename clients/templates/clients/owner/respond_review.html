@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Respond — {{ provider.name }} | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.container { max-width: 640px; margin: 0 auto; padding: 40px 24px 80px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; }
+.review-box { padding: 16px; background: var(--bg-warm); border-radius: var(--radius); margin-bottom: 20px; }
+.review-author { font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.review-stars { color: var(--star); font-size: 14px; }
+.review-body { font-size: 15px; color: var(--ink-2); line-height: 1.6; margin-top: 6px; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.field textarea { width: 100%; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 15px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--ink); outline: none; resize: vertical; min-height: 120px; }
+.field textarea:focus { border-color: var(--brand); }
+.btn { padding: 12px 32px; font-size: 15px; font-weight: 600; border-radius: var(--radius-full); border: none; background: var(--brand); color: #fff; cursor: pointer; }
+.btn:hover { background: var(--brand-dark); }
+.btn-back { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--ink-3); text-decoration: none; margin-bottom: 24px; }
+.btn-back:hover { color: var(--ink); }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><div class="container">
+<a href="{% url 'owner_dashboard' provider.slug %}" class="btn-back">← Back to Dashboard</a>
+<h1>Respond to Review</h1>
+<div class="card">
+<div class="review-box">
+<div class="review-author">{{ review.author_name }}</div>
+<div class="review-stars">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</div>
+<div class="review-body">{{ review.body }}</div>
+<div style="font-size:12px;color:var(--ink-4);margin-top:4px">{{ review.created_at|date:"F j, Y" }}</div>
+</div>
+<form method="POST">{% csrf_token %}
+<div class="field"><label>Your response</label><textarea name="reply" placeholder="Write a professional response to this review…">{% if review.reply %}{{ review.reply }}{% endif %}</textarea></div>
+<button type="submit" class="btn">{% if review.reply %}Update Response{% else %}Post Response{% endif %}</button>
+</form></div></div></div>
+</body></html>

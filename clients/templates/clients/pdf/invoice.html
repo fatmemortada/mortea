@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    color: #1a1a2e;
+    background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+    padding: 48px;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    padding-bottom: 28px;
+    border-bottom: 2px solid #1a1a2e;
+  }
+
+  .firm-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: -0.5px;
+  }
+
+  .firm-meta {
+    font-size: 11px;
+    color: #666;
+    margin-top: 4px;
+    line-height: 1.6;
+  }
+
+  .invoice-title {
+    text-align: right;
+  }
+
+  .invoice-title h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1a1a2e;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+  }
+
+  .invoice-number {
+    font-size: 13px;
+    color: #666;
+    margin-top: 4px;
+  }
+
+  .status-badge {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .status-paid    { background: #dcfce7; color: #16a34a; }
+  .status-sent    { background: #dbeafe; color: #1d4ed8; }
+  .status-overdue { background: #fee2e2; color: #dc2626; }
+  .status-draft   { background: #f3f4f6; color: #6b7280; }
+
+  /* ── Bill To / Dates ── */
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    gap: 40px;
+  }
+
+  .meta-block { flex: 1; }
+
+  .meta-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #999;
+    margin-bottom: 8px;
+  }
+
+  .meta-value {
+    font-size: 13px;
+    color: #1a1a2e;
+    line-height: 1.7;
+  }
+
+  .meta-value strong {
+    font-size: 15px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ── Table ── */
+  .invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+  }
+
+  .invoice-table thead th {
+    background: #1a1a2e;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    padding: 10px 14px;
+    text-align: left;
+  }
+
+  .invoice-table thead th:last-child { text-align: right; }
+
+  .invoice-table tbody td {
+    padding: 14px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: top;
+    font-size: 13px;
+    color: #333;
+  }
+
+  .invoice-table tbody td:last-child {
+    text-align: right;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+
+  .service-type {
+    font-size: 10px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    margin-top: 3px;
+  }
+
+  /* ── Totals ── */
+  .totals {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 36px;
+  }
+
+  .totals-box {
+    width: 260px;
+  }
+
+  .totals-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #555;
+  }
+
+  .totals-row.total {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+    border-bottom: none;
+    border-top: 2px solid #1a1a2e;
+    margin-top: 4px;
+    padding-top: 12px;
+  }
+
+  /* ── Notes ── */
+  .notes-section {
+    background: #f9f9f9;
+    border-left: 3px solid #1a1a2e;
+    padding: 14px 18px;
+    margin-bottom: 36px;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .notes-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: #999;
+    margin-bottom: 6px;
+  }
+
+  .notes-text {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    font-size: 11px;
+    color: #bbb;
+    padding-top: 24px;
+    border-top: 1px solid #eee;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="firm-name">{{ firm.name|default:"Mortacc Solutions Inc." }}</div>
+      <div class="firm-meta">
+        Accounting &amp; Corporate Services<br>
+        support@mortacc.com &nbsp;·&nbsp; mortacc.com
+      </div>
+    </div>
+    <div class="invoice-title">
+      <h1>Invoice</h1>
+      <div class="invoice-number"># {{ invoice.invoice_number|default:"—" }}</div>
+      <div>
+        {% if invoice.status == 'paid' %}
+          <span class="status-badge status-paid">Paid</span>
+        {% elif invoice.status == 'overdue' %}
+          <span class="status-badge status-overdue">Overdue</span>
+        {% elif invoice.status == 'sent' %}
+          <span class="status-badge status-sent">Sent</span>
+        {% else %}
+          <span class="status-badge status-draft">Draft</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Bill To / Dates -->
+  <div class="meta-row">
+    <div class="meta-block">
+      <div class="meta-label">Bill To</div>
+      <div class="meta-value">
+        <strong>{{ client.name }}</strong>
+        {{ client.email }}<br>
+        {% if client.phone %}{{ client.phone }}<br>{% endif %}
+        {% if client.client_token %}Client ID: {{ client.client_token }}{% endif %}
+      </div>
+    </div>
+
+    <div class="meta-block">
+      <div class="meta-label">Invoice Date</div>
+      <div class="meta-value">{{ invoice.invoice_date|date:"F j, Y" }}</div>
+    </div>
+
+    <div class="meta-block">
+      <div class="meta-label">Due Date</div>
+      <div class="meta-value">
+        {% if invoice.due_date %}
+          {{ invoice.due_date|date:"F j, Y" }}
+        {% else %}
+          Upon receipt
+        {% endif %}
+      </div>
+    </div>
+
+    {% if invoice.paid_date %}
+    <div class="meta-block">
+      <div class="meta-label">Paid On</div>
+      <div class="meta-value">{{ invoice.paid_date|date:"F j, Y" }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Line Items -->
+  <table class="invoice-table">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Service</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          {{ invoice.description }}
+        </td>
+        <td>
+          <div class="service-type">{{ invoice.get_service_type_display }}</div>
+        </td>
+        <td>${{ invoice.amount }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Totals -->
+  <div class="totals">
+    <div class="totals-box">
+      <div class="totals-row">
+        <span>Subtotal</span>
+        <span>${{ invoice.amount }}</span>
+      </div>
+      <div class="totals-row">
+        <span>Tax (HST)</span>
+        <span>$0.00</span>
+      </div>
+      <div class="totals-row total">
+        <span>Total</span>
+        <span>${{ invoice.amount }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  {% if invoice.notes %}
+  <div class="notes-section">
+    <div class="notes-label">Notes</div>
+    <div class="notes-text">{{ invoice.notes }}</div>
+  </div>
+  {% endif %}
+
+  <!-- Footer -->
+  <div class="footer">
+    Thank you for your business.<br>
+    {{ firm.name|default:"Mortacc Solutions Inc." }} &nbsp;·&nbsp;
+    support@mortacc.com &nbsp;·&nbsp; mortacc.com<br>
+    Please reference invoice # {{ invoice.invoice_number|default:"—" }} with your payment.
+  </div>
+
+</body>
+</html>

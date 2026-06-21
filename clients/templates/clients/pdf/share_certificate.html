@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: letter landscape; margin: 1.5cm 2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; color: #1a1a1a; background: rgba(255,255,255,.92); backdrop-filter: blur(16px); }
+
+  .certificate {
+    border: 3px double #1a1a1a;
+    padding: 30px 40px;
+    min-height: 95vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .inner-border {
+    border: 1px solid #c0a060;
+    position: absolute;
+    top: 10px; left: 10px; right: 10px; bottom: 10px;
+    pointer-events: none;
+  }
+
+  .cert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .cert-logo {
+    font-size: 22pt;
+    font-weight: bold;
+    letter-spacing: -0.5px;
+  }
+  .cert-logo span { color: #b8956a; }
+  .cert-number {
+    text-align: right;
+    font-size: 9pt;
+    color: #555;
+  }
+  .cert-number .num {
+    font-size: 14pt;
+    font-weight: bold;
+    color: #1a1a1a;
+    font-family: 'Courier New', monospace;
+  }
+
+  .cert-title {
+    text-align: center;
+    margin: 16px 0 24px;
+    border-top: 1px solid #c0a060;
+    border-bottom: 1px solid #c0a060;
+    padding: 10px 0;
+  }
+  .cert-title h1 {
+    font-size: 18pt;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: bold;
+  }
+  .cert-title .subtitle {
+    font-size: 10pt;
+    color: #555;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .corp-name {
+    text-align: center;
+    font-size: 16pt;
+    font-weight: bold;
+    font-style: italic;
+    margin: 16px 0;
+    color: #1a1a1a;
+  }
+  .jurisdiction-line {
+    text-align: center;
+    font-size: 9pt;
+    color: #666;
+    margin-bottom: 24px;
+  }
+
+  .cert-body {
+    font-size: 11pt;
+    line-height: 1.8;
+    text-align: justify;
+    flex: 1;
+    margin: 0 20px;
+  }
+  .cert-body .holder { font-weight: bold; font-size: 13pt; }
+  .cert-body .shares { font-weight: bold; font-size: 13pt; }
+  .cert-body .share-class { font-style: italic; }
+
+  .cert-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #c0a060;
+  }
+  .cert-info {
+    font-size: 8.5pt;
+    color: #555;
+    line-height: 1.8;
+  }
+  .sig-block { text-align: center; min-width: 200px; }
+  .sig-line { border-bottom: 1px solid #1a1a1a; height: 45px; margin-bottom: 6px; }
+  .sig-label { font-size: 8.5pt; color: #555; }
+  .sig-name { font-size: 9pt; font-weight: bold; margin-top: 2px; }
+</style>
+</head>
+<body>
+<div class="certificate">
+  <div class="inner-border"></div>
+
+  <div class="cert-header">
+    <div class="cert-logo">Mort<span>acc</span></div>
+    <div class="cert-number">
+      Certificate No.<br>
+      <span class="num">{{ cert_number }}</span>
+    </div>
+  </div>
+
+  <div class="cert-title">
+    <h1>Share Certificate</h1>
+    <div class="subtitle">This certifies that the following shares have been duly issued</div>
+  </div>
+
+  <div class="corp-name">{{ client.name }}</div>
+  <div class="jurisdiction-line">
+    Incorporated under the laws of {{ jurisdiction_display }} · Canada
+    {% if profile and profile.business_number %} · BN: {{ profile.business_number }}{% endif %}
+  </div>
+
+  <div class="cert-body">
+    <p>
+      This is to certify that <span class="holder">{{ shareholder.full_name }}</span>,
+      of {{ shareholder.address|default:"[Address on file]" }},
+      is the registered holder of
+      <span class="shares">{{ shareholder.num_shares }} ({{ shareholder.num_shares|stringformat:"d" }})</span>
+      fully paid and non-assessable
+      <span class="share-class">{{ shareholder.share_class }} Shares</span>
+      in the capital of <strong>{{ client.name }}</strong>,
+      subject to the articles and by-laws of the corporation.
+    </p>
+
+    {% if shareholder.acquisition_date %}
+    <p class="mt">
+      These shares were issued on
+      <strong>{{ shareholder.acquisition_date|date:"F j, Y" }}</strong>.
+    </p>
+    {% endif %}
+
+    <p class="mt">
+      IN WITNESS WHEREOF, the corporation has caused this certificate to be signed on
+      <strong>{{ today|date:"F j, Y" }}</strong>.
+    </p>
+  </div>
+
+  <div class="cert-footer">
+    <div class="cert-info">
+      <strong>{{ client.name }}</strong><br>
+      {% if profile and profile.registered_address %}{{ profile.registered_address }}<br>{% endif %}
+      {% if profile and profile.incorporation_date %}Incorporated: {{ profile.incorporation_date|date:"F j, Y" }}<br>{% endif %}
+      {% if profile and profile.business_number %}Business Number: {{ profile.business_number }}{% endif %}
+    </div>
+
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-label">Authorized Signatory</div>
+      <div class="sig-name">
+        {% for d in client.directors.all %}{% if d.is_officer and "President" in d.officer_title %}{{ d.full_name }}{% endif %}{% endfor %}
+      </div>
+    </div>
+
+    <div class="sig-block">
+      <div class="sig-line"></div>
+      <div class="sig-label">Secretary / Director</div>
+      <div class="sig-name">
+        {% for d in client.directors.all %}{% if d.is_officer and "Secretary" in d.officer_title %}{{ d.full_name }}{% endif %}{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,97 @@
+﻿{% extends "clients/base.html" %}
+{% block title %}Security — Mortacc{% endblock %}
+{% block topbar_title %}Security Center{% endblock %}
+
+{% block extra_head %}
+<style>
+  .security-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--gap); max-width: 1000px; margin: 0 auto; }
+  .sec-card { background: var(--card-bg); border: var(--border); border-radius: var(--radius); padding: 1.5rem; }
+  .sec-card h3 { margin: 0 0 0.75rem; font-size: 0.95rem; }
+  .sec-card p, .sec-card li { font-size: 0.9rem; color: var(--muted); }
+  .sec-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .trust-badges { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin: 2rem 0; }
+  .trust-badge { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius); padding: 0.75rem 1.5rem; text-align: center; font-weight: 600; font-size: 0.85rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="text-align:center; margin-bottom:2rem;">
+  <h1 style="font-size:2rem;">Enterprise-grade security</h1>
+  <p style="color:var(--muted); max-width:600px; margin:0.5rem auto;">Your clients trust you with their corporate records. We take that responsibility seriously.</p>
+</div>
+
+<div class="trust-badges">
+  <div class="trust-badge">🔒 AES-256 Encryption</div>
+  <div class="trust-badge">🇨🇦 Canadian Data Centers</div>
+  <div class="trust-badge">🔑 SOC 2 Type II (in progress)</div>
+  <div class="trust-badge">🛡 TLS 1.2+ Everywhere</div>
+  <div class="trust-badge">📋 PIPEDA Compliant</div>
+</div>
+
+<div class="security-grid">
+  <div class="sec-card">
+    <div class="sec-icon">🏢</div>
+    <h3>Data Residency</h3>
+    <p>All customer data is stored exclusively in Canadian data centers (Toronto, yyz). We do not replicate, backup, or transfer data outside Canada. This satisfies provincial law society guidelines and eliminates CLOUD Act / Patriot Act exposure.</p>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-icon">🔐</div>
+    <h3>Encryption</h3>
+    <p>Data at rest: AES-256 encryption. Data in transit: TLS 1.2+ with HSTS preload. All connections are HTTPS-only. Database encryption at rest via Fly.io volume encryption.</p>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-icon">👥</div>
+    <h3>Access Controls</h3>
+    <p>Role-based access control (RBAC) with 6 built-in roles (Partner, Associate, Paralegal, Clerk, Bookkeeper, Client). Field-level permissions. Multi-factor authentication (TOTP and WebAuthn/FIDO2). Ethical walls via client group restrictions.</p>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-icon">📊</div>
+    <h3>Monitoring & Response</h3>
+    <p>Continuous error monitoring via Sentry. Automated health checks. Suspicious activity detection via django-axes (brute-force protection). Rate limiting on all authentication endpoints.</p>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-icon">📝</div>
+    <h3>Audit Trail</h3>
+    <p>Every action is logged: who did what, when, and from which IP address. Permission denials are recorded in a dedicated audit log. Activity logs are immutable and searchable.</p>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-icon">🔄</div>
+    <h3>Backups & Continuity</h3>
+    <p>Daily automated backups with 7-day retention. Point-in-time recovery capability. Documented disaster recovery plan. Quarterly restore testing.</p>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-icon">📄</div>
+    <h3>Compliance</h3>
+    <p>Aligned with PIPEDA, provincial PIPA statutes (AB, BC, QC), and Law Society of Alberta software selection criteria. SOC 2 Type II audit in progress. Internal practices modeled after ISO 27001 controls.</p>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-icon">🔍</div>
+    <h3>Penetration Testing</h3>
+    <p>Annual third-party penetration testing. Aligned with OWASP Top 10. Automated dependency vulnerability scanning in CI/CD pipeline (pip-audit). Responsible disclosure via support@mortacc.com.</p>
+  </div>
+
+  <div class="sec-card">
+    <div class="sec-icon">🤝</div>
+    <h3>Sub-processors</h3>
+    <p><strong>Stripe</strong> — payment processing (PCI DSS Level 1)<br>
+    <strong>Fly.io</strong> — cloud hosting (Canadian region)<br>
+    <strong>Anthropic</strong> — AI features (optional, per-firm opt-in)<br>
+    <strong>Sentry</strong> — error monitoring (no PII)</p>
+  </div>
+</div>
+
+<div style="text-align:center; margin: 3rem 0; padding: 2rem; background: var(--card-bg); border: var(--border); border-radius: var(--radius); max-width: 1000px; margin-left:auto; margin-right:auto;">
+  <h2>Download Resources</h2>
+  <p style="color:var(--muted); margin-bottom:1rem;">Security documentation available for your firm is compliance review.</p>
+  <a href="mailto:support@mortacc.com" class="btn btn-primary">Request Security Package</a>
+  <span style="margin:0 0.5rem;color:var(--muted);">or</span>
+  <a href="mailto:support@mortacc.com" class="btn btn-ghost">Contact Us</a>
+</div>
+{% endblock %}

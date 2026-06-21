@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8">
+<style>
+  @page { size: letter; margin: 2cm 2.2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; font-size: 10.5pt; color: #1a1a1a; line-height: 1.55; }
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 24px; }
+  .doc-logo { font-size: 20pt; font-weight: bold; } .doc-logo span { color: #b8956a; }
+  .doc-meta { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.6; }
+  .doc-title { text-align: center; margin: 20px 0 28px; }
+  .doc-title h1 { font-size: 15pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .doc-title .corp-name { font-size: 12pt; font-style: italic; color: #333; }
+  .doc-title .jurisdiction { font-size: 9pt; color: #666; margin-top: 2px; }
+  .section { margin-bottom: 22px; }
+  .section-label { font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #b8956a; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-top: 8px; }
+  th { background: #f3f4f6; padding: 7px 10px; text-align: left; font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #444; border: 1px solid #d1d5db; }
+  td { padding: 8px 10px; border: 1px solid #d1d5db; vertical-align: top; }
+  .sig-block { margin-top: 40px; }
+  .sig-line-wrap { display: flex; gap: 60px; margin-top: 30px; }
+  .sig-item { flex: 1; }
+  .sig-item .line { border-bottom: 1px solid #1a1a1a; margin-bottom: 6px; height: 40px; }
+  .sig-item .label { font-size: 8.5pt; color: #555; }
+  p { margin-bottom: 10px; } .small { font-size: 8.5pt; color: #666; } .mt { margin-top: 16px; }
+  .empty-note { font-size: 9pt; color: #888; font-style: italic; padding: 20px 10px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="doc-header">
+  <div class="doc-logo">Mort<span>acc</span></div>
+  <div class="doc-meta">{{ client.name }}<br>Registre des transferts d'actions<br>En date du {{ today|date:"j F Y" }}</div>
+</div>
+<div class="doc-title">
+  <h1>Registre des Transferts d'Actions</h1>
+  <div class="corp-name">{{ client.name }}</div>
+  <div class="jurisdiction">{% if jurisdiction_display %}Constituée en vertu des lois de {{ jurisdiction_display }} · {% endif %}Canada</div>
+</div>
+<div class="section">
+  <div class="section-label">Historique des transferts</div>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th><th>Date du transfert</th><th>Cédant (de)</th><th>Cessionnaire (à)</th>
+        <th>Catégorie</th><th>Nbre d'actions</th><th>No certificat</th><th>Contrepartie</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="8" class="empty-note">Aucun transfert enregistré. Toutes les actions ont été émises lors de la souscription initiale.</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="section">
+  <div class="section-label">Actionnaires actuels (après transferts)</div>
+  {% if shareholders %}
+  <table>
+    <thead>
+      <tr><th>#</th><th>Détenteur inscrit</th><th>Catégorie d'actions</th><th>Nbre d'actions</th><th>No certificat</th></tr>
+    </thead>
+    <tbody>
+      {% for s in shareholders %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td><strong>{{ s.full_name }}</strong></td>
+        <td>{{ s.share_class|default:"Ordinaires" }}</td>
+        <td>{{ s.num_shares }}</td>
+        <td>{{ forloop.counter|stringformat:"04d" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+<div class="section">
+  <div class="section-label">Certification</div>
+  <p>Je certifie que ce qui précède est un registre fidèle et complet de tous les transferts d'actions de <strong>{{ client.name }}</strong> en date du <strong>{{ today|date:"j F Y" }}</strong>.</p>
+</div>
+<div class="sig-block">
+  <div class="sig-line-wrap">
+    <div class="sig-item"><div class="line"></div><div class="label">Signataire autorisé / Secrétaire</div></div>
+    <div class="sig-item"><div class="line"></div><div class="label">Date</div></div>
+  </div>
+</div>
+<p class="small mt">Préparé par Mortacc Solutions Inc. · support@mortacc.com · mortacc.com</p>
+</body>
+</html>

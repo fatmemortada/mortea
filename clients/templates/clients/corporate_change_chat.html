@@ -1,0 +1,66 @@
+{% extends "clients/base.html" %}{% block title %}Corporate Change AI — Mortacc{% endblock %}
+{% block topbar_title %}🤖 Corporate Change AI Assistant{% endblock %}
+{% block extra_head %}
+<style>
+.cc-chat{max-width:800px;margin:0 auto;padding:20px}
+.cc-input{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;font-family:inherit;margin-bottom:8px}
+.cc-input:focus{border-color:#2563eb;outline:none}
+.cc-hint{font-size:12px;color:#94a3b8;margin-bottom:16px}
+.cc-result{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-top:16px}
+.cc-result h3{font-size:16px;margin-bottom:12px}
+.cc-actions-list{list-style:none;padding:0}
+.cc-actions-list li{padding:8px 12px;margin:4px 0;background:#f0fdf4;border-radius:6px;font-size:13px;display:flex;align-items:center;gap:8px}
+.cc-executed{background:#dcfce7;border:1px solid #bbf7d0;border-radius:8px;padding:14px;margin-top:12px;font-size:13px}
+.btn-execute{background:#16a34a;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;margin-top:12px}
+</style>{% endblock %}
+{% block content %}
+<div class="cc-chat">
+  <h2 style="font-size:20px;margin-bottom:4px">Corporate Change AI Assistant</h2>
+  <p style="color:#64748b;margin-bottom:20px">Describe a corporate change in plain English. Mortacc figures out what documents you need.</p>
+  <form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="analyze">
+    <select name="client_id" style="width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;margin-bottom:8px">
+      <option value="">Select entity (optional)</option>
+      {% for c in clients %}<option value="{{ c.id }}" {% if result.client_id|stringformat:"s" == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <input type="text" name="change_text" class="cc-input" placeholder='e.g. "John Smith resigned as director" or "We added a new shareholder" or "We declared a $10,000 dividend"' value="{{ request.POST.change_text|default:'' }}">
+    <div class="cc-hint">Try: director change · shareholder change · address change · dividend · share transfer</div>
+    <button type="submit" class="btn-execute">🔍 Analyze Change</button>
+  </form>
+
+  {% if result %}
+  <div class="cc-result">
+    <h3>{{ result.message }}</h3>
+    {% if result.identified %}
+    <p style="font-size:14px;color:#64748b">Confidence: {{ result.confidence|title }}</p>
+    {% if result.questions %}
+    <div style="margin-top:12px"><strong>Follow-up questions:</strong>
+      <ul style="margin-top:4px;padding-left:20px;font-size:13px;color:#334155">{% for q in result.questions %}<li>{{ q }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+    {% if result.actions %}
+    <div style="margin-top:12px"><strong>Documents to generate:</strong>
+      <ul class="cc-actions-list">{% for a in result.action_labels %}<li>📄 {{ a }}</li>{% endfor %}</ul>
+    </div>
+    <form method="POST" style="margin-top:12px">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="execute">
+      <input type="hidden" name="client_id" value="{{ result.client_id }}">
+      <input type="hidden" name="change_type" value="{{ result.change_type }}">
+      {% if result.person_name %}<input type="hidden" name="name" value="{{ result.person_name }}">{% endif %}
+      <button type="submit" class="btn-execute">⚡ Execute — Generate All Documents</button>
+    </form>
+    {% endif %}
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if executed %}
+  <div class="cc-executed">
+    <strong>✅ Executed!</strong>
+    {% if executed.generated %}<div style="margin-top:4px">{{ executed.generated|length }} document(s) generated.</div>{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

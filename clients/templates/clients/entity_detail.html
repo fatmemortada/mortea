@@ -1,0 +1,511 @@
+{% extends "clients/base.html" %}
+{% block title %}{{ client.name }} — Entity Records{% endblock %}
+{% block nav_entities %}active{% endblock %}
+{% block topbar_title %}{{ client.name }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .entity-header {
+        background:var(--surface);border:1px solid var(--border);
+        border-radius:var(--radius-lg);padding:20px 24px;
+        margin-bottom:20px;
+        display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+    }
+    .entity-header-left { display:flex;align-items:center;gap:16px; }
+    .entity-avatar {
+        width:52px;height:52px;border-radius:12px;
+        background:var(--brand-soft);color:var(--brand);
+        display:flex;align-items:center;justify-content:center;
+        font-size:18px;font-weight:700;flex-shrink:0;
+    }
+    .entity-hname { font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.3px; }
+    .entity-hmeta { font-size:13px;color:var(--ink-3);margin-top:4px;display:flex;gap:12px;flex-wrap:wrap; }
+    .entity-hmeta span { display:flex;align-items:center;gap:4px; }
+
+    .info-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px; }
+    .info-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px; }
+    .info-label { font-size:11px;font-weight:500;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px; }
+    .info-value { font-size:14px;font-weight:500;color:var(--ink); }
+    .info-value.empty { color:var(--ink-4);font-weight:400;font-style:italic; }
+
+    .tab-nav { display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px; }
+    .tab-link { padding:9px 16px;font-size:13px;font-weight:500;color:var(--ink-3);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:var(--transition);cursor:pointer;white-space:nowrap; }
+    .tab-link:hover { color:var(--ink); }
+    .tab-link.active { color:var(--brand);border-bottom-color:var(--brand); }
+    .tab-count { display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:var(--surface-2);border-radius:99px;font-size:10px;font-weight:600;margin-left:5px;color:var(--ink-3); }
+    .tab-link.active .tab-count { background:var(--brand-soft);color:var(--brand); }
+
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* People cards */
+    .people-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px; }
+    .person-card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px; }
+    .person-top { display:flex;align-items:center;gap:12px;margin-bottom:12px; }
+    .person-avatar { width:38px;height:38px;border-radius:50%;background:var(--surface-2);color:var(--ink-3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0; }
+    .person-name { font-size:14px;font-weight:600;color:var(--ink); }
+    .person-role { font-size:12px;color:var(--ink-3);margin-top:1px; }
+    .person-detail { font-size:12.5px;color:var(--ink-3);display:flex;align-items:flex-start;gap:6px;margin-top:6px; }
+    .person-detail svg { flex-shrink:0;margin-top:2px;opacity:.6; }
+
+    .officer-badge { display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 7px;border-radius:99px;background:var(--purple-bg);color:var(--purple);margin-top:4px; }
+
+    /* Cap table */
+    .cap-table-wrap { overflow-x:auto; }
+    .total-row td { font-weight:600;background:var(--surface-2);border-top:2px solid var(--border); }
+
+    .share-bar-wrap { margin-top:6px; }
+    .share-bar { height:6px;border-radius:3px;background:var(--brand);display:inline-block;min-width:4px; }
+
+    /* Add forms */
+    .add-section { background:var(--surface-2);border:1px dashed var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-top:16px; }
+    .add-section-title { font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:14px;display:flex;align-items:center;gap:6px; }
+
+    .jur-pill { font-size:11px;font-weight:500;padding:2px 8px;border-radius:99px; }
+    .jur-pill.federal { background:var(--brand-soft);color:var(--brand); }
+    .jur-pill.ontario { background:#f0fdf4;color:#15803d; }
+    .jur-pill.bc      { background:#fff7ed;color:#c2410c; }
+    .jur-pill.quebec  { background:#fdf4ff;color:#7e22ce; }
+
+    .status-pill { font-size:11px;font-weight:500;padding:2px 8px;border-radius:99px; }
+    .status-pill.active      { background:var(--green-bg);color:var(--green); }
+    .status-pill.in_progress { background:var(--amber-bg);color:var(--amber); }
+    .status-pill.inactive    { background:var(--surface-2);color:var(--ink-3); }
+    .status-pill.dissolved   { background:var(--red-bg);color:var(--red); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Entity Header -->
+<div class="entity-header">
+    <div class="entity-header-left">
+        <div class="entity-avatar">{{ client.name|slice:":2"|upper }}</div>
+        <div>
+            <div class="entity-hname">{{ client.name }}</div>
+            <div class="entity-hmeta">
+                {% if profile %}
+                    <span>
+                        <span class="jur-pill {{ profile.jurisdiction }}">{{ profile.get_jurisdiction_display }}</span>
+                    </span>
+                    <span>
+                        <span class="status-pill {{ profile.status }}">{{ profile.get_status_display }}</span>
+                    </span>
+                    {% if profile.incorporation_date %}
+                    <span>
+                        <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                        Inc. {{ profile.incorporation_date|date:"M d, Y" }}
+                    </span>
+                    {% endif %}
+                    {% if profile.business_number %}
+                    <span>BN: {{ profile.business_number }}</span>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="{% url 'client_detail' client.id %}" class="btn btn-ghost btn-sm">View Full File</a>
+        <a href="{% url 'cap_table' client.id %}" class="btn btn-ghost btn-sm">Cap Table</a>
+        <a href="{% url 'appointments' client.id %}" class="btn btn-ghost btn-sm">Appointments</a>
+        <a href="{% url 'registrations' client.id %}" class="btn btn-ghost btn-sm">Registrations</a>
+        <a href="{% url 'ai_extraction' client.id %}" class="btn btn-ghost btn-sm">✨ AI Extract</a>
+        {% if profile %}
+        <a href="{% url 'doc_generator' client.id %}" class="btn btn-primary btn-sm">Generate Documents</a>
+        <a href="{% url 'pdf_minute_book_zip' client.id %}" class="btn btn-ghost btn-sm">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            Minute Book ZIP
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Key Info Cards -->
+{% if profile %}
+<div class="info-grid">
+    <div class="info-card">
+        <div class="info-label">Business Number</div>
+        <div class="info-value {% if not profile.business_number %}empty{% endif %}">{{ profile.business_number|default:"Not set" }}</div>
+    </div>
+    <div class="info-card">
+        <div class="info-label">HST Number</div>
+        <div class="info-value {% if not profile.hst_number %}empty{% endif %}">{{ profile.hst_number|default:"Not set" }}</div>
+    </div>
+    <div class="info-card">
+        <div class="info-label">Fiscal Year End</div>
+        <div class="info-value {% if not profile.fiscal_year_end %}empty{% endif %}">{{ profile.fiscal_year_end|default:"Not set" }}</div>
+    </div>
+    <div class="info-card">
+        <div class="info-label">Registered Address</div>
+        <div class="info-value {% if not profile.registered_address %}empty{% endif %}" style="font-size:13px">{{ profile.registered_address|default:"Not set" }}</div>
+    </div>
+    <div class="info-card">
+        <div class="info-label">Annual Return Due</div>
+        <div class="info-value {% if not profile.annual_return_due %}empty{% endif %}">{{ profile.annual_return_due|date:"M d, Y"|default:"Not set" }}</div>
+    </div>
+    <div class="info-card">
+        <div class="info-label">Compliance Tasks</div>
+        <div class="info-value">{{ compliance_tasks.count }} task{{ compliance_tasks.count|pluralize }}</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Tabs -->
+<div class="tab-nav">
+    <div class="tab-link active" onclick="switchTab('directors', this)">
+        Directors <span class="tab-count">{{ directors.count }}</span>
+    </div>
+    <div class="tab-link" onclick="switchTab('officers', this)">
+        Officers <span class="tab-count">{{ officers.count }}</span>
+    </div>
+    <div class="tab-link" onclick="switchTab('shareholders', this)">
+        Shareholders <span class="tab-count">{{ shareholders.count }}</span>
+    </div>
+    <div class="tab-link" onclick="switchTab('captable', this)">
+        Cap Table
+    </div>
+    <div class="tab-link" onclick="switchTab('compliance', this)">
+        Compliance <span class="tab-count">{{ compliance_tasks.count }}</span>
+    </div>
+</div>
+
+<!-- Directors Tab -->
+<div class="tab-panel active" id="tab-directors">
+    {% if directors %}
+    <div class="people-grid">
+        {% for d in directors %}
+        <div class="person-card">
+            <div class="person-top">
+                <div class="person-avatar">{{ d.full_name|slice:":2"|upper }}</div>
+                <div>
+                    <div class="person-name">{{ d.full_name }}</div>
+                    <div class="person-role">Director{% if not d.is_active %} <span style="color:var(--red)">(Resigned)</span>{% endif %}</div>
+                </div>
+            </div>
+            {% if d.is_officer %}
+            <div><span class="officer-badge">
+                <svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                {{ d.officer_title }}
+            </span></div>
+            {% endif %}
+            {% if d.appointment_date %}
+            <div class="person-detail">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                Appointed {{ d.appointment_date|date:"M d, Y" }}
+            </div>
+            {% endif %}
+            {% if d.resignation_date %}
+            <div class="person-detail" style="color:var(--red)">Resigned {{ d.resignation_date|date:"M d, Y" }}</div>
+            {% endif %}
+            {% if d.address %}
+            <div class="person-detail">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                {{ d.address }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+        <p>No directors on record. Add directors below.</p>
+    </div>
+    {% endif %}
+
+    <!-- Add Director Form -->
+    <div class="add-section">
+        <div class="add-section-title">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+            Add Director
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_director">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" name="director_name" class="form-control" placeholder="John Smith" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Appointment Date</label>
+                    <input type="date" name="appointment_date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <input type="text" name="director_address" class="form-control" placeholder="123 Main St, Toronto, ON">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Officer Title (if applicable)</label>
+                    <input type="text" name="officer_title" class="form-control" placeholder="e.g. President, Secretary">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Add Director</button>
+        </form>
+    </div>
+</div>
+
+<!-- Officers Tab -->
+<div class="tab-panel" id="tab-officers">
+    {% if officers %}
+    <div class="people-grid">
+        {% for d in officers %}
+        <div class="person-card">
+            <div class="person-top">
+                <div class="person-avatar" style="background:var(--purple-bg);color:var(--purple)">{{ d.full_name|slice:":2"|upper }}</div>
+                <div>
+                    <div class="person-name">{{ d.full_name }}</div>
+                    <div class="person-role">{{ d.officer_title }}</div>
+                </div>
+            </div>
+            {% if d.appointment_date %}
+            <div class="person-detail">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                Appointed {{ d.appointment_date|date:"M d, Y" }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        <p>No officers on record. Officers are directors with a title (President, Secretary, etc.).</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Shareholders Tab -->
+<div class="tab-panel" id="tab-shareholders">
+    {% if shareholders %}
+    <div class="people-grid">
+        {% for s in shareholders %}
+        <div class="person-card">
+            <div class="person-top">
+                <div class="person-avatar" style="background:var(--teal-bg);color:var(--teal)">{{ s.full_name|slice:":2"|upper }}</div>
+                <div>
+                    <div class="person-name">{{ s.full_name }}</div>
+                    <div class="person-role">{{ s.num_shares|default:0 }} {{ s.share_class }} share{{ s.num_shares|pluralize }}</div>
+                </div>
+            </div>
+            {% if s.acquisition_date %}
+            <div class="person-detail">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                Since {{ s.acquisition_date|date:"M d, Y" }}
+            </div>
+            {% endif %}
+            {% if s.address %}
+            <div class="person-detail">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                {{ s.address }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+        <p>No shareholders on record. Add shareholders below.</p>
+    </div>
+    {% endif %}
+
+    <!-- Add Shareholder Form -->
+    <div class="add-section">
+        <div class="add-section-title">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+            Add Shareholder
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_shareholder">
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" name="shareholder_name" class="form-control" placeholder="Jane Smith" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Share Class</label>
+                    <input type="text" name="share_class" class="form-control" placeholder="Common" value="Common">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Number of Shares *</label>
+                    <input type="number" name="num_shares" class="form-control" placeholder="100" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Acquisition Date</label>
+                    <input type="date" name="acquisition_date" class="form-control">
+                </div>
+                <div class="form-group form-full">
+                    <label class="form-label">Address</label>
+                    <input type="text" name="shareholder_address" class="form-control" placeholder="123 Main St, Toronto, ON">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Add Shareholder</button>
+        </form>
+    </div>
+</div>
+
+<!-- Cap Table Tab -->
+<div class="tab-panel" id="tab-captable">
+    {% if shareholders %}
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Cap Table</div>
+            <div class="card-subtitle">{{ total_shares }} total shares issued</div>
+        </div>
+        <div class="cap-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Shareholder</th>
+                        <th>Share Class</th>
+                        <th>Shares</th>
+                        <th>Ownership %</th>
+                        <th>Acquisition Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for s in shareholders %}
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:9px">
+                            <div style="width:28px;height:28px;border-radius:50%;background:var(--teal-bg);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0">{{ s.full_name|slice:":2"|upper }}</div>
+                            <span style="font-weight:500">{{ s.full_name }}</span>
+                        </div>
+                    </td>
+                    <td>{{ s.share_class }}</td>
+                    <td>{{ s.num_shares|default:0 }}</td>
+                    <td>
+                        {% if total_shares > 0 %}
+                        {% widthratio s.num_shares total_shares 100 %}%
+                        <div class="share-bar-wrap">
+                            <div class="share-bar" style="width:{% widthratio s.num_shares total_shares 100 %}px"></div>
+                        </div>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>{{ s.acquisition_date|date:"M d, Y"|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="2">Total</td>
+                        <td>{{ total_shares }}</td>
+                        <td>100%</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+        <p>No shareholders added yet. Add shareholders in the Shareholders tab.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Compliance Tab -->
+<div class="tab-panel" id="tab-compliance">
+    {% if compliance_tasks %}
+    <div class="card">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Type</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for task in compliance_tasks %}
+                <tr>
+                    <td>
+                        <div style="font-weight:500">{{ task.title }}</div>
+                        {% if task.description %}<div class="text-small text-muted" style="margin-top:2px">{{ task.description|truncatechars:80 }}</div>{% endif %}
+                    </td>
+                    <td>{{ task.get_task_type_display }}</td>
+                    <td>
+                        <span {% if task.is_overdue %}style="color:var(--red);font-weight:500"{% endif %}>
+                            {{ task.due_date|date:"M d, Y" }}
+                        </span>
+                        {% if task.is_overdue %}<div class="text-small" style="color:var(--red)">Overdue</div>{% endif %}
+                    </td>
+                    <td>
+                        {% if task.status == 'completed' %}
+                            <span class="badge badge-completed">Completed</span>
+                        {% elif task.status == 'overdue' or task.is_overdue %}
+                            <span class="badge badge-needs-attention">Overdue</span>
+                        {% elif task.status == 'in_progress' %}
+                            <span class="badge badge-in-progress">In Progress</span>
+                        {% elif task.status == 'waived' %}
+                            <span class="badge badge-not-started">Waived</span>
+                        {% else %}
+                            <span class="badge badge-not-started">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        <p>No compliance tasks yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Timeline Tab -->
+<div class="tab-panel" id="tab-timeline">
+    {% if timeline %}
+    <div style="max-width:680px">
+        {% for entry in timeline %}
+        <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-soft)">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px">
+                {% if entry.action == 'create' %}+
+                {% elif entry.action == 'update' %}~
+                {% elif entry.action == 'delete' %}x
+                {% elif entry.action == 'download' %}v
+                {% elif entry.action == 'sign' %}S
+                {% elif entry.action == 'status' %}*
+                {% elif entry.action == 'payment' %}$
+                {% elif entry.action == 'export' %}E
+                {% else %}*{% endif %}
+            </div>
+            <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:500;color:var(--ink)">{{ entry.description|default:entry.get_action_display }}</div>
+                <div style="font-size:11px;color:var(--ink-4);margin-top:3px">
+                    {{ entry.created_at|date:"M d, Y H:i" }}
+                    {% if entry.user %} by {{ entry.user.get_full_name|default:entry.user.username }}{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+        <p>No activity recorded yet for this entity.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function switchTab(name, el) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    el.classList.add('active');
+}
+</script>
+{% endblock %}

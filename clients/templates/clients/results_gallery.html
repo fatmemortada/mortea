@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Before & After Results Gallery | Mortea</title>
+<meta name="description" content="Browse real before-and-after beauty transformations. Botox, fillers, laser, hair, lashes — find results from top-rated providers near you.">
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.top-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 24px 32px; text-align: center; }
+.top-bar h1 { font-family: 'Playfair Display', serif; font-size: clamp(28px,5vw,42px); font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.top-bar .sub { font-size: 16px; color: var(--ink-3); }
+.shell { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 240px 1fr; gap: 0; min-height: 100vh; }
+.filters { padding: 28px 24px; border-right: 1px solid var(--border); background: var(--surface); }
+.filters h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); margin-bottom: 12px; }
+.filter-group { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-light); }
+.filter-group:last-child { border-bottom: none; }
+.filter-group a { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; color: var(--ink-2); text-decoration: none; transition: color .15s; }
+.filter-group a:hover, .filter-group a.active { color: var(--brand); font-weight: 500; }
+.filter-group a .count { margin-left: auto; font-size: 11px; color: var(--ink-4); }
+.filter-reset { display: block; text-align: center; margin-top: 12px; padding: 8px; font-size: 13px; color: var(--brand); font-weight: 500; text-decoration: none; border-radius: var(--radius); }
+.filter-reset:hover { background: var(--brand-light); }
+
+.mobile-filter-btn { display: none; padding: 10px 20px; font-size: 14px; font-weight: 600; border: 1px solid var(--border); border-radius: var(--radius-full); background: var(--surface); cursor: pointer; margin: 16px 24px 0; }
+
+.main-col { padding: 32px 32px 80px; }
+.results-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.results-count { font-size: 15px; color: var(--ink-3); }
+.results-count strong { color: var(--ink); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+
+.result-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: all .25s var(--ease); cursor: pointer; text-decoration: none; color: inherit; display: block; }
+.result-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); border-color: var(--brand-muted); }
+
+.ba-comparison { display: grid; grid-template-columns: 1fr 1fr; height: 220px; position: relative; }
+.ba-side { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.ba-before { background: linear-gradient(135deg, #f5f0ed, #ede5df); }
+.ba-after { background: linear-gradient(135deg, #edf5f0, #dfede5); }
+.ba-label { position: absolute; top: 10px; left: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 3px 10px; border-radius: var(--radius-full); }
+.ba-before .ba-label { background: rgba(0,0,0,.08); color: #6b5e55; }
+.ba-after .ba-label { background: rgba(22,163,74,.12); color: #166534; }
+.ba-emoji { font-size: 48px; opacity: .5; }
+.ba-divider { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--surface); z-index: 1; }
+.ba-divider::after { content: 'VS'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--surface); padding: 4px 8px; border-radius: var(--radius-full); font-size: 10px; font-weight: 700; color: var(--ink-3); white-space: nowrap; }
+
+.result-body { padding: 16px 20px 20px; }
+.result-procedure { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; background: var(--brand-light); color: var(--brand-dark); padding: 4px 12px; border-radius: var(--radius-full); margin-bottom: 8px; }
+.result-meta { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-3); margin-bottom: 8px; }
+.result-meta .stars { color: var(--star); font-size: 14px; }
+.result-desc { font-size: 13px; color: var(--ink-2); line-height: 1.5; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.result-date { font-size: 11px; color: var(--ink-4); margin-top: 8px; }
+
+.empty { text-align: center; padding: 80px 24px; }
+.empty h3 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--ink); margin-bottom: 8px; }
+.empty p { color: var(--ink-3); margin-bottom: 20px; }
+.empty .suggestions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.empty .suggestions a { padding: 8px 18px; border: 1px solid var(--border); border-radius: var(--radius-full); font-size: 14px; color: var(--brand); text-decoration: none; }
+.empty .suggestions a:hover { background: var(--brand-light); }
+
+@media (max-width:900px) { .shell { grid-template-columns: 1fr; } .filters { display: none; } .mobile-filter-btn { display: inline-flex; } }
+@media (max-width:500px) { .grid { grid-template-columns: 1fr; } .main-col { padding: 20px 16px 60px; } }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="{% url 'results_gallery' %}" class="nav-link" style="color:var(--brand)">Results</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+
+<div class="page">
+<div class="top-bar"><h1>Before & After</h1><p class="sub">Real results from top beauty providers near you</p></div>
+
+<button class="mobile-filter-btn" onclick="document.getElementById('filters').style.display=document.getElementById('filters').style.display==='block'?'none':'block'">☰ Filters</button>
+
+<div class="shell">
+<div class="filters" id="filters">
+<h4>Procedure</h4>
+<div class="filter-group">
+<a href="?{% if city %}city={{ city|urlencode }}&{% endif %}{% if min_rating %}rating={{ min_rating }}&{% endif %}{% if query %}q={{ query|urlencode }}{% endif %}" class="{% if not procedure %}active{% endif %}">All Procedures</a>
+{% for val, label in all_procedures %}
+<a href="?procedure={{ val }}{% if city %}&city={{ city|urlencode }}{% endif %}{% if min_rating %}&rating={{ min_rating }}{% endif %}" class="{% if procedure == val %}active{% endif %}">{{ label }}</a>
+{% endfor %}
+</div>
+<h4>City</h4>
+<div class="filter-group">
+<a href="?{% if procedure %}procedure={{ procedure }}&{% endif %}{% if min_rating %}rating={{ min_rating }}&{% endif %}{% if query %}q={{ query|urlencode }}{% endif %}" class="{% if not city %}active{% endif %}">All Cities</a>
+{% for c in all_cities %}{% if c %}
+<a href="?city={{ c|urlencode }}{% if procedure %}&procedure={{ procedure }}{% endif %}{% if min_rating %}&rating={{ min_rating }}{% endif %}" class="{% if city == c %}active{% endif %}">{{ c }}</a>
+{% endif %}{% endfor %}
+</div>
+<h4>Provider</h4>
+<div class="filter-group">
+<a href="?{% if procedure %}procedure={{ procedure }}&{% endif %}{% if city %}city={{ city|urlencode }}&{% endif %}{% if min_rating %}rating={{ min_rating }}&{% endif %}{% if query %}q={{ query|urlencode }}{% endif %}" class="{% if not provider_slug %}active{% endif %}">All Providers</a>
+{% for p in all_providers %}
+<a href="?provider={{ p.slug }}{% if procedure %}&procedure={{ procedure }}{% endif %}{% if city %}&city={{ city|urlencode }}{% endif %}{% if min_rating %}&rating={{ min_rating }}{% endif %}" class="{% if provider_slug == p.slug %}active{% endif %}">{{ p.name }}</a>
+{% endfor %}
+</div>
+<h4>Rating</h4>
+<div class="filter-group">
+<a href="?{% if procedure %}procedure={{ procedure }}&{% endif %}{% if city %}city={{ city|urlencode }}&{% endif %}{% if query %}q={{ query|urlencode }}{% endif %}" class="{% if not min_rating %}active{% endif %}">Any Rating</a>
+<a href="?rating=4.5{% if procedure %}&procedure={{ procedure }}{% endif %}{% if city %}&city={{ city|urlencode }}{% endif %}" class="{% if min_rating == '4.5' %}active{% endif %}">★ 4.5+</a>
+<a href="?rating=4{% if procedure %}&procedure={{ procedure }}{% endif %}{% if city %}&city={{ city|urlencode }}{% endif %}" class="{% if min_rating == '4' %}active{% endif %}">★ 4.0+</a>
+</div>
+<a href="{% url 'results_gallery' %}" class="filter-reset">Reset all filters</a>
+</div>
+
+<div class="main-col">
+<div class="results-header">
+<div class="results-count"><strong>{{ total_results }}</strong> result{{ total_results|pluralize }}</div>
+<form action="{% url 'results_gallery' %}" method="GET" style="display:flex;gap:8px">
+{% if procedure %}<input type="hidden" name="procedure" value="{{ procedure }}">{% endif %}
+{% if city %}<input type="hidden" name="city" value="{{ city }}">{% endif %}
+<input type="text" name="q" value="{{ query }}" placeholder="Search results…" style="padding:8px 14px;font-size:14px;border:1.5px solid var(--border);border-radius:var(--radius-full);outline:none;font-family:'Inter',sans-serif;width:200px" onfocus="this.style.borderColor='var(--brand)'" onblur="this.style.borderColor='var(--border)'">
+<button type="submit" style="padding:8px 16px;font-size:14px;font-weight:600;border-radius:var(--radius-full);border:none;background:var(--brand);color:#fff;cursor:pointer">Search</button>
+</form>
+</div>
+
+{% if results %}
+<div class="grid">
+{% for r in results %}
+<a href="{% url 'provider_profile' r.provider.slug %}" class="result-card">
+<div class="ba-comparison">
+<div class="ba-side ba-before"><span class="ba-label">Before</span><span class="ba-emoji">📷</span></div>
+<div class="ba-side ba-after"><span class="ba-label">After</span><span class="ba-emoji">✨</span></div>
+<div class="ba-divider"></div>
+</div>
+<div class="result-body">
+<span class="result-procedure">{{ r.get_procedure_type_display }}</span>
+<div class="result-meta">
+<span>{{ r.provider.name }}</span>
+<span class="stars">★ {{ r.provider.rating }}</span>
+<span>· {{ r.city }}</span>
+</div>
+{% if r.description %}<p class="result-desc">{{ r.description }}</p>{% endif %}
+<div class="result-date">{{ r.date|date:"F Y" }}</div>
+</div>
+</a>
+{% endfor %}
+</div>
+{% else %}
+<div class="empty">
+<h3>No results found</h3><p>Try a different filter or broader search.</p>
+<div class="suggestions">
+<a href="{% url 'results_gallery' %}?procedure=botox">Botox</a>
+<a href="{% url 'results_gallery' %}?procedure=lip_fillers">Lip Fillers</a>
+<a href="{% url 'results_gallery' %}?procedure=laser_hair">Laser</a>
+<a href="{% url 'results_gallery' %}?procedure=lashes">Lashes</a>
+<a href="{% url 'results_gallery' %}?procedure=hair_extensions">Hair Extensions</a>
+</div></div>
+{% endif %}
+</div></div></div>
+<script>
+document.getElementById('hamburger')?.addEventListener('click',function(){this.classList.toggle('active')});
+window.addEventListener('scroll',function(){document.getElementById('topNav').classList.toggle('scrolled',window.scrollY>10)});
+</script>
+</body></html>

@@ -1,0 +1,41 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }} | Mortea</title><meta name="description" content="{{ meta_desc }}">
+<link rel="canonical" href="https://mortea.com/services/{{ service_slug }}/">
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; background: var(--bg-warm); }
+.hero { background: linear-gradient(135deg, var(--brand-dark), var(--brand)); color: #fff; padding: 56px 32px; text-align: center; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(30px,5vw,44px); font-weight: 600; }
+.hero .s { font-size: 17px; opacity: .9; margin-top: 8px; }
+.container { max-width: 1040px; margin: 0 auto; padding: 40px 24px; }
+.grid { display: grid; grid-template-columns: 1fr 300px; gap: 28px; }
+.cities { display: flex; flex-wrap: wrap; gap: 8px; }
+.cities a { padding: 8px 18px; border-radius: var(--radius-full); background: var(--brand-light); color: var(--brand-dark); font-weight: 500; text-decoration: none; font-size: 14px; }
+.cities a:hover { background: var(--brand); color: #fff; }
+.provider-card { display: flex; gap: 14px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; text-decoration: none; color: inherit; transition: all .2s; }
+.provider-card:hover { border-color: var(--brand-muted); box-shadow: var(--shadow); }
+.pc-avatar { width: 64px; height: 64px; border-radius: var(--radius); background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--brand); flex-shrink: 0; }
+.pc-info h4 { font-size: 16px; font-weight: 600; }
+.pc-info .stars { color: var(--star); font-size: 13px; }
+.other-services { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.other-services a { padding: 6px 16px; border-radius: var(--radius-full); border: 1px solid var(--border); font-size: 13px; color: var(--ink-2); text-decoration: none; }
+.other-services a:hover { border-color: var(--brand); color: var(--brand); }
+@media (max-width:700px){ .grid{grid-template-columns:1fr;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="{% url 'results_gallery' %}" class="nav-link">Results</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><section class="hero"><h1>{{ title }}</h1><p class="s">{{ service_info.intro }}</p></section>
+<div class="container"><div class="grid"><div>
+<h2 style="font-family:'Playfair Display',serif;font-size:24px;margin-bottom:16px">{{ total_providers }} Provider{{ total_providers|pluralize }} Found</h2>
+{% for p in providers %}
+<a href="{% url 'provider_profile' p.slug %}" class="provider-card"><div class="pc-avatar">{{ p.name|slice:':1' }}</div><div class="pc-info"><h4>{{ p.name }}</h4><div class="stars">★ {{ p.rating }} ({{ p.review_count }}) · {{ p.city }}</div></div></a>{% endfor %}
+</div><div>
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px">
+<h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:12px">Cities</h3>
+<div class="cities">{% for c in cities_with_providers %}<a href="{% url 'service_city' service_slug c|lower %}">{{ c }}</a>{% endfor %}</div>
+<h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-top:20px;margin-bottom:12px">More Services</h3>
+<div class="other-services">{% for slug, info in all_services.items %}{% if slug != service_slug %}<a href="{% url 'service_hub' slug %}">{{ info.name }}</a>{% endif %}{% endfor %}</div>
+</div></div></div></div></div>
+<script>document.getElementById('hamburger')?.addEventListener('click',function(){this.classList.toggle('active')});window.addEventListener('scroll',function(){document.getElementById('topNav').classList.toggle('scrolled',window.scrollY>10)});</script>
+</body></html>

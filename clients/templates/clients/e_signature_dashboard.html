@@ -1,0 +1,100 @@
+{% extends "clients/base.html" %}
+{% block title %}E-Signatures — Mortacc{% endblock %}
+{% block nav_e_signatures %}active{% endblock %}
+{% block topbar_title %}E-Signatures{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'signature_envelope_create' %}" class="btn btn-primary">+ New Envelope</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .sig-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px; }
+    .sig-stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; text-align:center; }
+    .sig-stat .val { font-size:26px; font-weight:800; }
+    .sig-stat .lbl { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-3); margin-top:2px; }
+    .sig-stat.completed .val { color:var(--green); }
+    .sig-stat.pending .val { color:var(--brand); }
+    .sig-stat.drafts .val { color:var(--ink-4); }
+
+    .env-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px; }
+    .env-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; transition:var(--transition); }
+    .env-card:hover { border-color:var(--brand-muted); box-shadow:var(--shadow-sm); }
+    .env-title { font-size:15px; font-weight:600; color:var(--ink); margin-bottom:6px; }
+    .env-meta { font-size:11px; color:var(--ink-4); display:flex; gap:14px; flex-wrap:wrap; margin-bottom:10px; }
+    .env-status { display:inline-block; font-size:10px; font-weight:600; padding:3px 10px; border-radius:99px; }
+    .env-status.draft { background:var(--surface-2); color:var(--ink-4); }
+    .env-status.sent { background:var(--brand-soft); color:var(--brand); }
+    .env-status.viewed { background:var(--purple-bg); color:var(--purple); }
+    .env-status.partially_signed { background:var(--amber-bg); color:var(--amber); }
+    .env-status.completed { background:var(--green-bg); color:var(--green); }
+    .env-status.declined { background:var(--red-bg); color:var(--red); }
+    .env-status.expired { background:#f1f5f9; color:#94a3b8; }
+    .env-status.voided { background:#f1f5f9; color:#94a3b8; }
+
+    .signer-mini { display:flex; align-items:center; gap:6px; padding:4px 0; font-size:12px; }
+    .signer-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .signer-dot.signed { background:var(--green); }
+    .signer-dot.pending { background:var(--border); }
+    .signer-dot.declined { background:var(--red); }
+
+    .progress-bar { height:6px; background:var(--surface-2); border-radius:3px; margin:10px 0; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:3px; }
+    .progress-fill.completed { background:var(--green); }
+    .progress-fill.partial { background:var(--brand); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sig-stats">
+    <div class="sig-stat"><div class="val">{{ total }}</div><div class="lbl">Total Envelopes</div></div>
+    <div class="sig-stat completed"><div class="val">{{ completed }}</div><div class="lbl">Completed</div></div>
+    <div class="sig-stat pending"><div class="val">{{ pending }}</div><div class="lbl">In Progress</div></div>
+    <div class="sig-stat drafts"><div class="val">{{ drafts }}</div><div class="lbl">Drafts</div></div>
+</div>
+
+<div style="margin-bottom:14px;display:flex;gap:8px;">
+    <a href="?status=" class="btn btn-sm {% if not status_filter %}btn-primary{% else %}btn-ghost{% endif %}">All</a>
+    <a href="?status=draft" class="btn btn-sm {% if status_filter == 'draft' %}btn-primary{% else %}btn-ghost{% endif %}">Drafts</a>
+    <a href="?status=sent" class="btn btn-sm {% if status_filter == 'sent' %}btn-primary{% else %}btn-ghost{% endif %}">Sent</a>
+    <a href="?status=partially_signed" class="btn btn-sm {% if status_filter == 'partially_signed' %}btn-primary{% else %}btn-ghost{% endif %}">In Progress</a>
+    <a href="?status=completed" class="btn btn-sm {% if status_filter == 'completed' %}btn-primary{% else %}btn-ghost{% endif %}">Completed</a>
+</div>
+
+{% if envelopes %}
+<div class="env-grid">
+    {% for env in envelopes %}
+    <a href="{% url 'signature_envelope_detail' env.id %}" style="text-decoration:none;color:inherit;">
+        <div class="env-card">
+            <span class="env-status {{ env.status }}">{{ env.get_status_display }}</span>
+            <div class="env-title">{{ env.title }}</div>
+            <div class="env-meta">
+                <span>📄 {{ env.document_name }}</span>
+                <span>👥 {{ env.signers_count }} signers</span>
+                <span>{{ env.created_at|date:"M d, Y" }}</span>
+                {% if env.client %}<span>{{ env.client.name }}</span>{% endif %}
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill {% if env.status == 'completed' %}completed{% else %}partial{% endif %}" style="width:{% widthratio env.completed_signers_count env.signers_count 100 %}%"></div>
+            </div>
+            <div>
+                {% for s in env.signers.all|dictsort:"order" %}
+                <div class="signer-mini">
+                    <div class="signer-dot {{ s.status }}"></div>
+                    <span>{{ s.name }}</span>
+                    <span style="color:var(--ink-4);font-size:11px;">{{ s.get_status_display }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="1.5"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+    <p style="margin-top:12px;font-size:15px;font-weight:500;color:var(--ink-3);">No signature envelopes yet</p>
+    <p style="font-size:13px;color:var(--ink-4);">Send documents for electronic signature — multi-signer workflows with full audit trail.</p>
+    <a href="{% url 'signature_envelope_create' %}" class="btn btn-primary" style="margin-top:12px;">Create First Envelope</a>
+</div>
+{% endif %}
+{% endblock %}

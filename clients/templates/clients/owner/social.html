@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Social — {{ provider.name }} | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.panel { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; }
+.sidebar { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 88px; }
+.sidebar a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; color: var(--ink-2); text-decoration: none; }
+.sidebar a:hover, .sidebar a.active { background: var(--brand-light); color: var(--brand-dark); }
+.sidebar a .si { font-size: 16px; width: 24px; text-align: center; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.field input { width: 100%; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 15px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--ink); outline: none; }
+.field input:focus { border-color: var(--brand); }
+.hint { font-size: 12px; color: var(--ink-4); margin-top: 4px; }
+.btn { padding: 12px 32px; font-size: 15px; font-weight: 600; border-radius: var(--radius-full); border: none; background: var(--brand); color: #fff; cursor: pointer; }
+.btn:hover { background: var(--brand-dark); }
+@media (max-width:700px){ .panel{grid-template-columns:1fr;} .sidebar{position:static;flex-direction:row;overflow-x:auto;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><div class="panel">
+<div class="sidebar">
+<a href="{% url 'owner_dashboard' provider.slug %}"><span class="si">📊</span> Overview</a>
+<a href="{% url 'owner_edit_profile' provider.slug %}"><span class="si">✏️</span> Edit Profile</a>
+<a href="{% url 'owner_services' provider.slug %}"><span class="si">💰</span> Services</a>
+<a href="{% url 'owner_photos' provider.slug %}"><span class="si">📸</span> Photos & Videos</a>
+<a href="{% url 'owner_social' provider.slug %}" class="active"><span class="si">📱</span> Social Links</a>
+<a href="{% url 'owner_bookings' provider.slug %}"><span class="si">📋</span> Bookings</a>
+<a href="{% url 'provider_profile' provider.slug %}" target="_blank"><span class="si">👁</span> View Profile</a>
+</div>
+<div class="main"><h1>Social Links</h1>
+<div class="card">
+<form method="POST">{% csrf_token %}
+<div class="field"><label>📷 Instagram URL</label><input type="url" name="instagram" value="{{ provider.instagram }}" placeholder="https://instagram.com/yourbusiness"><div class="hint">Shown as @username on your profile</div></div>
+<div class="field"><label>🎵 TikTok URL</label><input type="url" name="tiktok" value="{{ provider.tiktok }}" placeholder="https://tiktok.com/@yourbusiness"></div>
+<div class="field"><label>📘 Facebook Page URL</label><input type="url" name="facebook" value="{{ provider.facebook }}" placeholder="https://facebook.com/yourbusiness"></div>
+<div class="field"><label>💬 WhatsApp Number</label><input type="text" name="whatsapp" value="{{ provider.whatsapp }}" placeholder="15145550123"><div class="hint">Country code + number, e.g. 15145550123. Generates a wa.me link.</div></div>
+<div class="field"><label>🌐 Website</label><input type="url" name="website" value="{{ provider.website }}" placeholder="https://yourbusiness.com"></div>
+<button type="submit" class="btn">Save Social Links</button>
+</form></div></div></div></div>
+</body></html>

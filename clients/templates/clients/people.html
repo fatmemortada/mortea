@@ -1,0 +1,58 @@
+{% extends "clients/base.html" %}
+{% block title %}People &amp; KYC{% endblock %}
+{% block topbar_title %}People{% endblock %}
+{% block nav_people %}active{% endblock %}
+{% block content %}<div style="max-width:1100px">
+<div class="page-header"><div class="page-header-text"><h1>People &amp; KYC Registry</h1><p>Every director, shareholder, officer and UBO across your entities — with KYC status</p></div>
+<form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="sync_from_records"><button type="submit" class="btn btn-ghost btn-sm" title="Import names from directors, shareholders and appointments">⟳ Sync from Records</button></form></div>
+
+<div class="info-grid mb-3">
+<div class="info-card"><div class="info-label">People</div><div class="info-value">{{ people_rows|length }}</div></div>
+<div class="info-card"><div class="info-label">KYC Verified</div><div class="info-value" style="color:var(--green,#16a34a)">{{ kyc_counts.verified }}</div></div>
+<div class="info-card"><div class="info-label">KYC Pending</div><div class="info-value">{{ kyc_counts.pending }}</div></div>
+<div class="info-card"><div class="info-label">KYC Missing / Expired</div><div class="info-value" style="color:var(--red,#dc2626)">{{ kyc_counts.missing }}</div></div>
+</div>
+
+<div class="card mb-3"><div class="card-header"><span class="card-title">Registry</span>
+<form method="GET" style="display:inline"><input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search people…" style="width:220px;display:inline-block;font-size:13px;padding:6px 10px"></form>
+</div>
+<div class="card-body" style="padding:0"><table>
+<thead><tr><th>Name</th><th>Roles Across Entities</th><th>Contact</th><th>Citizenship / Residence</th><th>KYC</th><th></th></tr></thead>
+<tbody>
+{% for row in people_rows %}
+<tr>
+<td><strong>{{ row.person.full_name }}</strong>{% if row.person.date_of_birth %}<div style="font-size:11px;color:var(--ink-4)">DOB {{ row.person.date_of_birth|date:"M d, Y" }}</div>{% endif %}</td>
+<td style="font-size:12px">
+{% for r in row.roles %}<div{% if not r.active %} style="opacity:.6;text-decoration:line-through"{% endif %}><a href="{% url 'entity_detail' r.entity.id %}" style="color:var(--brand);text-decoration:none">{{ r.entity.name }}</a> — {{ r.role }}</div>{% empty %}<span style="color:var(--ink-4)">No linked records</span>{% endfor %}
+</td>
+<td style="font-size:12px">{{ row.person.email|default:"" }}{% if row.person.phone %}<div>{{ row.person.phone }}</div>{% endif %}{% if not row.person.email and not row.person.phone %}—{% endif %}</td>
+<td style="font-size:12px">{{ row.person.citizenship|default:"—" }}{% if row.person.residency %} / {{ row.person.residency }}{% endif %}</td>
+<td>
+<form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="set_kyc"><input type="hidden" name="person_id" value="{{ row.person.id }}">
+<select name="kyc_status" class="form-control" style="width:auto;font-size:12px;padding:4px 8px" onchange="this.form.submit()">
+{% for value, label in kyc_choices %}<option value="{{ value }}" {% if row.person.kyc_status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+</select></form>
+{% if row.person.kyc_verified_date %}<div style="font-size:10px;color:var(--ink-4)">Verified {{ row.person.kyc_verified_date|date:"M d, Y" }}</div>{% endif %}
+</td>
+<td><form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete_person"><input type="hidden" name="person_id" value="{{ row.person.id }}"><button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remove this person?')">✕</button></form></td>
+</tr>
+{% empty %}
+<tr><td colspan="6"><div class="empty-state"><p>No people yet. Click "Sync from Records" to import everyone from your directors, shareholders and appointments — or add someone below.</p></div></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+
+<div class="card"><div class="card-header"><span class="card-title">Add Person</span></div>
+<div class="card-body"><form method="POST">{% csrf_token %}<input type="hidden" name="action" value="add_person">
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Full Name *</label><input type="text" name="full_name" class="form-control" required></div>
+<div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-control"></div>
+<div class="form-group"><label class="form-label">Phone</label><input type="text" name="phone" class="form-control"></div>
+<div class="form-group"><label class="form-label">Date of Birth</label><input type="date" name="date_of_birth" class="form-control"></div>
+<div class="form-group"><label class="form-label">Citizenship</label><input type="text" name="citizenship" class="form-control" placeholder="Canada"></div>
+<div class="form-group"><label class="form-label">Residence</label><input type="text" name="residency" class="form-control" placeholder="Ontario"></div>
+<div class="form-group"><label class="form-label">ID Type</label><select name="id_type" class="form-control"><option value="">—</option>{% for value, label in id_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select></div>
+<div class="form-group"><label class="form-label">Address</label><input type="text" name="address" class="form-control"></div>
+</div>
+<button type="submit" class="btn btn-primary">Add Person</button>
+</form></div></div>
+</div>{% endblock %}

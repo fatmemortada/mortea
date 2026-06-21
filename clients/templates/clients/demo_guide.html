@@ -1,0 +1,61 @@
+{% extends "clients/base.html" %}
+{% block title %}Getting Started Guide — Mortacc{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+{% block topbar_title %}🎓 Getting Started Guide{% endblock %}
+
+{% block extra_head %}
+<style>
+    .guide-hero { text-align:center; padding:40px 20px; background:linear-gradient(135deg,var(--brand-soft),var(--purple-bg)); border-radius:var(--radius-lg); margin-bottom:24px; }
+    .guide-hero h1 { font-size:24px; font-weight:800; margin:0 0 8px; }
+    .guide-hero p { font-size:14px; color:var(--ink-2); max-width:600px; margin:0 auto; }
+
+    .step-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+    .step-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:22px; position:relative; transition:var(--transition); }
+    .step-card:hover { border-color:var(--brand-muted); box-shadow:var(--shadow-sm); transform:translateY(-1px); }
+    .step-num { position:absolute; top:16px; right:16px; width:32px; height:32px; border-radius:50%; background:var(--brand-soft); color:var(--brand); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; }
+    .step-icon { font-size:32px; margin-bottom:10px; }
+    .step-title { font-size:16px; font-weight:700; color:var(--ink); margin-bottom:6px; }
+    .step-desc { font-size:13px; color:var(--ink-3); line-height:1.5; margin-bottom:12px; }
+    .step-tip { font-size:11px; color:var(--brand); background:var(--brand-soft); padding:8px 12px; border-radius:var(--radius); margin-bottom:12px; line-height:1.4; }
+    .step-link { display:inline-block; padding:8px 18px; background:var(--brand); color:white; border-radius:var(--radius); text-decoration:none; font-size:13px; font-weight:500; transition:var(--transition); }
+    .step-link:hover { background:var(--brand-dark); }
+
+    @media (max-width:768px) { .step-grid { grid-template-columns:1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="guide-hero">
+    <h1>Welcome to Your Mortacc Demo! 🎉</h1>
+    <p>This demo is pre-loaded with a complete firm environment — 3 entities at different lifecycle stages, invoices, compliance tasks, bookkeeping, cap tables, and more. Follow the guide below to explore every feature.</p>
+</div>
+
+<div class="step-grid">
+    {% for section in sections %}
+    <div class="step-card">
+        <div class="step-num">{{ section.number }}</div>
+        <div class="step-icon">{{ section.icon }}</div>
+        <div class="step-title">{{ section.title }}</div>
+        <div class="step-desc">{{ section.description }}</div>
+        <div class="step-tip">{{ section.tip }}</div>
+        <a href="{% url section.link_name %}" class="step-link">{{ section.link_text }} →</a>
+    </div>
+    {% endfor %}
+</div>
+
+<div style="text-align:center; padding:40px 20px; margin-top:24px;">
+    <h3 style="margin-bottom:8px;">Want to explore more?</h3>
+    <p style="color:var(--ink-3);font-size:14px;margin-bottom:16px;">Mortacc has 140+ features. Here are a few more to check out:</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+        <a href="{% url 'ai_assistant' %}" class="btn btn-ghost btn-sm">🤖 AI Assistant</a>
+        <a href="{% url 'risk_dashboard' %}" class="btn btn-ghost btn-sm">🔍 Risk Scanner</a>
+        <a href="{% url 'workflow_list' %}" class="btn btn-ghost btn-sm">⚡ Workflows</a>
+        <a href="{% url 'incorporation_wizard_start' %}" class="btn btn-ghost btn-sm">🏢 Incorporation Wizard</a>
+        <a href="{% url 'people' %}" class="btn btn-ghost btn-sm">👤 People/KYC</a>
+        <a href="{% url 'document_manager' %}" class="btn btn-ghost btn-sm">📁 Document Manager</a>
+        <a href="{% url 'activity_log' %}" class="btn btn-ghost btn-sm">📝 Activity Log</a>
+        <a href="{% url 'time_tracking' %}" class="btn btn-ghost btn-sm">⏱ Time Tracking</a>
+        <a href="{% url 'settings' %}" class="btn btn-ghost btn-sm">⚙ Settings</a>
+    </div>
+</div>
+{% endblock %}

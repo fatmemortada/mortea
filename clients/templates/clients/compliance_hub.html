@@ -1,0 +1,70 @@
+{% extends "clients/base.html" %}
+{% block title %}Compliance Hub — Mortacc{% endblock %}
+{% block nav_compliance %}active{% endblock %}
+{% block topbar_title %}Compliance Hub{% endblock %}
+
+{% block extra_head %}
+<style>
+    .jurisdiction-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; margin-bottom:18px; }
+    .juris-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; }
+    .juris-card h3 { font-size:14px; font-weight:600; margin:0 0 8px; }
+    .juris-stat { font-size:12px; color:var(--ink-3); margin-bottom:4px; }
+    .juris-stat .count { font-weight:600; color:var(--ink); }
+    .juris-stat .count.overdue { color:var(--red); }
+    .fee-table { width:100%; border-collapse:collapse; font-size:12.5px; }
+    .fee-table th { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-4); padding:8px 10px; border-bottom:1px solid var(--border); text-align:left; background:var(--surface-2); }
+    .fee-table td { padding:7px 10px; border-bottom:1px solid var(--surface-2); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Jurisdiction Cards -->
+<div class="jurisdiction-grid">
+    {% for j in jurisdiction_summary %}
+    <div class="juris-card">
+        <h3>{{ j.jurisdiction|title|default:"Federal" }}</h3>
+        <div class="juris-stat">Entities: <span class="count">{{ j.count }}</span></div>
+        <div class="juris-stat">Overdue: <span class="count overdue">{{ j.overdue|default:"0" }}</span></div>
+        <div class="juris-stat">Compliance: {{ j.compliance_rate|floatformat:0|default:"100" }}%</div>
+    </div>
+    {% empty %}
+    <div class="empty-state" style="grid-column:1/-1;"><p>No jurisdictions configured. Add entities to see compliance by jurisdiction.</p></div>
+    {% endfor %}
+</div>
+
+<!-- Alerts -->
+{% if alerts %}
+<div class="card" style="margin-bottom:18px;">
+    <div class="card-header"><span class="card-title">⚠ Compliance Alerts</span></div>
+    <div class="card-body">
+        {% for alert in alerts %}
+        <div style="padding:8px 0;border-bottom:1px solid var(--surface-2);font-size:12.5px;display:flex;align-items:center;gap:8px;">
+            <span style="color:{% if alert.severity == 'critical' %}var(--red){% else %}var(--amber){% endif %};">●</span>
+            <span>{{ alert.message }} — <a href="{% url 'entity_detail' alert.client_id %}">{{ alert.client_name }}</a></span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Fee Schedule -->
+<div class="card">
+    <div class="card-header"><span class="card-title">Government Fee Schedule</span></div>
+    <div class="card-body" style="padding:0;">
+        {% if fees %}
+        <div class="table-wrap">
+            <table class="fee-table">
+                <thead><tr><th>Jurisdiction</th><th>Fee Type</th><th>Amount</th><th>Effective</th></tr></thead>
+                <tbody>
+                    {% for f in fees %}
+                    <tr><td>{{ f.get_jurisdiction_display }}</td><td>{{ f.get_fee_type_display }}</td><td>${{ f.amount|floatformat:2 }}</td><td>{{ f.effective_date|date:"M d, Y" }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card-body"><p style="color:var(--ink-4);">No fee records.</p></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,476 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if query %}{{ query }}{% else %}Beauty Services{% endif %}{% if location %} near {{ location }}{% endif %} | Mortea</title>
+    <meta name="description" content="Find top-rated beauty professionals. {% if query %}{{ query }}{% else %}Beauty services{% endif %}{% if location %} near {{ location }}{% endif %}. {{ total_results }} provider{{ total_results|pluralize }} found.">
+    <link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+    <style>
+        /* ── Search Page Layout ─────────────────────────────────── */
+        .search-page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+
+        .search-bar-area {
+            background: var(--surface); border-bottom: 1px solid var(--border);
+            padding: 16px 32px; position: sticky; top: 64px; z-index: 100;
+        }
+        .search-bar-area .search-box { box-shadow: var(--shadow-sm); max-width: 720px; margin: 0 auto; }
+
+        .results-shell {
+            display: grid; grid-template-columns: 260px 1fr 360px;
+            max-width: 1440px; margin: 0 auto; min-height: calc(100vh - 200px);
+        }
+
+        /* Filters sidebar */
+        .filters-sidebar {
+            padding: 28px 24px; border-right: 1px solid var(--border);
+            background: var(--surface); position: sticky; top: 140px;
+            height: calc(100vh - 140px); overflow-y: auto;
+        }
+        .filters-sidebar h4 {
+            font-size: 13px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--ink-3); margin-bottom: 14px;
+        }
+        .filter-group { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-light); }
+        .filter-group:last-child { border-bottom: none; }
+        .filter-group label {
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 0; font-size: 14px; color: var(--ink-2);
+            cursor: pointer; transition: color .15s;
+        }
+        .filter-group label:hover { color: var(--ink); }
+        .filter-group label input { accent-color: var(--brand); width: 16px; height: 16px; }
+        .filter-group label .count { margin-left: auto; font-size: 12px; color: var(--ink-4); }
+        .filter-group a { text-decoration: none; color: inherit; }
+        .filter-reset {
+            display: block; text-align: center; font-size: 13px; font-weight: 500;
+            color: var(--brand); padding: 8px; border-radius: var(--radius);
+            transition: background .15s; margin-top: 8px;
+        }
+        .filter-reset:hover { background: var(--brand-light); }
+
+        .mobile-filter-toggle {
+            display: none; align-items: center; gap: 8px;
+            padding: 10px 20px; font-size: 14px; font-weight: 600;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-full); cursor: pointer;
+            color: var(--ink); margin-bottom: 16px;
+        }
+
+        /* Results column */
+        .results-col { padding: 28px 32px; }
+        .results-header {
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+        }
+        .results-count { font-size: 15px; color: var(--ink-3); }
+        .results-count strong { color: var(--ink); }
+        .sort-select {
+            padding: 8px 14px; font-size: 13px; font-family: 'Inter', sans-serif;
+            border: 1px solid var(--border); border-radius: var(--radius-full);
+            background: var(--surface); color: var(--ink-2); cursor: pointer;
+            outline: none;
+        }
+        .sort-select:focus { border-color: var(--brand); }
+
+        .results-list { display: flex; flex-direction: column; gap: 20px; }
+
+        /* Provider card */
+        .result-card {
+            display: grid; grid-template-columns: 180px 1fr;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: all .25s var(--ease);
+            text-decoration: none; color: inherit;
+        }
+        .result-card:hover {
+            border-color: var(--brand-muted);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+        .rc-photo-wrap {
+            height: 100%; min-height: 200px; background: var(--brand-light);
+            position: relative; overflow: hidden;
+        }
+        .rc-photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .rc-photo-placeholder {
+            width: 100%; height: 100%; min-height: 200px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 48px; font-weight: 600;
+            color: var(--brand); background: var(--brand-light);
+        }
+        .rc-featured-badge {
+            position: absolute; top: 10px; left: 10px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: var(--brand); color: #fff;
+            padding: 4px 10px; border-radius: var(--radius-full);
+        }
+        .rc-body { padding: 20px 24px; display: flex; flex-direction: column; }
+        .rc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+        .rc-name { font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 6px; line-height: 1.2; }
+        .rc-rating {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 14px; margin-bottom: 8px; white-space: nowrap;
+        }
+        .rc-rating .stars { color: var(--star); font-size: 16px; letter-spacing: 1px; }
+        .rc-rating strong { font-size: 15px; }
+        .rc-rating .reviews { color: var(--ink-3); font-size: 13px; }
+        .rc-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+        .rc-badge {
+            font-size: 12px; font-weight: 600; padding: 4px 12px;
+            border-radius: var(--radius-full);
+            background: var(--brand-light); color: var(--brand-dark);
+        }
+        .rc-location { font-size: 13px; color: var(--ink-3); }
+        .rc-services {
+            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+        }
+        .rc-service-tag {
+            font-size: 12px; padding: 3px 10px;
+            background: var(--bg-warm); color: var(--ink-3);
+            border-radius: var(--radius-full);
+        }
+        .rc-price {
+            font-size: 14px; color: var(--ink-3); margin-bottom: 16px;
+        }
+        .rc-price strong { color: var(--ink); font-size: 17px; }
+        .rc-actions { display: flex; gap: 10px; margin-top: auto; }
+        .rc-actions .btn { font-size: 14px; padding: 10px 20px; }
+
+        /* Map column */
+        .map-col {
+            position: sticky; top: 140px; height: calc(100vh - 140px);
+            border-left: 1px solid var(--border); background: #f0ece9;
+        }
+        .map-col .map-inner { width: 100%; height: 100%; }
+
+        /* Empty */
+        .empty-state {
+            text-align: center; padding: 64px 24px;
+            background: var(--surface); border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+        .empty-state h3 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 12px; }
+        .empty-state p { color: var(--ink-3); font-size: 16px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto; }
+        .empty-state .suggestions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+        .empty-state .suggestions a {
+            padding: 8px 18px; font-size: 14px; font-weight: 500;
+            border: 1px solid var(--border); border-radius: var(--radius-full);
+            color: var(--brand); transition: all .15s; text-decoration: none;
+        }
+        .empty-state .suggestions a:hover { background: var(--brand-light); border-color: var(--brand-muted); }
+
+        /* Mobile filters overlay */
+        .filters-overlay {
+            display: none; position: fixed; inset: 0; z-index: 2000;
+            background: rgba(0,0,0,.4);
+        }
+        .filters-overlay.active { display: block; }
+        .filters-overlay .filters-panel {
+            position: fixed; top: 0; left: 0; bottom: 0; width: 300px; max-width: 85vw;
+            background: var(--surface); overflow-y: auto; padding: 24px;
+            box-shadow: var(--shadow-xl);
+        }
+        .filters-overlay .filters-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+        .filters-overlay .filters-close {
+            background: none; border: none; font-size: 24px; cursor: pointer; color: var(--ink-3);
+        }
+
+        @media (max-width: 1100px) {
+            .results-shell { grid-template-columns: 1fr 320px; }
+            .filters-sidebar { display: none; }
+            .mobile-filter-toggle { display: inline-flex; }
+        }
+        @media (max-width: 800px) {
+            .results-shell { grid-template-columns: 1fr; }
+            .map-col { display: none; }
+            .result-card { grid-template-columns: 120px 1fr; }
+            .rc-photo-wrap, .rc-photo-placeholder { min-height: 140px; }
+            .rc-body { padding: 14px 16px; }
+            .rc-name { font-size: 17px; }
+            .search-bar-area { padding: 12px 16px; }
+            .results-col { padding: 20px 16px; }
+        }
+        @media (max-width: 480px) {
+            .result-card { grid-template-columns: 1fr; }
+            .rc-photo-wrap { height: 160px; min-height: auto; }
+            .rc-photo-placeholder { min-height: 160px; }
+            .rc-actions { flex-direction: column; }
+            .rc-actions .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav id="topNav">
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">Mortea</a>
+        <div class="nav-links">
+            <a href="/#categories" class="nav-link">Find Services</a>
+            <a href="/#for-professionals" class="nav-link">For Professionals</a>
+            <a href="/#about" class="nav-link">About</a>
+            <a href="{% url 'choose_login' %}" class="nav-link">Login</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+</nav>
+
+<div class="search-page">
+    <!-- Persistent search bar -->
+    <div class="search-bar-area">
+        <form class="search-box" action="{% url 'search_results' %}" method="GET">
+            <input type="hidden" name="category" value="{{ category }}">
+            <div class="search-field">
+                <span class="search-icon">📍</span>
+                <input type="text" name="location" value="{{ location }}" placeholder="City or postal code" class="search-input" list="city-list">
+                <datalist id="city-list">
+                    {% for city in all_cities %}<option value="{{ city }}">{% endfor %}
+                </datalist>
+            </div>
+            <div class="search-divider"></div>
+            <div class="search-field">
+                <span class="search-icon">🔍</span>
+                <input type="text" name="q" value="{{ query }}" placeholder="Botox, Nails, Hair Salon…" class="search-input" list="service-list">
+                <datalist id="service-list">
+                    <option value="Botox"><option value="Lip Fillers"><option value="Hair Salon">
+                    <option value="Nails"><option value="Hydrafacial"><option value="Laser Hair Removal">
+                    <option value="Head Spa"><option value="Eyelash Extensions"><option value="Brows">
+                    <option value="Makeup"><option value="PRP"><option value="Microneedling">
+                    <option value="Microblading"><option value="Balayage"><option value="Extensions">
+                </datalist>
+            </div>
+            <button type="submit" class="btn btn-primary btn-search">Search</button>
+        </form>
+    </div>
+
+    <div class="results-shell">
+        <!-- Filters sidebar -->
+        <aside class="filters-sidebar" id="filtersSidebar">
+            <h4>Filters</h4>
+
+            <!-- Category -->
+            <div class="filter-group">
+                <h4>Category</h4>
+                <label><a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if rating %}rating={{ rating }}&{% endif %}{% if price %}price={{ price }}&{% endif %}{% if sort != 'rating' %}sort={{ sort }}{% endif %}"><input type="radio" name="cat" {% if not category %}checked{% endif %}> All Categories</a></label>
+                {% for cat_val, cat_label in categories %}
+                <label><a href="?category={{ cat_val }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}{% if price %}&price={{ price }}{% endif %}{% if sort != 'rating' %}&sort={{ sort }}{% endif %}"><input type="radio" name="cat" {% if category == cat_val %}checked{% endif %}> {{ cat_label }}</a></label>
+                {% endfor %}
+            </div>
+
+            <!-- City -->
+            <div class="filter-group">
+                <h4>City</h4>
+                <label><a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if rating %}rating={{ rating }}&{% endif %}{% if price %}price={{ price }}&{% endif %}"><input type="radio" name="city" {% if not city_filter %}checked{% endif %}> All Cities</a></label>
+                {% for city in all_cities %}
+                <label><a href="?city={{ city|urlencode }}{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}{% if price %}&price={{ price }}{% endif %}"><input type="radio" name="city" {% if city_filter == city %}checked{% endif %}> {{ city }}</a></label>
+                {% endfor %}
+            </div>
+
+            <!-- Rating -->
+            <div class="filter-group">
+                <h4>Minimum Rating</h4>
+                <label><a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if city_filter %}city={{ city_filter|urlencode }}&{% endif %}{% if price %}price={{ price }}&{% endif %}"><input type="radio" name="rtg" {% if not rating %}checked{% endif %}> Any Rating</a></label>
+                <label><a href="?rating=4.5{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if price %}&price={{ price }}{% endif %}"><input type="radio" name="rtg" {% if rating == '4.5' %}checked{% endif %}> ★ 4.5+</a></label>
+                <label><a href="?rating=4{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if price %}&price={{ price }}{% endif %}"><input type="radio" name="rtg" {% if rating == '4' %}checked{% endif %}> ★ 4.0+</a></label>
+                <label><a href="?rating=3.5{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if price %}&price={{ price }}{% endif %}"><input type="radio" name="rtg" {% if rating == '3.5' %}checked{% endif %}> ★ 3.5+</a></label>
+            </div>
+
+            <!-- Price range -->
+            <div class="filter-group">
+                <h4>Price Range</h4>
+                <label><a href="?{% if query %}q={{ query|urlencode }}&{% endif %}{% if location %}location={{ location|urlencode }}&{% endif %}{% if category %}category={{ category }}&{% endif %}{% if city_filter %}city={{ city_filter|urlencode }}&{% endif %}{% if rating %}rating={{ rating }}&{% endif %}"><input type="radio" name="pr" {% if not price %}checked{% endif %}> Any Price</a></label>
+                <label><a href="?price=budget{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"><input type="radio" name="pr" {% if price == 'budget' %}checked{% endif %}> $ Budget (≤$75)</a></label>
+                <label><a href="?price=mid{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"><input type="radio" name="pr" {% if price == 'mid' %}checked{% endif %}> $$ Moderate ($75-150)</a></label>
+                <label><a href="?price=premium{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"><input type="radio" name="pr" {% if price == 'premium' %}checked{% endif %}> $$$ Premium ($150-350)</a></label>
+                <label><a href="?price=luxury{% if query %}&q={{ query|urlencode }}{% endif %}{% if location %}&location={{ location|urlencode }}{% endif %}{% if category %}&category={{ category }}{% endif %}{% if city_filter %}&city={{ city_filter|urlencode }}{% endif %}{% if rating %}&rating={{ rating }}{% endif %}"><input type="radio" name="pr" {% if price == 'luxury' %}checked{% endif %}> $$$$ Luxury ($350+)</a></label>
+            </div>
+
+            <a href="{% url 'search_results' %}" class="filter-reset">Reset all filters</a>
+        </aside>
+
+        <!-- Filters overlay (mobile) -->
+        <div class="filters-overlay" id="filtersOverlay">
+            <div class="filters-panel" id="filtersPanel">
+                <div class="filters-header">
+                    <h4 style="margin:0">Filters</h4>
+                    <button class="filters-close" onclick="closeFilters()">×</button>
+                </div>
+                <div id="mobileFilters"></div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="results-col">
+            <div class="results-header">
+                <div class="results-count">
+                    <strong>{{ total_results }}</strong> provider{{ total_results|pluralize }} found
+                    {% if query %}for <strong>"{{ query }}"</strong>{% endif %}
+                    {% if location %}near <strong>{{ location }}</strong>{% endif %}
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button class="mobile-filter-toggle" onclick="openFilters()">☰ Filters</button>
+                    <select class="sort-select" name="sort" onchange="location.href=this.value">
+                        <option value="?{{ request.GET.urlencode }}" disabled selected>Sort by…</option>
+                        <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=rating" {% if sort == 'rating' or not sort %}selected{% endif %}>Top Rated</option>
+                        <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=name">Name A-Z</option>
+                        <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=price_low">Price: Low to High</option>
+                        <option value="?{% for k,v in request.GET.items %}{% if k != 'sort' %}{{ k }}={{ v|urlencode }}&{% endif %}{% endfor %}sort=price_high">Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
+
+            {% if providers %}
+            <div class="results-list">
+                {% for provider in providers %}
+                <div class="result-card">
+                    <div class="rc-photo-wrap">
+                        {% if provider.photo %}
+                        <img src="{{ provider.photo.url }}" alt="{{ provider.name }}" loading="lazy">
+                        {% else %}
+                        <div class="rc-photo-placeholder">{{ provider.name|slice:":1" }}</div>
+                        {% endif %}
+                        {% if provider.is_featured %}<span class="rc-featured-badge">Featured</span>{% endif %}
+                    </div>
+                    <div class="rc-body">
+                        <div class="rc-top">
+                            <div>
+                                <h3 class="rc-name">{{ provider.name }}</h3>
+                                <div class="rc-rating">
+                                    <span class="stars">{% for i in "12345" %}{% if forloop.counter <= provider.rating|floatformat:"0" %}★{% else %}☆{% endif %}{% endfor %}</span>
+                                    <strong>{{ provider.rating }}</strong>
+                                    <span class="reviews">({{ provider.review_count }} review{{ provider.review_count|pluralize }})</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rc-meta">
+                            <span class="rc-badge">{{ provider.get_category_display }}</span>
+                            <span class="rc-location">📍 {{ provider.city }}, {{ provider.province }}</span>
+                            {% if provider.is_verified %}<span style="font-size:10px;font-weight:700;background:#f0fdf4;color:#16a34a;padding:3px 8px;border-radius:var(--radius-full)">✓ Verified</span>{% endif %}
+                            {% if provider.is_top_rated %}<span style="font-size:10px;font-weight:700;background:#fefce8;color:#d4a853;padding:3px 8px;border-radius:var(--radius-full)">🌟 Top Rated</span>{% endif %}
+                        </div>
+                        {% with top_services=provider.services.all|slice:":3" %}
+                        {% if top_services %}
+                        <div class="rc-services">
+                            {% for svc in top_services %}
+                            <span class="rc-service-tag">{{ svc.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% endwith %}
+                        <div class="rc-price">
+                            {% if provider.min_price %}
+                            Starting at <strong>${{ provider.min_price|floatformat:"0" }}</strong>
+                            {% endif %}
+                        </div>
+                        <div class="rc-actions">
+                            <a href="{% url 'provider_profile' provider.slug %}" class="btn btn-outline">View Profile</a>
+                            <a href="{% url 'booking' provider.slug %}" class="btn btn-primary">Book Now</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <h3>No providers found</h3>
+                <p>Try different search terms, a broader location, or remove some filters.</p>
+                <div class="suggestions">
+                    <a href="{% url 'search_results' %}?q=Botox">Botox</a>
+                    <a href="{% url 'search_results' %}?q=Hair+Salon">Hair Salon</a>
+                    <a href="{% url 'search_results' %}?q=Nails">Nails</a>
+                    <a href="{% url 'search_results' %}?q=Laser">Laser</a>
+                    <a href="{% url 'search_results' %}?location=Montreal">Montreal</a>
+                    <a href="{% url 'search_results' %}?location=Laval">Laval</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Map -->
+        <div class="map-col">
+            <div class="map-inner" id="map"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Mobile menu
+document.getElementById('hamburger').addEventListener('click', function() { this.classList.toggle('active'); });
+window.addEventListener('scroll', function() {
+    document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 10);
+});
+
+// Mobile filters
+function openFilters() {
+    document.getElementById('filtersOverlay').classList.add('active');
+    document.getElementById('mobileFilters').innerHTML = document.getElementById('filtersSidebar').innerHTML;
+}
+function closeFilters() { document.getElementById('filtersOverlay').classList.remove('active'); }
+document.getElementById('filtersOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeFilters();
+});
+
+// Map
+(function() {
+    var mapEl = document.getElementById('map');
+    if (!mapEl) return;
+
+    var map = L.map('map', { scrollWheelZoom: false, zoomControl: true });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+        maxZoom: 19,
+    }).addTo(map);
+
+    var providers = [
+        {% for provider in providers %}
+        {% if provider.latitude and provider.longitude %}
+        {
+            name: "{{ provider.name|escapejs }}",
+            lat: {{ provider.latitude }},
+            lng: {{ provider.longitude }},
+            category: "{{ provider.get_category_display|escapejs }}",
+            rating: "{{ provider.rating }}",
+            url: "{% url 'provider_profile' provider.slug %}",
+        },
+        {% endif %}
+        {% endfor %}
+    ];
+
+    var bounds = [];
+    providers.forEach(function(p) {
+        var marker = L.marker([p.lat, p.lng]).addTo(map)
+            .bindPopup(
+                '<div style="font-family:Inter,sans-serif;min-width:140px">' +
+                '<strong><a href="' + p.url + '" style="color:#1a1a1a;text-decoration:none">' + p.name + '</a></strong>' +
+                '<br><span style="font-size:13px;color:#8a8a8a">' + p.category + '</span>' +
+                '<br><span style="color:#d4a853">★</span> ' + p.rating +
+                '</div>'
+            );
+        bounds.push([p.lat, p.lng]);
+    });
+
+    if (bounds.length > 0) {
+        map.fitBounds(bounds, { padding: [30, 30], maxZoom: 13 });
+    } else {
+        map.setView([45.55, -73.65], 10);
+    }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: letter; margin: 2cm 2.2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; font-size: 10.5pt; color: #1a1a1a; line-height: 1.7; }
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 24px; }
+  .doc-logo { font-size: 20pt; font-weight: bold; } .doc-logo span { color: #b8956a; }
+  .doc-meta { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.6; }
+  .doc-title { text-align: center; margin: 20px 0 28px; }
+  .doc-title h1 { font-size: 14pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .doc-title h2 { font-size: 12pt; font-weight: normal; margin-bottom: 4px; }
+  .doc-title .corp-name { font-size: 13pt; font-style: italic; font-weight: bold; }
+  .doc-title .jurisdiction { font-size: 9pt; color: #666; margin-top: 4px; }
+  .section { margin-bottom: 22px; }
+  .section-label { font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1.5px; color: #b8956a; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; margin-bottom: 14px; }
+  .article p { margin-bottom: 8px; }
+  p { margin-bottom: 10px; }
+  .small { font-size: 8.5pt; color: #666; }
+  .mt { margin-top: 16px; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px; }
+  .sig-item .line { border-bottom: 1px solid #1a1a1a; margin-bottom: 6px; height: 45px; }
+  .sig-item .name { font-size: 9pt; font-weight: bold; }
+  .sig-item .label { font-size: 8.5pt; color: #555; }
+</style>
+</head>
+<body>
+<div class="doc-header">
+  <div class="doc-logo">Mort<span>acc</span></div>
+  <div class="doc-meta">{{ client.name }}<br>Règlement général no 1<br>{{ today|date:"j F Y" }}</div>
+</div>
+<div class="doc-title">
+  <h1>Règlement Général No 1</h1>
+  <h2>de</h2>
+  <div class="corp-name">{{ client.name }}</div>
+  <div class="jurisdiction">Constituée en vertu des lois de {{ jurisdiction_display|default:"Canada" }}{% if incorporation_date %} le {{ incorporation_date|date:"j F Y" }}{% endif %}</div>
+</div>
+<div class="section">
+  <p>IL EST ÉDICTÉ à titre de règlement de <strong>{{ client.name }}</strong> (la « Société ») ce qui suit :</p>
+</div>
+<div class="section">
+  <div class="section-label">Article 1 — Interprétation</div>
+  <div class="article">
+    <p><strong>1.1 Définitions.</strong> Dans le présent règlement et dans tous les autres règlements de la Société, sauf indication contraire du contexte : « Loi » désigne la législation applicable en vertu de laquelle la Société est constituée, telle que modifiée à l'occasion; « statuts » désigne les statuts constitutifs de la Société, tels que modifiés à l'occasion; « conseil » désigne le conseil d'administration de la Société; « Société » désigne {{ client.name }}; « administrateur » désigne un membre du conseil; « dirigeant » désigne toute personne nommée à titre de dirigeant de la Société.</p>
+    <p><strong>1.2 Interprétation.</strong> Les mots au singulier comprennent le pluriel et vice versa. Les titres sont indiqués à titre indicatif seulement et n'ont aucune incidence sur l'interprétation.</p>
+  </div>
+</div>
+<div class="section">
+  <div class="section-label">Article 2 — Administrateurs</div>
+  <div class="article">
+    <p><strong>2.1 Nombre d'administrateurs.</strong> Le conseil est composé du nombre d'administrateurs déterminé à l'occasion dans les limites minimales et maximales prévues aux statuts.</p>
+    <p><strong>2.2 Élection et mandat.</strong> Les administrateurs sont élus par les actionnaires à chaque assemblée annuelle et exercent leurs fonctions jusqu'à la prochaine assemblée annuelle ou jusqu'à l'élection ou la nomination de leurs successeurs.</p>
+    <p><strong>2.3 Quorum.</strong> La majorité des administrateurs en fonction constitue le quorum pour délibérer lors de toute réunion du conseil.</p>
+    <p><strong>2.4 Réunions.</strong> Les réunions du conseil peuvent se tenir en tout lieu au Canada ou à l'étranger. Un avis d'au moins deux (2) jours doit être donné à chaque administrateur avant la réunion.</p>
+    <p><strong>2.5 Résolutions écrites.</strong> Une résolution écrite signée par tous les administrateurs ayant le droit de voter sur cette résolution lors d'une réunion du conseil est aussi valide que si elle avait été adoptée lors d'une telle réunion.</p>
+    <p><strong>2.6 Rémunération.</strong> Les administrateurs reçoivent la rémunération que le conseil fixe à l'occasion. Ils ont également droit au remboursement des frais raisonnables de déplacement et autres engagés pour assister aux réunions.</p>
+  </div>
+</div>
+<div class="section">
+  <div class="section-label">Article 3 — Dirigeants</div>
+  <div class="article">
+    <p><strong>3.1 Nomination.</strong> Le conseil peut désigner les postes de dirigeant de la Société, nommer des dirigeants, préciser leurs fonctions et, sous réserve de la Loi, leur déléguer le pouvoir de gérer les activités et les affaires de la Société.</p>
+    <p><strong>3.2 Président.</strong> Le président est le premier dirigeant de la Société et, sous réserve de l'autorité du conseil, supervise et dirige les activités et les affaires de la Société.</p>
+    <p><strong>3.3 Secrétaire.</strong> Le secrétaire envoie ou fait envoyer les avis de convocation à toutes les réunions du conseil et des actionnaires et est responsable des registres de la Société.</p>
+    <p><strong>3.4 Rémunération.</strong> Les dirigeants de la Société reçoivent la rémunération que le conseil fixe à l'occasion.</p>
+  </div>
+</div>
+<div class="section">
+  <div class="section-label">Article 4 — Actionnaires</div>
+  <div class="article">
+    <p><strong>4.1 Assemblées annuelles.</strong> L'assemblée annuelle des actionnaires est tenue aux date, heure et lieu que le conseil détermine, afin de recevoir les états financiers et rapports, d'élire les administrateurs, de nommer le vérificateur (le cas échéant) et de traiter toute autre question qui peut être soumise à l'assemblée.</p>
+    <p><strong>4.2 Assemblées extraordinaires.</strong> Le conseil peut convoquer une assemblée extraordinaire des actionnaires en tout temps.</p>
+    <p><strong>4.3 Avis.</strong> L'avis de convocation à chaque assemblée des actionnaires est donné au moins dix (10) jours et au plus cinquante (50) jours avant la date de l'assemblée.</p>
+    <p><strong>4.4 Quorum.</strong> Le quorum pour délibérer lors d'une assemblée des actionnaires est constitué d'une ou plusieurs personnes présentes en personne ou par procuration qui détiennent ensemble au moins la majorité des actions émises ayant droit de vote à l'assemblée.</p>
+    <p><strong>4.5 Résolutions écrites.</strong> Une résolution écrite signée par tous les actionnaires ayant le droit de voter sur cette résolution est aussi valide que si elle avait été adoptée lors d'une assemblée des actionnaires.</p>
+  </div>
+</div>
+<div class="section">
+  <div class="section-label">Article 5 — Actions et transferts</div>
+  <div class="article">
+    <p><strong>5.1 Certificats d'actions.</strong> Tout détenteur d'actions a droit, sur demande, à un certificat d'actions signé au nom de la Société indiquant le nombre et la catégorie ou série d'actions qu'il détient.</p>
+    <p><strong>5.2 Transfert d'actions.</strong> Sous réserve des statuts, les actions peuvent être transférées par inscription au registre des valeurs mobilières. Aucun transfert n'est inscrit à moins qu'un formulaire de transfert dûment signé n'ait été remis à la Société.</p>
+  </div>
+</div>
+<div class="section">
+  <div class="section-label">Article 6 — Finances</div>
+  <div class="article">
+    <p><strong>6.1 Exercice financier.</strong> L'exercice financier de la Société se termine le <strong>{{ profile.fiscal_year_end|default:"31 décembre" }}</strong> de chaque année, sauf décision contraire du conseil.</p>
+    <p><strong>6.2 Opérations bancaires.</strong> Les opérations bancaires de la Société sont effectuées auprès des banques, sociétés de fiducie ou autres institutions financières que le conseil désigne à l'occasion. Tous les documents requis dans le cadre des opérations bancaires sont signés par les dirigeants ou administrateurs que le conseil désigne à l'occasion.</p>
+    <p><strong>6.3 Signature de documents.</strong> Les contrats, documents ou instruments nécessitant l'exécution par la Société sont signés par deux dirigeants ou administrateurs de la Société.</p>
+    <p><strong>6.4 Dividendes.</strong> Sous réserve de la Loi et des statuts, le conseil peut à l'occasion déclarer et payer des dividendes aux actionnaires selon leurs droits et intérêts respectifs dans la Société.</p>
+  </div>
+</div>
+<div class="section">
+  <div class="section-label">Article 7 — Dispositions générales</div>
+  <div class="article">
+    <p><strong>7.1 Indemnisation.</strong> Sous réserve de la Loi, la Société indemnise un administrateur ou dirigeant de la Société de tous les frais et dépenses raisonnablement engagés par lui dans le cadre de toute action civile, pénale ou administrative à laquelle il est partie en raison du fait qu'il est ou a été administrateur ou dirigeant de la Société.</p>
+    <p><strong>7.2 Avis.</strong> Tout avis requis en vertu du présent règlement est donné par écrit et peut être remis en mains propres, par courrier, par courriel ou par tout autre moyen électronique.</p>
+    <p><strong>7.3 Modification.</strong> Le présent règlement peut être modifié par résolution des administrateurs, sous réserve de confirmation par les actionnaires à la prochaine assemblée des actionnaires.</p>
+  </div>
+</div>
+<div class="section">
+  <p>ÉDICTÉ par le conseil d'administration de la Société en date du <strong>{{ incorporation_date|date:"j F Y"|default:today|date:"j F Y" }}</strong>, et confirmé par les actionnaires de la Société à la même date.</p>
+</div>
+<div class="section">
+  <div class="section-label">Signatures des administrateurs</div>
+  <div class="sig-grid">
+    {% for d in directors %}
+    <div class="sig-item">
+      <div class="line"></div>
+      <div class="name">{{ d.full_name }}</div>
+      <div class="label">Administrateur{% if d.is_officer %} · {{ d.officer_title }}{% endif %}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<p class="small mt">Préparé par Mortacc Solutions Inc. · support@mortacc.com · mortacc.com</p>
+</body>
+</html>

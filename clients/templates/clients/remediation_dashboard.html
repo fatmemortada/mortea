@@ -1,0 +1,73 @@
+{% extends "clients/base.html" %}
+{% block title %}Minute Book Remediation — Mortacc{% endblock %}
+{% block nav_remediation %}active{% endblock %}
+{% block topbar_title %}Minute Book Remediation{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'remediation_create' %}" class="btn btn-primary">+ New Project</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .project-card {
+        background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+        padding:20px; margin-bottom:12px;
+    }
+    .project-card h3 { font-size:15px;font-weight:600;color:var(--ink);margin:0 0 4px; }
+    .project-card h3 a { color:var(--ink);text-decoration:none; }
+    .project-card .meta { font-size:12px;color:var(--ink-3);margin-bottom:10px; }
+    .project-stats { display:flex;gap:20px;margin-bottom:8px;flex-wrap:wrap; }
+    .pstat { font-size:12px; }
+    .pstat .v { font-weight:700;color:var(--ink); }
+    .pstat .l { color:var(--ink-3);font-size:10px; }
+    .progress-bar { height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;margin-top:8px; }
+    .progress-fill { height:100%;background:var(--brand);border-radius:3px; }
+    .progress-fill.done { background:var(--green); }
+    .badge { display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px; }
+    .badge.active { background:var(--blue-bg);color:var(--blue); }
+    .badge.done { background:var(--green-bg);color:var(--green); }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 style="font-size:15px;font-weight:600;color:var(--ink);margin:0 0 12px">
+    Active Projects <span class="badge active">{{ active.count }}</span>
+</h2>
+
+{% for project in active %}
+<div class="project-card">
+    <h3><a href="{% url 'remediation_project' project.id %}">{{ project.name }}</a></h3>
+    <div class="meta">Created {{ project.created_at|date:"M d, Y" }} · {{ project.get_status_display }}</div>
+    <div class="project-stats">
+        <div class="pstat"><span class="v">{{ project.completed_entities }}/{{ project.total_entities }}</span> <span class="l">entities complete</span></div>
+        <div class="pstat"><span class="v">{{ project.documents_generated }}/{{ project.total_documents_needed }}</span> <span class="l">documents generated</span></div>
+        <div class="pstat"><span class="v">${{ project.total_invoiced|floatformat:0 }}</span> <span class="l">invoiced</span></div>
+        <div class="pstat"><span class="v">${{ project.total_estimated|floatformat:0 }}</span> <span class="l">estimated</span></div>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill {% if project.progress_pct == 100 %}done{% endif %}" style="width:{{ project.progress_pct }}%"></div>
+    </div>
+</div>
+{% empty %}
+<div class="empty-state">
+    <h3>No remediation projects</h3>
+    <p>Create a remediation project to scope and fix minute book deficiencies across multiple entities at once. Batch-generate missing documents and invoice as you go.</p>
+    <a href="{% url 'remediation_create' %}" class="btn btn-primary" style="margin-top:12px">Create First Project</a>
+</div>
+{% endfor %}
+
+{% if projects.count > active.count %}
+<h2 style="font-size:14px;font-weight:600;color:var(--ink);margin:24px 0 10px">Completed</h2>
+{% for project in projects %}
+{% if project.status == 'invoiced' %}
+<div class="project-card" style="opacity:0.7">
+    <h3>{{ project.name }}</h3>
+    <div class="meta">Completed {{ project.completed_at|date:"M d, Y" }} · <span class="badge done">Invoiced</span></div>
+    <div class="project-stats">
+        <div class="pstat"><span class="v">{{ project.total_entities }}</span> <span class="l">entities</span></div>
+        <div class="pstat"><span class="v">${{ project.total_invoiced|floatformat:0 }}</span> <span class="l">total invoiced</span></div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "clients/base.html" %}
+{% block title %}Structure Charts — Mortacc{% endblock %}
+{% block nav_structure %}active{% endblock %}
+{% block topbar_title %}Structure Charts{% endblock %}
+
+{% block extra_head %}
+<style>
+    .chart-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px; }
+    .chart-card {
+        background:var(--surface);border:1px solid var(--border);
+        border-radius:var(--radius-lg);padding:18px 20px;
+        text-decoration:none;color:inherit;
+        transition:box-shadow var(--transition),border-color var(--transition);
+        display:block;
+    }
+    .chart-card:hover { box-shadow:var(--shadow-md);border-color:#cbd5e1; }
+    .chart-card-top { display:flex;align-items:center;gap:12px;margin-bottom:14px; }
+    .chart-icon { width:40px;height:40px;border-radius:10px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; }
+    .chart-name { font-size:14.5px;font-weight:600;color:var(--ink); }
+    .chart-meta { font-size:12px;color:var(--ink-3);margin-top:2px; }
+    .chart-preview {
+        display:flex;gap:8px;align-items:center;
+        padding:10px;background:var(--surface-2);
+        border-radius:var(--radius);font-size:12px;color:var(--ink-3);
+    }
+    .preview-node { padding:4px 10px;border-radius:5px;font-size:11px;font-weight:500; }
+    .preview-node.corp { background:var(--ink);color:#fff; }
+    .preview-node.sh   { background:#dbeafe;color:#1e40af; }
+    .preview-node.dir  { background:#dcfce7;color:#15803d; }
+    .preview-arrow { color:var(--ink-4);font-size:14px; }
+    .view-btn { display:flex;align-items:center;gap:5px;margin-top:12px;font-size:12.5px;font-weight:500;color:var(--brand); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-text">
+        <h1>Structure Charts</h1>
+        <p>Visual ownership and governance charts for all entities</p>
+    </div>
+</div>
+
+{% if entities %}
+<div class="chart-grid">
+    {% for e in entities %}
+    <a href="{% url 'org_chart' e.client.id %}" class="chart-card">
+        <div class="chart-card-top">
+            <div class="chart-icon">🏢</div>
+            <div>
+                <div class="chart-name">{{ e.client.name }}</div>
+                <div class="chart-meta">
+                    {{ e.get_jurisdiction_display }}
+                    {% if e.incorporation_date %} · Inc. {{ e.incorporation_date|date:"Y" }}{% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="chart-preview">
+            {% with sh=e.client.shareholders.first %}
+            {% if sh %}<span class="preview-node sh">{{ sh.full_name|truncatechars:12 }}</span>
+            <span class="preview-arrow">↓</span>{% endif %}
+            {% endwith %}
+            <span class="preview-node corp">{{ e.client.name|truncatechars:14 }}</span>
+            {% with dir=e.client.directors.first %}
+            {% if dir %}<span class="preview-arrow">↓</span>
+            <span class="preview-node dir">{{ dir.full_name|truncatechars:12 }}</span>{% endif %}
+            {% endwith %}
+        </div>
+        <div class="view-btn">
+            View chart
+            <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state" style="padding:80px 20px">
+    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 110-2h4a1 1 0 011 1v4a1 1 0 11-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 112 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 110 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 110-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+    <p>No entities yet. Start an incorporation to generate structure charts.</p>
+    <a href="{% url 'corporate' %}" class="btn btn-primary" style="margin-top:16px">New Incorporation</a>
+</div>
+{% endif %}
+{% endblock %}

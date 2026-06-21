@@ -1,0 +1,1651 @@
+{% extends "clients/base.html" %}
+{% load custom_filters %}
+{% block title %}{{ client.name }} — Mortacc{% endblock %}
+{% block topbar_title %}{{ client.name }}{% endblock %}
+
+{% block topbar_actions %}
+    {% if not is_submitted and missing_items %}
+    <form method="POST" style="display:inline">
+        {% csrf_token %}
+        <input type="hidden" name="active_tab" value="{{ active_tab }}">
+        <button type="submit" name="send_reminder" class="btn btn-teal">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+            Send Reminder
+        </button>
+    </form>
+    {% endif %}
+    <a href="{% url 'dashboard' %}" class="btn btn-ghost">← Back to Dashboard</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .client-hero {
+        background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 22px 26px;
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        box-shadow: 0 18px 60px rgba(80,60,40,.08);
+    }
+
+    .client-hero-left { display: flex; align-items: center; gap: 16px; }
+
+    .client-avatar {
+        width: 52px; height: 52px;
+        border-radius: 50%;
+        background: var(--navy);
+        color: #d6b48a;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; font-weight: 700;
+        flex-shrink: 0;
+        font-family: 'DM Serif Display', serif;
+    }
+
+    .client-hero-name { font-size: 20px; font-weight: 600; color: var(--gray-900); }
+    .client-hero-meta { font-size: 13px; color: var(--gray-500); margin-top: 3px; }
+
+    .client-hero-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    .token-chip {
+        background: var(--blue-soft);
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-family: monospace;
+        border: 1px solid #bfdbfe;
+    }
+
+    .portal-link-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 13px; color: var(--blue); font-weight: 500;
+        background: var(--blue-soft); border: 1px solid #bfdbfe;
+        padding: 6px 12px; border-radius: 8px; cursor: pointer;
+        text-decoration: none; transition: var(--transition);
+    }
+    .portal-link-btn:hover { background: #dbeafe; }
+
+    /* Tabs */
+    .tab-nav {
+        display: flex;
+        gap: 2px;
+        background: var(--gray-100);
+        border-radius: 20px;
+        padding: 4px;
+        margin-bottom: 22px;
+        width: fit-content;
+    }
+
+    .tab-btn {
+        padding: 8px 18px;
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--gray-500);
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        text-decoration: none;
+        transition: var(--transition);
+        white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: var(--gray-800); background: rgba(255,255,255,.6); }
+    .tab-btn.active { background: rgba(255,255,255,.92); backdrop-filter: blur(16px); color: var(--gray-900); box-shadow: 0 18px 60px rgba(80,60,40,.08); }
+
+    /* Progress & checklist */
+    .overview-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .checklist-card {
+        background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        box-shadow: 0 18px 60px rgba(80,60,40,.08);
+        overflow: hidden;
+    }
+
+    .checklist-header {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--gray-700);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .prog-wrap { padding: 14px 18px; border-bottom: 1px solid var(--gray-100); }
+
+    .prog-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: var(--gray-500);
+        margin-bottom: 8px;
+    }
+
+    .prog-track {
+        height: 8px;
+        background: var(--gray-100);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    .prog-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--blue), var(--teal));
+        transition: width .5s ease;
+    }
+
+    .check-list { padding: 8px 0; }
+
+    .check-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 7px 18px;
+        font-size: 13px;
+        transition: var(--transition);
+    }
+
+    .check-item:hover { background: var(--gray-50); }
+
+    .check-icon {
+        width: 18px; height: 18px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px;
+        flex-shrink: 0;
+    }
+
+    .check-icon.ok { background: var(--green-light); color: var(--green); }
+    .check-icon.missing { background: var(--gray-100); color: var(--gray-400); border: 1.5px solid var(--gray-200); }
+
+    .check-item.ok { color: var(--gray-700); }
+    .check-item.missing { color: var(--gray-400); }
+
+    /* Form card */
+    .form-card {
+        background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        box-shadow: 0 18px 60px rgba(80,60,40,.08);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .form-card-header {
+        padding: 14px 22px;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray-800);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .form-card-body { padding: 22px; }
+
+    /* Submission data */
+    .submission-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .data-row {
+        padding: 10px 0;
+        border-bottom: 1px solid var(--gray-100);
+        display: flex;
+        gap: 12px;
+    }
+
+    .data-row:last-child { border-bottom: none; }
+    .data-key { font-size: 12px; color: var(--gray-500); width: 130px; flex-shrink: 0; padding-top: 1px; }
+    .data-val { font-size: 13px; color: var(--gray-800); font-weight: 500; }
+
+    /* Doc list */
+    .doc-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        transition: var(--transition);
+    }
+
+    .doc-item:hover { background: rgba(255,255,255,.92); backdrop-filter: blur(16px); box-shadow: 0 18px 60px rgba(80,60,40,.08); }
+    .doc-item a { font-size: 13px; color: var(--blue); text-decoration: none; font-weight: 500; }
+    .doc-item a:hover { text-decoration: underline; }
+    .doc-meta { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+    .doc-section { margin-bottom: 22px; }
+    .doc-section-title {
+        font-size: 11px; font-weight: 600; text-transform: uppercase;
+        letter-spacing: .6px; color: var(--gray-500); margin-bottom: 10px;
+    }
+
+    .upload-area {
+        border: 2px dashed var(--gray-200);
+        border-radius: 20px;
+        padding: 16px;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        position: relative;
+        background: var(--gray-50);
+        margin-bottom: 10px;
+    }
+
+    .upload-area:hover { border-color: var(--blue); background: var(--blue-soft); }
+    .upload-area input[type="file"] { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+    .upload-area-text { font-size: 13px; color: var(--gray-500); }
+    .upload-area-text strong { color: var(--blue); }
+
+    .empty-doc { font-size: 13px; color: var(--gray-400); font-style: italic; padding: 6px 0; }
+
+    .reopen-banner {
+        background: var(--amber-light);
+        border: 1px solid #fde68a;
+        border-radius: 20px;
+        padding: 14px 18px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .reopen-banner p { font-size: 14px; color: #92400e; }
+
+    .reminder-sent-banner {
+        background: var(--teal-light);
+        border: 1px solid #99f6e4;
+        border-radius: 20px;
+        padding: 12px 18px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: #0f766e;
+        font-weight: 500;
+    }
+
+
+    .review-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 999px;
+        white-space: nowrap;
+    }
+
+    .review-status.pending {
+        background: var(--amber-light);
+        color: #92400e;
+        border: 1px solid #fde68a;
+    }
+
+    .review-status.approved {
+        background: var(--green-light);
+        color: var(--green);
+        border: 1px solid #bbf7d0;
+    }
+
+    .review-status.rejected {
+        background: #fef2f2;
+        color: var(--red);
+        border: 1px solid #fecaca;
+    }
+
+    .review-note-box {
+        width: 100%;
+        min-height: 62px;
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-family: inherit;
+        font-size: 13px;
+        resize: vertical;
+        margin-bottom: 8px;
+        background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+    }
+
+    .review-note-box:focus {
+        outline: none;
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, .08);
+    }
+
+    .review-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .review-meta-line {
+        font-size: 11px;
+        color: var(--gray-400);
+        margin-top: 4px;
+    }
+
+    .toast { position:fixed;bottom:24px;right:24px;background:var(--gray-900);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;display:none;z-index:300; }
+
+    @media (max-width: 900px) {
+        .overview-grid { grid-template-columns: 1fr; }
+        .submission-grid { grid-template-columns: 1fr; }
+        .client-hero { flex-direction: column; align-items: flex-start; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if reminder_sent %}
+<div class="reminder-sent-banner">✓ Reminder email sent to {{ client.name }} with their list of missing documents.</div>
+{% endif %}
+
+<!-- Client hero bar -->
+<div class="client-hero">
+    <div class="client-hero-left">
+        <div class="client-avatar">{{ client.name|first|upper }}</div>
+        <div>
+            <div class="client-hero-name">{{ client.name }}</div>
+            <div class="client-hero-meta">
+                {{ client.email }}
+                {% if client.phone %} · {{ client.phone }}{% endif %}
+                {% if client.business_type %} · {{ client.business_type }}{% endif %}
+                · {{ client.get_client_type_display }}
+            </div>
+        </div>
+    </div>
+    <div class="client-hero-right">
+        {% if health %}
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <div style="width:48px;height:48px;border-radius:50%;background:conic-gradient({{ health.color }} {{ health.score }}%, #e2e8f0 0);display:flex;align-items:center;justify-content:center;position:relative">
+                <div style="width:38px;height:38px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:{{ health.color }}">{{ health.grade }}</div>
+            </div>
+            <div>
+                <div style="font-size:13px;font-weight:600;color:{{ health.color }}">{{ health.label }}</div>
+                <div style="font-size:11px;color:var(--ink-4)">Health Score: {{ health.score }}/100</div>
+            </div>
+        </div>
+        {% endif %}
+        <span class="token-chip">{{ client.client_token }}</span>
+
+        {% if client.status == "not_started" %}<span class="badge badge-not-started">Not started</span>
+        {% elif client.status == "in_progress" %}<span class="badge badge-in-progress">In progress</span>
+        {% elif client.status == "in_review" %}<span class="badge badge-in-review">Needs review</span>
+        {% elif client.status == "completed" %}<span class="badge badge-completed">Completed</span>
+        {% endif %}
+
+        <button class="portal-link-btn" onclick="copyPortal('/onboarding/{{ client.onboarding_token }}/')">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z"/></svg>
+            Copy Portal Link
+        </button>
+
+        <a href="/onboarding/{{ client.onboarding_token }}/" target="_blank" class="portal-link-btn">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/><path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"/></svg>
+            Open Portal
+        </a>
+
+        <a href="{% url 'client_dashboard' client.id %}" class="portal-link-btn">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+            Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tab-nav">
+    <a href="?tab=overview"   class="tab-btn {% if active_tab == 'overview' %}active{% endif %}">Overview</a>
+    <a href="?tab=submission" class="tab-btn {% if active_tab == 'submission' %}active{% endif %}">Submission</a>
+    <a href="?tab=documents"  class="tab-btn {% if active_tab == 'documents' %}active{% endif %}">Documents</a>
+    <a href="?tab=minute_book" class="tab-btn {% if active_tab == 'minute_book' %}active{% endif %}">Minute Book</a>
+    <a href="?tab=corporate"   class="tab-btn {% if active_tab == 'corporate' %}active{% endif %}">🏢 Corporate</a>
+    <a href="?tab=bookkeeping" class="tab-btn {% if active_tab == 'bookkeeping' %}active{% endif %}">📒 Bookkeeping</a>
+    <a href="?tab=tasks" class="tab-btn {% if active_tab == 'tasks' %}active{% endif %}">✅ Tasks</a>
+    <a href="?tab=billing" class="tab-btn {% if active_tab == 'billing' %}active{% endif %}">💰 Billing</a>
+    <a href="?tab=messages" class="tab-btn {% if active_tab == 'messages' %}active{% endif %}">💬 Messages</a>
+</div>
+
+<!-- ── OVERVIEW TAB ── -->
+{% if active_tab == 'overview' %}
+<div class="overview-grid">
+    <div>
+        <div class="form-card">
+            <div class="form-card-header">
+                Client Record
+                <span class="text-small text-muted">Changes are saved immediately</span>
+            </div>
+            <div class="form-card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="active_tab" value="overview">
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Client Name</label>
+                            <input type="text" class="form-control" value="{{ client.name }}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="text" class="form-control" value="{{ client.email }}" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone" class="form-control" value="{{ client.phone }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Business / Entity</label>
+                            <input type="text" name="business_type" class="form-control" value="{{ client.business_type }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-control">
+                                <option value="not_started" {% if client.status == "not_started" %}selected{% endif %}>Not Started</option>
+                                <option value="in_progress" {% if client.status == "in_progress" %}selected{% endif %}>In Progress</option>
+                                <option value="in_review"   {% if client.status == "in_review" %}selected{% endif %}>Needs Review</option>
+                                <option value="completed"   {% if client.status == "completed" %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Document Language</label>
+                            <select name="language" class="form-control">
+                                <option value="english" {% if client.language == "english" or not client.language %}selected{% endif %}>🇨🇦 English</option>
+                                <option value="french"  {% if client.language == "french" %}selected{% endif %}>🇫🇷 Français</option>
+                            </select>
+                            <div class="form-hint">All PDFs will be generated in the selected language.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Client Token</label>
+                            <input type="text" class="form-control" value="{{ client.client_token }}" disabled>
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">Onboarding Token</label>
+                            <input type="text" class="form-control" value="{{ client.onboarding_token }}" disabled>
+                            <div class="form-hint">This is the token in the client's portal URL. Never share it publicly.</div>
+                        </div>
+                    </div>
+                    <button type="submit" name="save_client_record" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checklist sidebar -->
+    <div>
+        <div class="checklist-card">
+            <div class="checklist-header">
+                Required Items
+                <span style="font-size:12px;font-weight:400;color:var(--gray-400)">{{ missing_items|length }} missing</span>
+            </div>
+            <div class="prog-wrap">
+                {% with total=9 %}
+                {% with completed=total|add:"-"|add:missing_items|length %}
+                <div class="prog-label">
+                    <span>Progress</span>
+                    <span>{{ missing_items|length }} of 9 outstanding</span>
+                </div>
+                <div class="prog-track">
+                    <div class="prog-fill" id="prog-fill-bar" style="width:0%"></div>
+                </div>
+                {% endwith %}
+                {% endwith %}
+            </div>
+            <div class="check-list">
+                {% for item in "Legal full name,Phone number,Address,Business name,Business number,Service needed,ID document,Tax document,Bank document"|split:"," %}
+                {% if item in missing_items %}
+                <div class="check-item missing">
+                    <div class="check-icon missing">○</div>
+                    {{ item }}
+                </div>
+                {% else %}
+                <div class="check-item ok">
+                    <div class="check-icon ok">✓</div>
+                    {{ item }}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% if missing_items %}
+            <div style="padding:12px 18px;border-top:1px solid var(--gray-100);">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="active_tab" value="overview">
+                    <button type="submit" name="send_reminder" class="btn btn-teal" style="width:100%">
+                        Send Reminder Email
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ── SUBMISSION TAB ── -->
+{% if active_tab == 'submission' %}
+
+{% if is_submitted %}
+<div class="reopen-banner">
+    <p>This client has submitted their onboarding package. You can reopen it if edits are needed.</p>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="active_tab" value="submission">
+        <button type="submit" name="reopen_submission" class="btn btn-dark">Reopen Submission</button>
+    </form>
+</div>
+{% endif %}
+
+{% if submission %}
+<div class="submission-grid">
+    <div class="form-card">
+        <div class="form-card-header">Personal Information</div>
+        <div class="form-card-body">
+            <div class="data-row"><span class="data-key">Legal Full Name</span><span class="data-val">{{ submission.legal_full_name|default:"—" }}</span></div>
+            <div class="data-row"><span class="data-key">Phone Number</span><span class="data-val">{{ submission.phone_number|default:"—" }}</span></div>
+            <div class="data-row"><span class="data-key">Address</span><span class="data-val">{{ submission.address|default:"—" }}</span></div>
+        </div>
+    </div>
+    <div class="form-card">
+        <div class="form-card-header">Business Information</div>
+        <div class="form-card-body">
+            <div class="data-row"><span class="data-key">Business Name</span><span class="data-val">{{ submission.business_name|default:"—" }}</span></div>
+            <div class="data-row"><span class="data-key">Business Number</span><span class="data-val">{{ submission.business_number|default:"—" }}</span></div>
+            <div class="data-row"><span class="data-key">Service Needed</span><span class="data-val">{{ submission.service_needed|default:"—" }}</span></div>
+            <div class="data-row"><span class="data-key">Notes</span><span class="data-val">{{ submission.notes|default:"—" }}</span></div>
+            <div class="data-row"><span class="data-key">Submitted At</span><span class="data-val">{{ client.onboarding_submitted_at|default:"Not yet submitted" }}</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="form-card">
+    <div class="form-card-header">Primary Documents</div>
+    <div class="form-card-body">
+        <div class="submission-grid">
+            <div>
+                <div class="doc-section-title">ID Document</div>
+                {% if submission.id_document %}
+                <div class="doc-item"><div><a href="{{ submission.id_document.url }}" target="_blank">View ID Document</a></div></div>
+                {% else %}<div class="empty-doc">Not uploaded yet</div>{% endif %}
+            </div>
+            <div>
+                <div class="doc-section-title">Tax Document</div>
+                {% if submission.tax_document %}
+                <div class="doc-item"><div><a href="{{ submission.tax_document.url }}" target="_blank">View Tax Document</a></div></div>
+                {% else %}<div class="empty-doc">Not uploaded yet</div>{% endif %}
+            </div>
+            <div>
+                <div class="doc-section-title">Bank Document</div>
+                {% if submission.bank_document %}
+                <div class="doc-item"><div><a href="{{ submission.bank_document.url }}" target="_blank">View Bank Document</a></div></div>
+                {% else %}<div class="empty-doc">Not uploaded yet</div>{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">This client has not submitted any information yet. Their portal link has been sent — they can fill it in at any time.</div>
+{% endif %}
+{% endif %}
+
+<!-- ── DOCUMENTS TAB ── -->
+{% if active_tab == 'documents' %}
+{% for section_name, section_key, file_list in doc_sections %}
+<div class="form-card">
+    <div class="form-card-header">
+        {{ section_name }}
+        <span class="text-small text-muted">{{ file_list|length }} file{{ file_list|length|pluralize }}</span>
+    </div>
+
+    <div class="form-card-body">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="active_tab" value="documents">
+
+            <div class="upload-area">
+                <input type="file" name="{{ section_key }}_files" multiple>
+                <div class="upload-area-text"><strong>Click to upload</strong> or drag and drop · PDF, JPG, PNG</div>
+            </div>
+
+            <button type="submit" name="accountant_upload_{{ section_key }}" class="btn btn-primary btn-sm">
+                Upload {{ section_name }}
+            </button>
+        </form>
+
+        <div style="margin-top:18px;">
+            {% if file_list %}
+            <div class="table-wrap">
+                <table style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Document</th>
+                            <th>Uploaded</th>
+                            <th>Status</th>
+                            <th style="width:320px;">Review</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                    {% for doc in file_list %}
+                        <tr>
+                            <td>
+                                <a href="{{ doc.file.url }}" target="_blank" class="open-link">
+                                    {{ doc.document_name }}
+                                </a>
+                                <div class="doc-meta">
+                                    {{ doc.get_uploaded_by_display }} · {{ section_name }}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="text-small text-muted">
+                                    {{ doc.uploaded_at|date:"M d, Y · g:i A" }}
+                                </div>
+                            </td>
+
+                            <td>
+                                {% if doc.review_status == "approved" %}
+                                    <span class="review-status approved">✓ Approved</span>
+                                {% elif doc.review_status == "rejected" %}
+                                    <span class="review-status rejected">✕ Rejected</span>
+                                {% else %}
+                                    <span class="review-status pending">● Pending Review</span>
+                                {% endif %}
+
+                                {% if doc.reviewed_at %}
+                                <div class="review-meta-line">
+                                    Reviewed {{ doc.reviewed_at|date:"M d, Y · g:i A" }}
+                                    {% if doc.reviewed_by %}by {{ doc.reviewed_by.username }}{% endif %}
+                                </div>
+                                {% endif %}
+
+                                {% if doc.review_note %}
+                                <div class="review-meta-line">
+                                    Note: {{ doc.review_note }}
+                                </div>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <form method="POST" action="{% url 'review_client_document' doc.id %}">
+                                    {% csrf_token %}
+
+                                    <textarea
+                                        name="review_note"
+                                        class="review-note-box"
+                                        placeholder="Optional review note..."
+                                    >{{ doc.review_note }}</textarea>
+
+                                    <div class="review-actions">
+                                        <button type="submit" name="action" value="approve" class="btn btn-success btn-sm">
+                                            Approve
+                                        </button>
+
+                                        <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">
+                                            Reject
+                                        </button>
+
+                                        <a href="{% url 'request_signature' doc.id %}" class="btn btn-purple btn-sm">Request Signature</a>
+
+                                        <form method="POST" style="display:inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="active_tab" value="documents">
+                                            <input type="hidden" name="document_id" value="{{ doc.id }}">
+                                            <button type="submit" name="delete_onboarding_document" class="btn btn-ghost btn-sm" onclick="return confirm('Delete this file?')">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <div class="empty-doc">No files uploaded yet.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<!-- ── MINUTE BOOK TAB ── -->
+{% if active_tab == 'minute_book' %}
+<div class="form-card">
+    <div class="form-card-header">
+        Minute Book Documents
+        <span class="text-small text-muted">{{ minute_book_documents|length }} file{{ minute_book_documents|length|pluralize }}</span>
+    </div>
+    <div class="form-card-body">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="active_tab" value="minute_book">
+            <div class="upload-area">
+                <input type="file" name="minute_book_files" multiple>
+                <div class="upload-area-text"><strong>Click to upload</strong> · Articles of incorporation, bylaws, resolutions, share certificates</div>
+            </div>
+            <button type="submit" name="accountant_upload_minute_book" class="btn btn-primary btn-sm">Upload Minute Book Files</button>
+        </form>
+        <div style="margin-top:14px;">
+            {% for doc in minute_book_documents %}
+            <div class="doc-item">
+                <div>
+                    <a href="{{ doc.file.url }}" target="_blank">{{ doc.document_name }}</a>
+                    <div class="doc-meta">{{ doc.get_uploaded_by_display }} · {{ doc.uploaded_at|date:"M d, Y" }}</div>
+                </div>
+                <form method="POST" style="display:inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="active_tab" value="minute_book">
+                    <input type="hidden" name="document_id" value="{{ doc.id }}">
+                    <button type="submit" name="delete_minute_book_document" class="btn btn-danger btn-sm" onclick="return confirm('Delete this file?')">Delete</button>
+                </form>
+            </div>
+            {% empty %}
+            <div class="empty-doc">No minute book documents yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+{% if active_tab == 'corporate' %}
+<div class="form-card">
+    <div class="form-card-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>Incorporation Details</span>
+        <span class="badge badge-{% if corp.status == 'active' %}completed{% elif corp.status == 'in_progress' %}in-progress{% else %}not-started{% endif %}">
+            {{ corp.get_status_display|default:'Not set' }}
+        </span>
+    </div>
+    <div class="form-card-body">
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="active_tab" value="corporate">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+                <div class="form-group">
+                    <label class="form-label">Jurisdiction</label>
+                    <select name="corp_jurisdiction" class="form-control">
+                        <option value="">-- Select --</option>
+                        <option value="federal" {% if corp.jurisdiction == 'federal' %}selected{% endif %}>Federal</option>
+                        <option value="ontario" {% if corp.jurisdiction == 'ontario' %}selected{% endif %}>Ontario</option>
+                        <option value="bc" {% if corp.jurisdiction == 'bc' %}selected{% endif %}>British Columbia</option>
+                        <option value="quebec" {% if corp.jurisdiction == 'quebec' %}selected{% endif %}>Québec</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select name="corp_status" class="form-control">
+                        <option value="in_progress" {% if corp.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="active" {% if corp.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if corp.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                        <option value="dissolved" {% if corp.status == 'dissolved' %}selected{% endif %}>Dissolved</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Incorporation Date</label>
+                    <input type="date" name="corp_incorporation_date" class="form-control" value="{{ corp.incorporation_date|date:'Y-m-d' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Annual Return Due Date</label>
+                    <input type="date" name="corp_annual_return_due" class="form-control" value="{{ corp.annual_return_due|date:'Y-m-d' }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Business Number (BN)</label>
+                    <input type="text" name="corp_business_number" class="form-control" value="{{ corp.business_number }}" placeholder="123456789">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">HST / GST Number</label>
+                    <input type="text" name="corp_hst_number" class="form-control" value="{{ corp.hst_number }}" placeholder="123456789RT0001">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fiscal Year End</label>
+                    <input type="text" name="corp_fiscal_year_end" class="form-control" value="{{ corp.fiscal_year_end }}" placeholder="December 31">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Registered Address</label>
+                    <input type="text" name="corp_registered_address" class="form-control" value="{{ corp.registered_address }}" placeholder="123 Main St, Toronto, ON">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <textarea name="corp_notes" class="form-control" rows="3" placeholder="Any notes about this corporation...">{{ corp.notes }}</textarea>
+            </div>
+            <button type="submit" name="save_corporate" class="btn btn-primary">Save Corporate Details</button>
+        </form>
+    </div>
+</div>
+
+<!-- DIRECTORS -->
+<div class="form-card" style="margin-top:20px;">
+    <div class="form-card-header">Directors & Officers</div>
+    <div class="form-card-body">
+        {% if directors %}
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--gray-200);font-size:12px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.5px;">
+                    <th style="padding:10px 12px;text-align:left;">Name</th>
+                    <th style="padding:10px 12px;text-align:left;">Title</th>
+                    <th style="padding:10px 12px;text-align:left;">Address</th>
+                    <th style="padding:10px 12px;text-align:left;">Appointed</th>
+                    <th style="padding:10px 12px;text-align:left;">Status</th>
+                    <th style="padding:10px 12px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in directors %}
+                <tr style="border-bottom:1px solid var(--gray-100);font-size:14px;">
+                    <td style="padding:12px;">{{ d.full_name }}</td>
+                    <td style="padding:12px;color:var(--gray-500);">{% if d.is_officer %}{{ d.officer_title }}{% else %}Director{% endif %}</td>
+                    <td style="padding:12px;color:var(--gray-500);">{{ d.address|default:'—' }}</td>
+                    <td style="padding:12px;color:var(--gray-500);">{{ d.appointment_date|date:'M d, Y'|default:'—' }}</td>
+                    <td style="padding:12px;">
+                        {% if d.resignation_date %}
+                            <span class="badge badge-not-started">Resigned {{ d.resignation_date|date:'M Y' }}</span>
+                        {% else %}
+                            <span class="badge badge-completed">Active</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding:12px;">
+                        <form method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="active_tab" value="corporate">
+                            <input type="hidden" name="delete_director" value="{{ d.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remove this director?')">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="active_tab" value="corporate">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="dir_name" class="form-control" placeholder="Jane Smith">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Appointment Date</label>
+                    <input type="date" name="dir_appointment_date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <input type="text" name="dir_address" class="form-control" placeholder="123 Main St, Toronto">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Officer?</label>
+                    <select name="dir_is_officer" class="form-control">
+                        <option value="0">Director only</option>
+                        <option value="1">Director + Officer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Officer Title</label>
+                    <input type="text" name="dir_officer_title" class="form-control" placeholder="President, Secretary...">
+                </div>
+            </div>
+            <button type="submit" name="add_director" class="btn btn-primary btn-sm">+ Add Director</button>
+        </form>
+    </div>
+</div>
+
+<!-- SHAREHOLDERS -->
+<div class="form-card" style="margin-top:20px;">
+    <div class="form-card-header">Shareholders Register</div>
+    <div class="form-card-body">
+        {% if shareholders %}
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--gray-200);font-size:12px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.5px;">
+                    <th style="padding:10px 12px;text-align:left;">Name</th>
+                    <th style="padding:10px 12px;text-align:left;">Address</th>
+                    <th style="padding:10px 12px;text-align:left;">Share Class</th>
+                    <th style="padding:10px 12px;text-align:left;">Shares</th>
+                    <th style="padding:10px 12px;text-align:left;">Acquired</th>
+                    <th style="padding:10px 12px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in shareholders %}
+                <tr style="border-bottom:1px solid var(--gray-100);font-size:14px;">
+                    <td style="padding:12px;">{{ s.full_name }}</td>
+                    <td style="padding:12px;color:var(--gray-500);">{{ s.address|default:'—' }}</td>
+                    <td style="padding:12px;color:var(--gray-500);">{{ s.share_class }}</td>
+                    <td style="padding:12px;">{{ s.num_shares }}</td>
+                    <td style="padding:12px;color:var(--gray-500);">{{ s.acquisition_date|date:'M d, Y'|default:'—' }}</td>
+                    <td style="padding:12px;">
+                        <form method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="active_tab" value="corporate">
+                            <input type="hidden" name="delete_shareholder" value="{{ s.id }}">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remove this shareholder?')">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="active_tab" value="corporate">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="sh_name" class="form-control" placeholder="Jane Smith">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Address</label>
+                    <input type="text" name="sh_address" class="form-control" placeholder="123 Main St, Toronto">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Share Class</label>
+                    <input type="text" name="sh_share_class" class="form-control" placeholder="Common" value="Common">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Number of Shares</label>
+                    <input type="number" name="sh_num_shares" class="form-control" placeholder="100" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Acquisition Date</label>
+                    <input type="date" name="sh_acquisition_date" class="form-control">
+                </div>
+            </div>
+            <button type="submit" name="add_shareholder" class="btn btn-primary btn-sm">+ Add Shareholder</button>
+        </form>
+    </div>
+</div>
+
+<!-- ANNUAL FILINGS -->
+<div class="form-card" style="margin-top:20px;">
+    <div class="form-card-header">Annual Filings</div>
+    <div class="form-card-body">
+        {% if annual_filings %}
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+            <thead>
+                <tr style="border-bottom:2px solid var(--gray-200);font-size:12px;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.5px;">
+                    <th style="padding:10px 12px;text-align:left;">Year</th>
+                    <th style="padding:10px 12px;text-align:left;">Due Date</th>
+                    <th style="padding:10px 12px;text-align:left;">Filed Date</th>
+                    <th style="padding:10px 12px;text-align:left;">Status</th>
+                    <th style="padding:10px 12px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in annual_filings %}
+                <tr style="border-bottom:1px solid var(--gray-100);font-size:14px;">
+                    <td style="padding:12px;font-weight:600;">{{ f.year }}</td>
+                    <td style="padding:12px;">{{ f.due_date|date:'M d, Y' }}</td>
+                    <td style="padding:12px;color:var(--gray-500);">{{ f.filed_date|date:'M d, Y'|default:'—' }}</td>
+                    <td style="padding:12px;">
+                        <span class="badge badge-{% if f.status == 'filed' %}completed{% elif f.status == 'overdue' %}needs-review{% else %}in-progress{% endif %}">
+                            {{ f.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="padding:12px;">
+                        <form method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="active_tab" value="corporate">
+                            <input type="hidden" name="mark_filed" value="{{ f.id }}">
+                            {% if f.status != 'filed' %}
+                            <button type="submit" class="btn btn-primary btn-sm">Mark Filed</button>
+                            {% endif %}
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="active_tab" value="corporate">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+                <div class="form-group">
+                    <label class="form-label">Year</label>
+                    <input type="number" name="filing_year" class="form-control" placeholder="2026" min="2000" max="2100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Due Date</label>
+                    <input type="date" name="filing_due_date" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <input type="text" name="filing_notes" class="form-control" placeholder="Optional notes">
+                </div>
+            </div>
+            <button type="submit" name="add_filing" class="btn btn-primary btn-sm">+ Add Filing</button>
+        </form>
+    </div>
+</div>
+
+<!-- PDF GENERATORS -->
+<div class="form-card" style="margin-top:20px;">
+    <div class="form-card-header" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span>📄 Generate Documents</span>
+            <span style="font-size:11px;color:var(--gray-500);font-weight:400;">Click any button to open PDF in new tab</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <a href="{% url 'org_chart' client.id %}"
+               style="display:inline-flex;align-items:center;gap:8px;background:#1e3a5f;color:#fff;
+                      padding:9px 18px;border-radius:8px;font-weight:700;font-size:13px;
+                      text-decoration:none;white-space:nowrap;">
+                🏢 Org Chart
+            </a>
+            <a href="{% url 'pdf_minute_book_zip' client.id %}"
+               style="display:inline-flex;align-items:center;gap:8px;background:#16a34a;color:#fff;
+                      padding:9px 18px;border-radius:8px;font-weight:700;font-size:13px;
+                      text-decoration:none;white-space:nowrap;">
+                ⬇ Download Minute Book (ZIP)
+            </a>
+        </div>
+    </div>
+    <div class="form-card-body">
+
+        <!-- Registers -->
+        <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-500);margin-bottom:10px;">Corporate Registers</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                <a href="{% url 'pdf_directors_register' client.id %}" target="_blank" class="pdf-btn">📋 Directors Register</a>
+                <a href="{% url 'pdf_shareholders_register' client.id %}" target="_blank" class="pdf-btn">📋 Shareholders Register</a>
+                <a href="{% url 'pdf_officers_register' client.id %}" target="_blank" class="pdf-btn">📋 Officers Register</a>
+                <a href="{% url 'pdf_central_securities_register' client.id %}" target="_blank" class="pdf-btn">📋 Central Securities Register</a>
+                <a href="{% url 'pdf_shareholder_ledger' client.id %}" target="_blank" class="pdf-btn">📋 Shareholder Ledger</a>
+                <a href="{% url 'pdf_share_transfer_register' client.id %}" target="_blank" class="pdf-btn">📋 Register of Share Transfers</a>
+            </div>
+        </div>
+
+        <!-- Resolutions -->
+        <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-500);margin-bottom:10px;">Organizational Resolutions</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                <a href="{% url 'pdf_directors_resolutions' client.id %}" target="_blank" class="pdf-btn">📄 Directors Resolutions</a>
+                <a href="{% url 'pdf_shareholders_resolutions' client.id %}" target="_blank" class="pdf-btn">📄 Shareholders Resolutions</a>
+                <a href="{% url 'pdf_banking_resolution' client.id %}" target="_blank" class="pdf-btn">📄 Banking Resolution</a>
+            </div>
+        </div>
+
+        <!-- By-Laws & Waivers -->
+        <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-500);margin-bottom:10px;">By-Laws &amp; Waivers</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                <a href="{% url 'pdf_bylaw_no1' client.id %}" target="_blank" class="pdf-btn">📄 General By-Law No. 1</a>
+                <a href="{% url 'pdf_waiver_notice_directors' client.id %}" target="_blank" class="pdf-btn">📄 Waiver of Notice (Directors)</a>
+                <a href="{% url 'pdf_waiver_notice_shareholders' client.id %}" target="_blank" class="pdf-btn">📄 Waiver of Notice (Shareholders)</a>
+            </div>
+        </div>
+
+        <!-- Share Certificates -->
+        {% if shareholders %}
+        <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-500);margin-bottom:10px;">Share Certificates &amp; Subscriptions</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                {% for s in shareholders %}
+                <a href="{% url 'pdf_share_certificate' client.id s.id %}" target="_blank" class="pdf-btn">🏷️ {{ s.full_name }} ({{ s.num_shares }} {{ s.share_class }})</a>
+                {% endfor %}
+                <a href="{% url 'pdf_subscription_for_shares' client.id %}" target="_blank" class="pdf-btn">📄 Subscription for Shares</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Consent to Act -->
+        {% if directors %}
+        <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-500);margin-bottom:10px;">Consent to Act as Director</div>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                {% for d in directors %}
+                <a href="{% url 'pdf_consent_director' client.id d.id %}" target="_blank" class="pdf-btn">✍️ {{ d.full_name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not directors and not shareholders %}
+        <p style="color:var(--gray-500);font-size:13px;">Add directors and shareholders above to generate documents.</p>
+        {% endif %}
+
+    </div>
+</div>
+
+<style>
+.pdf-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--gray-700);
+    text-decoration: none;
+    background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+    transition: all 0.15s;
+}
+.pdf-btn:hover {
+    border-color: #b8956a;
+    color: #b8956a;
+    background: #f8f2ea;
+}
+</style>
+
+{% endif %}
+
+{% if active_tab == "bookkeeping" %}
+<div style="display:flex;flex-direction:column;gap:24px;">
+
+  <!-- Add Month -->
+  <div class="form-card">
+    <div class="form-card-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>📒 Bookkeeping Tracker</span>
+    </div>
+    <div class="form-card-body">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="active_tab" value="bookkeeping">
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Month</label>
+            <select name="bk_month" class="form-control">
+              <option value="January">January</option><option value="February">February</option>
+              <option value="March">March</option><option value="April">April</option>
+              <option value="May">May</option><option value="June">June</option>
+              <option value="July">July</option><option value="August">August</option>
+              <option value="September">September</option><option value="October">October</option>
+              <option value="November">November</option><option value="December">December</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Year</label>
+            <input type="number" name="bk_year" class="form-control" value="2026" min="2020" max="2035">
+          </div>
+          <button type="submit" name="add_bookkeeping_month" class="btn btn-primary">+ Add Month</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Month Cards -->
+  {% for task in bookkeeping_tasks %}
+  <div class="form-card">
+    <div class="form-card-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-weight:700;">{{ task.month }} {{ task.year }}</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        {% if task.status == "completed" %}<span class="badge badge-completed">Completed</span>
+        {% elif task.status == "in_progress" %}<span class="badge badge-in-progress">In Progress</span>
+        {% elif task.status == "documents_received" %}<span class="badge badge-in-review">Docs Received</span>
+        {% elif task.status == "documents_requested" %}<span class="badge badge-in-review">Docs Requested</span>
+        {% else %}<span class="badge badge-not-started">Not Started</span>{% endif %}
+        {% if task.billed %}<span class="badge badge-completed">✓ Billed</span>{% endif %}
+        <form method="post" style="margin:0;">
+          {% csrf_token %}
+          <input type="hidden" name="active_tab" value="bookkeeping">
+          <input type="hidden" name="task_id" value="{{ task.id }}">
+          <button type="submit" name="delete_bookkeeping_month" class="btn btn-danger btn-sm" onclick="return confirm('Delete this month?')">Remove</button>
+        </form>
+      </div>
+    </div>
+    <div class="form-card-body">
+
+      <!-- Update Status Form -->
+      <form method="post" style="margin-bottom:20px;">
+        {% csrf_token %}
+        <input type="hidden" name="active_tab" value="bookkeeping">
+        <input type="hidden" name="task_id" value="{{ task.id }}">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Status</label>
+            <select name="bk_status" class="form-control">
+              <option value="not_started" {% if task.status == "not_started" %}selected{% endif %}>Not Started</option>
+              <option value="documents_requested" {% if task.status == "documents_requested" %}selected{% endif %}>Documents Requested</option>
+              <option value="documents_received" {% if task.status == "documents_received" %}selected{% endif %}>Documents Received</option>
+              <option value="in_progress" {% if task.status == "in_progress" %}selected{% endif %}>In Progress</option>
+              <option value="completed" {% if task.status == "completed" %}selected{% endif %}>Completed</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">HST/GST Status</label>
+            <select name="bk_hst_status" class="form-control">
+              <option value="na" {% if task.hst_status == "na" %}selected{% endif %}>N/A</option>
+              <option value="pending" {% if task.hst_status == "pending" %}selected{% endif %}>Pending</option>
+              <option value="filed" {% if task.hst_status == "filed" %}selected{% endif %}>Filed</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Billed</label>
+            <div style="padding-top:10px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" name="bk_billed" {% if task.billed %}checked{% endif %} style="width:16px;height:16px;">
+                <span>Mark as billed</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Internal Notes</label>
+          <textarea name="bk_notes" class="form-control" rows="2" placeholder="e.g. Missing March Visa statement...">{{ task.notes }}</textarea>
+        </div>
+        <button type="submit" name="update_bookkeeping" class="btn btn-primary btn-sm">Save Changes</button>
+      </form>
+
+      <!-- Documents -->
+      <div style="border-top:1px solid var(--gray-100);padding-top:16px;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-500);margin-bottom:10px;">Documents</div>
+
+        {% if task.documents.all %}
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px;">
+          <thead>
+            <tr style="border-bottom:1px solid var(--gray-100);">
+              <th style="padding:6px 8px;text-align:left;color:var(--gray-500);font-weight:600;">Name</th>
+              <th style="padding:6px 8px;text-align:left;color:var(--gray-500);font-weight:600;">Category</th>
+              <th style="padding:6px 8px;text-align:left;color:var(--gray-500);font-weight:600;">Uploaded</th>
+              <th style="padding:6px 8px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for doc in task.documents.all %}
+            <tr style="border-bottom:1px solid var(--gray-100);">
+              <td style="padding:8px;"><a href="{{ doc.file.url }}" target="_blank" style="color:var(--blue-600);">{{ doc.document_name }}</a></td>
+              <td style="padding:8px;color:var(--gray-500);">{{ doc.get_category_display }}</td>
+              <td style="padding:8px;color:var(--gray-500);">{{ doc.uploaded_at|date:"M d, Y" }}</td>
+              <td style="padding:8px;">
+                <form method="post" style="margin:0;">
+                  {% csrf_token %}
+                  <input type="hidden" name="active_tab" value="bookkeeping">
+                  <input type="hidden" name="doc_id" value="{{ doc.id }}">
+                  <button type="submit" name="delete_bookkeeping_doc" class="btn btn-danger btn-sm" onclick="return confirm('Delete this document?')" style="padding:2px 8px;font-size:11px;">✕</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+
+        <!-- Upload Form -->
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="active_tab" value="bookkeeping">
+          <input type="hidden" name="task_id" value="{{ task.id }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;">
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">Category</label>
+              <select name="bk_category" class="form-control">
+                <option value="bank_statement">Bank Statement</option>
+                <option value="credit_card">Credit Card Statement</option>
+                <option value="receipts">Receipts</option>
+                <option value="invoices">Invoices</option>
+                <option value="payroll">Payroll</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">File</label>
+              <input type="file" name="bk_file" class="form-control">
+            </div>
+            <button type="submit" name="upload_bookkeeping_doc" class="btn btn-primary btn-sm">Upload</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+  {% empty %}
+  <div class="form-card">
+    <div class="form-card-body" style="text-align:center;color:var(--gray-500);padding:40px;">
+      No bookkeeping months added yet. Use the form above to add a month.
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+{% endif %}
+
+{% if active_tab == "tasks" %}
+<div style="display:flex;flex-direction:column;gap:20px;">
+
+  <!-- Add Task -->
+  <div class="form-card">
+    <div class="form-card-header">✅ Tasks &amp; Chasing</div>
+    <div class="form-card-body">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="active_tab" value="tasks">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:12px;align-items:end;margin-bottom:12px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Task Title *</label>
+            <input type="text" name="chase_title" class="form-control" placeholder="e.g. Send missing T4 slip" required>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Due Date</label>
+            <input type="date" name="chase_due_date" class="form-control">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Visible to Client?</label>
+            <div style="padding-top:10px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="checkbox" name="chase_visible" style="width:16px;height:16px;">
+                <span style="font-size:13px;">Show on portal</span>
+              </label>
+            </div>
+          </div>
+          <button type="submit" name="add_chasing_task" class="btn btn-primary">+ Add Task</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description (optional)</label>
+          <input type="text" name="chase_description" class="form-control" placeholder="Additional details...">
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Pending Tasks -->
+  {% with pending=chasing_tasks|dictsort:"status" %}
+  {% if chasing_tasks %}
+  <div class="form-card">
+    <div class="form-card-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <span>All Tasks</span>
+      <span style="font-size:12px;color:var(--gray-400);">{{ chasing_tasks|length }} total</span>
+    </div>
+    <div class="form-card-body" style="padding:0;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--gray-100);">
+            <th style="padding:10px 16px;text-align:left;color:var(--gray-500);font-weight:600;">Task</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--gray-500);font-weight:600;">Status</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--gray-500);font-weight:600;">Due Date</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--gray-500);font-weight:600;">Visible</th>
+            <th style="padding:10px 12px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for chase in chasing_tasks %}
+        <tr style="border-bottom:1px solid var(--gray-100);">
+          <td style="padding:12px 16px;">
+            <div style="font-weight:600;{% if chase.status == 'done' %}text-decoration:line-through;color:var(--gray-400);{% endif %}">{{ chase.title }}</div>
+            {% if chase.description %}<div style="font-size:12px;color:var(--gray-400);margin-top:2px;">{{ chase.description }}</div>{% endif %}
+          </td>
+          <td style="padding:12px;">
+            <form method="post" style="margin:0;">
+              {% csrf_token %}
+              <input type="hidden" name="active_tab" value="tasks">
+              <input type="hidden" name="chase_id" value="{{ chase.id }}">
+              <input type="hidden" name="chase_title" value="{{ chase.title }}">
+              <input type="hidden" name="chase_description" value="{{ chase.description }}">
+              <input type="hidden" name="chase_due_date" value="{{ chase.due_date|date:'Y-m-d' }}">
+              {% if chase.is_client_visible %}<input type="hidden" name="chase_visible" value="on">{% endif %}
+              <select name="chase_status" class="form-control" style="font-size:12px;padding:4px 8px;" onchange="this.form.submit()">
+                <option value="pending" {% if chase.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="in_progress" {% if chase.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="done" {% if chase.status == 'done' %}selected{% endif %}>Done</option>
+              </select>
+              <input type="hidden" name="update_chasing_task" value="1">
+            </form>
+          </td>
+          <td style="padding:12px;color:var(--gray-500);">
+            {% if chase.due_date %}
+              {% if chase.due_date < today and chase.status != 'done' %}
+                <span style="color:var(--red);font-weight:600;">{{ chase.due_date|date:"M d, Y" }} ⚠️</span>
+              {% else %}
+                {{ chase.due_date|date:"M d, Y" }}
+              {% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td style="padding:12px;">
+            {% if chase.is_client_visible %}
+              <span style="font-size:11px;background:#f8f2ea;color:#1d4ed8;padding:2px 8px;border-radius:99px;font-weight:600;">Visible</span>
+            {% else %}
+              <span style="font-size:11px;background:#fdfbf8;color:#94a3b8;padding:2px 8px;border-radius:99px;">Internal</span>
+            {% endif %}
+          </td>
+          <td style="padding:12px;">
+            <form method="post" style="margin:0;">
+              {% csrf_token %}
+              <input type="hidden" name="active_tab" value="tasks">
+              <input type="hidden" name="chase_id" value="{{ chase.id }}">
+              <button type="submit" name="delete_chasing_task" class="btn btn-danger btn-sm" onclick="return confirm('Delete this task?')" style="padding:3px 8px;font-size:11px;">✕</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="form-card">
+    <div class="form-card-body" style="text-align:center;color:var(--gray-500);padding:40px;">
+      No tasks yet. Use the form above to add a task.
+    </div>
+  </div>
+  {% endif %}
+  {% endwith %}
+
+</div>
+{% endif %}
+
+{% if active_tab == "billing" %}
+<div style="display:flex;flex-direction:column;gap:20px;">
+
+  <!-- Add Invoice -->
+  <div class="form-card">
+    <div class="form-card-header">💰 Create Invoice</div>
+    <div class="form-card-body">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="active_tab" value="billing">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Description *</label>
+            <input type="text" name="inv_description" class="form-control" placeholder="e.g. Bookkeeping — January 2026" required>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Service Type</label>
+            <select name="inv_service_type" class="form-control">
+              <option value="bookkeeping">Bookkeeping</option>
+              <option value="tax_return">Tax Return</option>
+              <option value="incorporation">Incorporation</option>
+              <option value="consultation">Consultation</option>
+              <option value="hst_filing">HST/GST Filing</option>
+              <option value="payroll">Payroll</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Amount (CAD) *</label>
+            <input type="number" name="inv_amount" class="form-control" placeholder="250.00" step="0.01" min="0" required>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:12px;margin-bottom:12px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Invoice Date</label>
+            <input type="date" name="inv_date" class="form-control" value="{{ today|date:'Y-m-d' }}">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Due Date</label>
+            <input type="date" name="inv_due_date" class="form-control">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">Notes</label>
+            <input type="text" name="inv_notes" class="form-control" placeholder="Optional notes...">
+          </div>
+        </div>
+        <button type="submit" name="add_invoice" class="btn btn-primary">+ Create Invoice</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Invoice Summary -->
+  {% if invoices %}
+  {% with total_outstanding=0 total_paid=0 %}
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+    <div class="form-card" style="padding:16px;text-align:center;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-500);margin-bottom:6px;">Total Invoiced</div>
+      <div style="font-size:22px;font-weight:800;color:var(--gray-900);">${{ invoices|length }}</div>
+      <div style="font-size:12px;color:var(--gray-400);">invoices</div>
+    </div>
+    <div class="form-card" style="padding:16px;text-align:center;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-500);margin-bottom:6px;">Draft</div>
+      <div style="font-size:22px;font-weight:800;color:var(--gray-500);">{{ invoices|dictsort:"status"|length }}</div>
+      <div style="font-size:12px;color:var(--gray-400);">not sent yet</div>
+    </div>
+    <div class="form-card" style="padding:16px;text-align:center;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-500);margin-bottom:6px;">Outstanding</div>
+      <div style="font-size:22px;font-weight:800;color:var(--amber);">
+        {{ invoices|length }}
+      </div>
+      <div style="font-size:12px;color:var(--gray-400);">sent/overdue</div>
+    </div>
+    <div class="form-card" style="padding:16px;text-align:center;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-500);margin-bottom:6px;">Paid</div>
+      <div style="font-size:22px;font-weight:800;color:var(--green);">✓</div>
+      <div style="font-size:12px;color:var(--gray-400);">collected</div>
+    </div>
+  </div>
+  {% endwith %}
+
+  <!-- Invoice List -->
+  <div class="form-card">
+    <div class="form-card-header">All Invoices</div>
+    <div class="form-card-body" style="padding:0;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:1px solid var(--gray-100);">
+            <th style="padding:10px 16px;text-align:left;color:var(--gray-500);font-weight:600;">#</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--gray-500);font-weight:600;">Description</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--gray-500);font-weight:600;">Service</th>
+            <th style="padding:10px 12px;text-align:right;color:var(--gray-500);font-weight:600;">Amount</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--gray-500);font-weight:600;">Date</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--gray-500);font-weight:600;">Due</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--gray-500);font-weight:600;">Status</th>
+            <th style="padding:10px 12px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for inv in invoices %}
+        <tr style="border-bottom:1px solid var(--gray-100);">
+          <td style="padding:12px 16px;font-family:monospace;font-size:12px;color:var(--gray-400);">{{ inv.invoice_number }}</td>
+          <td style="padding:12px;">
+            <div style="font-weight:600;">{{ inv.description }}</div>
+            {% if inv.notes %}<div style="font-size:12px;color:var(--gray-400);">{{ inv.notes }}</div>{% endif %}
+          </td>
+          <td style="padding:12px;color:var(--gray-500);">{{ inv.get_service_type_display }}</td>
+          <td style="padding:12px;text-align:right;font-weight:700;font-size:14px;">${{ inv.amount }}</td>
+          <td style="padding:12px;color:var(--gray-500);">{{ inv.invoice_date|date:"M d, Y" }}</td>
+          <td style="padding:12px;">
+            {% if inv.due_date %}
+              {% if inv.due_date < today and inv.status != "paid" %}
+                <span style="color:var(--red);font-weight:600;">{{ inv.due_date|date:"M d, Y" }} ⚠️</span>
+              {% else %}
+                <span style="color:var(--gray-500);">{{ inv.due_date|date:"M d, Y" }}</span>
+              {% endif %}
+            {% else %}—{% endif %}
+          </td>
+          <td style="padding:12px;">
+            <form method="post" style="margin:0;">
+              {% csrf_token %}
+              <input type="hidden" name="active_tab" value="billing">
+              <input type="hidden" name="inv_id" value="{{ inv.id }}">
+              <select name="inv_status" class="form-control" style="font-size:12px;padding:4px 8px;width:auto;" onchange="this.form.submit()">
+                <option value="draft" {% if inv.status == "draft" %}selected{% endif %}>Draft</option>
+                <option value="sent" {% if inv.status == "sent" %}selected{% endif %}>Sent</option>
+                <option value="paid" {% if inv.status == "paid" %}selected{% endif %}>Paid</option>
+                <option value="overdue" {% if inv.status == "overdue" %}selected{% endif %}>Overdue</option>
+              </select>
+              <input type="hidden" name="update_invoice_status" value="1">
+            </form>
+          </td>
+          <td style="padding:12px;">
+            <form method="post" style="margin:0;">
+              {% csrf_token %}
+              <input type="hidden" name="active_tab" value="billing">
+              <input type="hidden" name="inv_id" value="{{ inv.id }}">
+              <button type="submit" name="delete_invoice" class="btn btn-danger btn-sm" onclick="return confirm('Delete this invoice?')" style="padding:3px 8px;font-size:11px;">✕</button>
+            </form>
+          </td>
+          <td style="padding:12px;">
+            <a href="{% url 'pdf_invoice' client.id inv.id %}"
+               target="_blank"
+               style="display:inline-flex;align-items:center;gap:4px;background:#1e3a5f;color:#fff;
+                      padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;
+                      text-decoration:none;white-space:nowrap;">
+              📄 PDF
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="form-card">
+    <div class="form-card-body" style="text-align:center;color:var(--gray-500);padding:40px;">
+      No invoices yet. Use the form above to create your first invoice.
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endif %}
+
+<div class="toast" id="toast"></div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Fix progress bar
+(function() {
+    var missing = parseInt('{{ missing_items|length }}');
+    var pct = Math.round(((9 - missing) / 9) * 100);
+    var bar = document.getElementById('prog-fill-bar');
+    if (bar) bar.style.width = pct + '%';
+})();
+
+function copyPortal(path) {
+    const url = window.location.protocol + '//' + window.location.host + path;
+    navigator.clipboard.writeText(url).then(() => {
+        const t = document.getElementById('toast');
+        t.textContent = 'Portal link copied to clipboard';
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 2800);
+    });
+}
+
+document.querySelectorAll('.upload-area').forEach(area => {
+    const input = area.querySelector('input[type="file"]');
+    if (!input) return;
+    input.addEventListener('change', () => {
+        const names = Array.from(input.files).map(f => f.name).join(', ');
+        const txt = area.querySelector('.upload-area-text');
+        if (names && txt) txt.innerHTML = `<strong>${names}</strong>`;
+    });
+});
+</script>
+{% endblock %}

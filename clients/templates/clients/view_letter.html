@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Engagement Letter</title>
+
+<style>
+body { font-family: Arial; background:#fdfbf8; margin:0; }
+
+.container {
+    max-width:800px;
+    margin:40px auto;
+    background:white;
+    padding:40px;
+    border-radius:10px;
+}
+
+.header {
+    margin-bottom:20px;
+}
+
+.meta {
+    color:#7b6f64;
+    margin-bottom:20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<h2>Signed Engagement Letter</h2>
+<div class="meta">
+Signed by {{ record.full_name }} on {{ record.signed_at }}
+</div>
+</div>
+
+<!-- THIS IS THE MAGIC -->
+<div>
+    {{ record.content_html|safe }}
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+{% extends "clients/base.html" %}
+{% block title %}Mortacc Academy — Learning Center{% endblock %}
+{% block nav_academy %}active{% endblock %}
+{% block topbar_title %}Academy{% endblock %}
+
+{% block extra_head %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'clients/css/academy.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="academy-shell">
+
+<!-- Hero -->
+<div class="academy-hero">
+    <div class="academy-hero-content">
+        <div class="academy-badge">🎓 Learning Center</div>
+        <h1>Mortacc Academy</h1>
+        <p>Interactive learning for Canadian corporate services professionals. Master incorporations, minute books, compliance, and more — at your own pace.</p>
+        <div class="academy-hero-stats">
+            <div class="ahs-item"><strong>{{ detailed_modules }}</strong> in-depth courses</div>
+            <div class="ahs-item"><strong>{{ total_modules }}</strong> learning modules</div>
+            <div class="ahs-item"><strong>{{ total_watch_time }}+</strong> minutes of content</div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Filters -->
+<div class="academy-filters" id="academyFilters">
+    <button class="academy-filter-btn active" data-category="all">All Modules</button>
+    {% for cat in categories %}
+    <button class="academy-filter-btn" data-category="{{ cat.id }}">{{ cat.title }}</button>
+    {% endfor %}
+</div>
+
+<!-- Module Grid -->
+<div class="academy-content" style="max-width:1280px;margin:0 auto;padding:0 24px 64px">
+{% for group in category_modules %}
+    <div class="academy-category-section" data-category="{{ group.category.id }}">
+        <div class="academy-category-header">
+            <span class="academy-category-icon">{{ group.category.icon }}</span>
+            <h2>{{ group.category.title }}</h2>
+            <span class="academy-category-count">{{ group.modules|length }} module{{ group.modules|length|pluralize }}</span>
+        </div>
+        <div class="module-grid">
+            {% for module in group.modules %}
+            {% include "clients/academy/includes/module_card.html" with module=module progress=module.progress %}
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+</div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'clients/js/academy.js' %}"></script>
+<script>
+// Category filter functionality
+(function(){
+  var btns = document.querySelectorAll('.academy-filter-btn');
+  var sections = document.querySelectorAll('.academy-category-section');
+
+  btns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      btns.forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var cat = btn.getAttribute('data-category');
+
+      sections.forEach(function(section){
+        if (cat === 'all' || section.getAttribute('data-category') === cat) {
+          section.style.display = 'block';
+        } else {
+          section.style.display = 'none';
+        }
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

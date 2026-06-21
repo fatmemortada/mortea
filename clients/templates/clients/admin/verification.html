@@ -1,0 +1,50 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Verification — Mortea Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: #f5f5f5; }
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+.sub { color: #8a8a8a; font-size: 14px; margin-bottom: 24px; }
+.nav-row { display: flex; gap: 8px; margin-bottom: 24px; }
+.nav-row a { padding: 8px 18px; font-size: 13px; font-weight: 600; border-radius: 20px; border: 1px solid #e2e2e2; color: #555; text-decoration: none; background: #fff; }
+.nav-row a:hover, .nav-row a.active { background: #b76e79; color: #fff; border-color: #b76e79; }
+.card { background: #fff; border-radius: 12px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #f0ece9; }
+th { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #8a8a8a; font-weight: 600; }
+.score-bar { display: inline-block; height: 6px; border-radius: 3px; background: #e5e7eb; width: 80px; }
+.score-fill { height: 100%; border-radius: 3px; }
+.score-5 { background: #16a34a; } .score-4 { background: #65a30d; } .score-3 { background: #d4a853; } .score-2 { background: #f59e0b; } .score-1 { background: #dc2626; } .score-0 { background: #e5e7eb; }
+.badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-right: 4px; }
+.badge-verified { background: #f0fdf4; color: #16a34a; }
+.badge-top { background: #fefce8; color: #d4a853; }
+.badge-recommended { background: #fdf2f4; color: #b76e79; }
+.badge-premium { background: #f5f3ff; color: #7c3aed; }
+.badge-founding { background: #fef9c3; color: #c0841c; }
+.btn-sm { padding: 4px 10px; font-size: 11px; font-weight: 600; border-radius: 20px; border: 1px solid #e2e2e2; background: #fff; cursor: pointer; color: #555; }
+.btn-sm:hover { background: #f5f5f5; }
+.btn-sm.green { color: #16a34a; border-color: #bbf7d0; }
+.btn-sm.red { color: #dc2626; border-color: #fecaca; }
+.btn { padding: 10px 24px; font-size: 14px; font-weight: 600; border-radius: 20px; border: none; background: #b76e79; color: #fff; cursor: pointer; }
+.success { background: #dcfce7; color: #166534; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><span style="font-size:12px;color:#8a8a8a;font-weight:600">Admin</span></div></nav>
+<div class="page"><div class="container">
+<div class="nav-row">
+<a href="{% url 'admin_dashboard' %}">📊 Dashboard</a>
+<a href="{% url 'verification_dashboard' %}" class="active">🛡 Verification</a>
+<a href="{% url 'csv_import' %}">📥 Import</a>
+<a href="{% url 'approval_dashboard' %}">✅ Approvals</a>
+</div>
+<h1>Verification Management</h1><p class="sub">Auto-scored verification based on profile completeness. Verified = 3+ criteria met.</p>
+{% if messages %}{% for m in messages %}<div class="success">{{ m }}</div>{% endfor %}{% endif %}
+<div class="card">
+<form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="recompute_all"><button type="submit" class="btn">🔄 Recompute All</button></form></div>
+<div class="card"><table><thead><tr><th>Provider</th><th>City</th><th>Plan</th><th>Score</th><th>Badges</th><th>Actions</th></tr></thead><tbody>
+{% for p in providers %}
+<tr><td style="font-weight:600"><a href="{% url 'provider_profile' p.slug %}" style="color:#b76e79">{{ p.name }}</a></td><td>{{ p.city }}</td><td style="text-transform:capitalize">{{ p.plan }}</td>
+<td><div class="score-bar"><div class="score-fill score-{{ p.verification_score }}" style="width:{% widthratio p.verification_score 5 100 %}%"></div></div> {{ p.verification_score }}/5</td>
+<td>{% for b in p.badges %}<span class="badge badge-{% if b.type == 'verified' %}verified{% elif b.type == 'top_rated' %}top{% elif b.type == 'mortea_recommended' %}recommended{% elif b.type == 'premium_partner' %}premium{% elif b.type == 'founding_member' %}founding{% endif %}">{{ b.icon }} {{ b.label }}</span>{% endfor %}</td>
+<td style="display:flex;gap:4px"><form method="POST">{% csrf_token %}<input type="hidden" name="provider_id" value="{{ p.id }}"><input type="hidden" name="action" value="recompute"><button type="submit" class="btn-sm">🔄</button></form>{% if not p.is_verified %}<form method="POST">{% csrf_token %}<input type="hidden" name="provider_id" value="{{ p.id }}"><input type="hidden" name="action" value="verify"><button type="submit" class="btn-sm green">✓ Verify</button></form>{% else %}<form method="POST">{% csrf_token %}<input type="hidden" name="provider_id" value="{{ p.id }}"><input type="hidden" name="action" value="unverify"><button type="submit" class="btn-sm red">✕</button></form>{% endif %}</td></tr>{% endfor %}
+</tbody></table></div></div></div></body></html>

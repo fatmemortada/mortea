@@ -1,0 +1,60 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mortacc for Entrepreneurs — Corporate Compliance Made Simple</title><meta name="description" content="Mortacc simplifies corporate compliance for entrepreneurs — automated reminders, organized records, and predictable pricing. Focus on your business."><meta property="og:title" content="Mortacc for Entrepreneurs — Simple Corporate Compliance"><meta property="og:description" content="Corporate compliance made simple. Automated reminders, organized records, and predictable pricing."><meta property="og:type" content="website"><link rel="canonical" href="https://mortacc.com/entrepreneurs/"><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>⚖</text></svg>"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"><link rel="stylesheet" href="{% static 'clients/css/landing.css' %}"><style>
+.industry-hero{background:{{ page.hero_gradient }};padding:100px 24px 80px;text-align:center;position:relative;overflow:hidden}
+.industry-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 40% 50%,rgba(245,158,11,.12) 0%,transparent 50%),radial-gradient(circle at 60% 50%,rgba(255,255,255,.05) 0%,transparent 50%)}
+.industry-hero-content{position:relative;z-index:1;max-width:700px;margin:0 auto}
+.industry-hero-icon{font-size:56px;margin-bottom:20px;display:block}
+.industry-hero h1{font-family:'DM Serif Display',serif;font-size:clamp(28px,4.5vw,48px);color:#fff;margin:0 0 14px}
+.industry-hero p{font-size:16px;color:rgba(255,255,255,.55);line-height:1.7;max-width:520px;margin:0 auto 32px}
+.industry-nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:rgba(15,23,42,.95);backdrop-filter:blur(12px);position:sticky;top:0;z-index:50;border-bottom:1px solid rgba(255,255,255,.08)}
+.industry-nav-logo{font-family:'DM Serif Display',serif;font-size:20px;color:#fff;text-decoration:none}.industry-nav-logo span{color:#60a5fa}
+.industry-nav-links{display:flex;gap:20px;align-items:center}
+.industry-nav-links a{color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;font-weight:500;transition:color .2s}.industry-nav-links a:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;font-family:inherit;border:none;cursor:pointer}
+.btn-primary{background:var(--brand);color:#fff}.btn-primary:hover{background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.3)}
+.btn-white{background:#fff;color:#d97706}.btn-white:hover{background:#f1f5f9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.section{padding:80px 24px;max-width:1100px;margin:0 auto}
+.section-header{text-align:center;margin-bottom:56px}
+.section-tag{font-size:12px;font-weight:600;color:#d97706;text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px}
+.section-title{font-size:clamp(24px,3vw,36px);font-weight:700;color:var(--ink);margin:0 0 12px;letter-spacing:-.3px}
+.section-sub{font-size:15px;color:var(--ink-3);max-width:500px;margin:0 auto}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;transition:all .25s cubic-bezier(.16,1,.3,1)}
+.card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.06);border-color:#cbd5e1}
+.card-icon{font-size:28px;margin-bottom:12px}
+.card h4{font-size:15px;font-weight:700;color:var(--ink);margin:0 0 8px}
+.card p{font-size:13.5px;color:var(--ink-3);line-height:1.6;margin:0}
+.challenge-card{border-left:3px solid #dc2626;background:#fff}
+.solution-card{border-left:3px solid #d97706;background:#fff}
+.feature-card{text-align:center;padding:20px 16px}
+.fc-icon{font-size:24px;margin-bottom:8px}
+.fc-title{font-size:13px;font-weight:600;color:var(--ink)}
+.benefit-row{display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.benefit-check{width:28px;height:28px;border-radius:50%;background:#fef3c7;color:#d97706;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.benefit-text{font-size:14px;font-weight:500;color:var(--ink)}
+.cta-section{text-align:center;padding:0 24px 80px}
+.cta-section h2{font-size:28px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.cta-section p{font-size:15px;color:var(--ink-3);margin-bottom:28px}
+.alt-bg{background:var(--bg)}
+@media(max-width:768px){.industry-hero{padding:60px 20px 48px}.section{padding:48px 20px}}
+</style></head><body>
+
+<div class="industry-nav"><a href="/" class="industry-nav-logo">Mort<span>acc</span></a><div class="industry-nav-links"><a href="/#features">Features</a><a href="/#pricing">Pricing</a><a href="/resources/">Resources</a><a href="{% url 'choose_login' %}">Sign In</a><a href="{% url 'accountant_signup' %}" class="btn btn-primary">Start Free Trial</a></div></div>
+
+<section class="industry-hero"><div class="industry-hero-content"><span class="industry-hero-icon">{{ page.hero_icon }}</span><h1>{{ page.title }}</h1><p>{{ page.subtitle }}</p><a href="{% url 'accountant_signup' %}" class="btn btn-white">Start Free Trial</a><a href="{% url 'demo' %}" class="btn btn-primary" style="background:rgba(255,255,255,.15);color:#fff;margin-left:12px">Book a Demo</a></div></section>
+
+<section class="section"><div class="section-header"><div class="section-tag">The Challenge</div><div class="section-title">You didn't incorporate to do paperwork.</div><div class="section-sub">You incorporated to build a business. But corporate compliance keeps getting in the way — deadlines, documents, and confusion.</div></div>
+<div class="grid-2">{% for c in page.challenges %}<div class="card challenge-card"><div class="card-icon">⚠️</div><h4>{{ c.title }}</h4><p>{{ c.desc }}</p></div>{% endfor %}</div></section>
+
+<section class="section alt-bg"><div class="section-header"><div class="section-tag">The Solution</div><div class="section-title">Corporate compliance that works for you.</div><div class="section-sub">Clear, simple, automated. Mortacc tells you what's due, when — in plain English. No legal jargon, no stress.</div></div>
+<div class="grid-2">{% for s in page.solutions %}<div class="card solution-card"><div class="card-icon">✅</div><h4>{{ s.title }}</h4><p>{{ s.desc }}</p></div>{% endfor %}</div></section>
+
+<section class="section"><div class="section-header"><div class="section-tag">Features You'll Use</div><div class="section-title">Everything you need. Nothing you don't.</div></div>
+<div class="grid-4">{% for f in page.features %}<div class="card feature-card"><div class="fc-icon">✦</div><div class="fc-title">{{ f }}</div></div>{% endfor %}</div></section>
+
+<section class="section alt-bg"><div class="section-header"><div class="section-tag">Results</div><div class="section-title">What you gain.</div></div>
+<div style="max-width:600px;margin:0 auto">{% for b in page.benefits %}<div class="benefit-row"><span class="benefit-check">✓</span><span class="benefit-text">{{ b }}</span></div>{% endfor %}</div></section>
+
+<div class="cta-section"><h2>{{ page.cta_text }}</h2><p>14-day free trial. No credit card required. Pre-loaded with sample data.</p><a href="{% url 'accountant_signup' %}" class="btn btn-primary" style="font-size:16px;padding:15px 36px;border-radius:10px;background:#d97706">Start Free Trial</a><a href="{% url 'demo' %}" class="btn" style="background:var(--bg);color:var(--ink-2);border:1px solid var(--border);font-size:14px;padding:13px 24px;margin-left:12px">Book a Demo</a></div>
+
+</body></html>

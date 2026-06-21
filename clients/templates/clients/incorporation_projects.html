@@ -1,0 +1,103 @@
+{% extends "clients/base.html" %}
+{% block title %}Incorporation Projects — Mortacc{% endblock %}
+{% block nav_incorporations %}active{% endblock %}
+{% block topbar_title %}Incorporation Projects{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'incorporation_wizard_start' %}" class="btn btn-primary">+ New Incorporation</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .projects-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
+    .pstat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; text-align:center; }
+    .pstat .val { font-size:24px; font-weight:800; color:var(--ink); }
+    .pstat .lbl { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-3); margin-top:2px; }
+
+    .project-card {
+        background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+        padding:18px 20px; margin-bottom:10px; display:grid;
+        grid-template-columns:1fr auto; gap:14px; align-items:center;
+        transition:var(--transition); text-decoration:none; color:var(--ink);
+    }
+    .project-card:hover { border-color:var(--brand-muted); box-shadow:var(--shadow-sm); }
+    .project-name { font-weight:600; font-size:14px; }
+    .project-meta { font-size:11px; color:var(--ink-3); margin-top:2px; }
+    .project-progress { display:flex; align-items:center; gap:10px; }
+    .progress-mini { width:120px; height:6px; background:var(--surface-2); border-radius:3px; overflow:hidden; }
+    .progress-mini-fill { height:100%; border-radius:3px; }
+    .progress-mini-fill.active { background:var(--brand); }
+    .progress-mini-fill.complete { background:var(--green); }
+    .step-badge {
+        font-size:10px; font-weight:600; padding:3px 10px; border-radius:99px;
+    }
+    .step-badge.draft { background:var(--surface-2); color:var(--ink-3); }
+    .step-badge.active { background:var(--blue-bg); color:var(--blue); }
+    .step-badge.complete { background:var(--green-bg); color:var(--green); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="projects-stats">
+    <div class="pstat">
+        <div class="val">{{ in_progress_count }}</div>
+        <div class="lbl">In Progress</div>
+    </div>
+    <div class="pstat">
+        <div class="val">{{ completed_count }}</div>
+        <div class="lbl">Completed</div>
+    </div>
+    <div class="pstat">
+        <div class="val">{{ projects.count }}</div>
+        <div class="lbl">Total Projects</div>
+    </div>
+</div>
+
+{% if in_progress %}
+<div style="margin-bottom:16px">
+    <h2 style="font-size:14px;font-weight:600;color:var(--ink);margin:0 0 10px">In Progress</h2>
+    {% for p in in_progress %}
+    <a href="{% url 'incorporation_wizard' p.id %}" class="project-card">
+        <div>
+            <div class="project-name">{{ p.client.name }}</div>
+            <div class="project-meta">{{ p.get_jurisdiction_display }} · {{ p.get_structure_type_display }} · Started {{ p.created_at|date:"M d" }} · {{ p.days_in_progress }} days</div>
+        </div>
+        <div class="project-progress">
+            <span class="step-badge active">{{ p.get_current_step_display }}</span>
+            <div class="progress-mini">
+                <div class="progress-mini-fill active" style="width:{{ p.progress_pct }}%"></div>
+            </div>
+            <span style="font-size:11px;font-weight:600;color:var(--ink-2)">{{ p.progress_pct }}%</span>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if completed %}
+<div>
+    <h2 style="font-size:14px;font-weight:600;color:var(--ink);margin:16px 0 10px">Completed</h2>
+    {% for p in completed %}
+    <a href="{% url 'incorporation_wizard' p.id %}" class="project-card">
+        <div>
+            <div class="project-name">{{ p.client.name }}</div>
+            <div class="project-meta">{{ p.get_jurisdiction_display }} · Completed {{ p.completed_at|date:"M d, Y" }}</div>
+        </div>
+        <div class="project-progress">
+            <span class="step-badge complete">✓ Complete</span>
+            <div class="progress-mini">
+                <div class="progress-mini-fill complete" style="width:100%"></div>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if not projects %}
+<div class="empty-state">
+    <h3>No incorporation projects yet</h3>
+    <p>Start your first incorporation project to guide entities from name search through final welcome package.</p>
+    <a href="{% url 'incorporation_wizard_start' %}" class="btn btn-primary" style="margin-top:12px">Start First Incorporation</a>
+</div>
+{% endif %}
+{% endblock %}

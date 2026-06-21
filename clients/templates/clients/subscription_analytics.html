@@ -1,0 +1,100 @@
+{% extends "clients/base.html" %}
+{% block title %}Subscription Analytics — Mortacc{% endblock %}
+{% block nav_subscriptions %}active{% endblock %}
+{% block topbar_title %}Subscription Analytics{% endblock %}
+{% block topbar_breadcrumb %}<span style="font-size:12px;color:var(--ink-3)">→ <a href="{% url 'subscription_plans' %}" style="color:var(--brand);text-decoration:none">Plans</a></span>{% endblock %}
+
+{% block extra_head %}
+<style>
+    .analytics-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+    .an-card {
+        background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px 20px;
+    }
+    .an-card.green { border-color:var(--green-muted); background:var(--green-bg); }
+    .an-card.red { border-color:var(--red-muted); background:var(--red-bg); }
+    .an-card h3 { font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);margin-bottom:6px; }
+    .an-card .val { font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-.5px; }
+    .an-card .sub { font-size:11px;color:var(--ink-3);margin-top:3px; }
+
+    .plan-breakdown { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-bottom:24px; }
+    .pb-card {
+        background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px;
+    }
+    .pb-name { font-weight:600; font-size:13px; color:var(--ink); margin-bottom:4px; }
+    .pb-count { font-size:24px; font-weight:800; color:var(--ink); }
+    .pb-mrr { font-size:12px; color:var(--green); font-weight:600; margin-top:4px; }
+
+    .renewal-table { width:100%; border-collapse:collapse; font-size:12px; }
+    .renewal-table th { text-align:left; padding:8px 10px; font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-3); background:var(--surface-2); border-bottom:2px solid var(--border); }
+    .renewal-table td { padding:9px 10px; border-bottom:1px solid var(--surface-2); }
+    .renewal-table tr:hover td { background:var(--surface-2); }
+    .renewal-table tr.soon td { background:var(--green-bg); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analytics-grid">
+    <div class="an-card green">
+        <h3>Monthly Recurring Revenue</h3>
+        <div class="val">${{ mrr|floatformat:0 }}</div>
+        <div class="sub">{{ active_count }} active subscriptions</div>
+    </div>
+    <div class="an-card">
+        <h3>Annual Run Rate</h3>
+        <div class="val">${{ arr|floatformat:0 }}</div>
+        <div class="sub">Projected annual revenue</div>
+    </div>
+    <div class="an-card">
+        <h3>New This Month</h3>
+        <div class="val">{{ new_subs }}</div>
+        <div class="sub">{{ total_subs }} total subscriptions</div>
+    </div>
+    <div class="an-card {% if churn_rate > 5 %}red{% endif %}">
+        <h3>Churn Rate</h3>
+        <div class="val">{{ churn_rate }}%</div>
+        <div class="sub">{{ churned }} canceled in last 30 days</div>
+    </div>
+</div>
+
+<!-- Revenue by Plan -->
+{% if by_plan %}
+<div style="margin-bottom:24px">
+    <h2 style="font-size:15px;font-weight:600;color:var(--ink);margin:0 0 12px">Revenue by Plan</h2>
+    <div class="plan-breakdown">
+        {% for p in by_plan %}
+        <div class="pb-card">
+            <div class="pb-name">{{ p.plan__name }}</div>
+            <div class="pb-count">{{ p.count }}</div>
+            <div class="pb-mrr">${{ p.effective_mrr|floatformat:0 }}/mo</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Upcoming Renewals -->
+{% if upcoming_renewals %}
+<div style="margin-bottom:24px">
+    <h2 style="font-size:15px;font-weight:600;color:var(--ink);margin:0 0 12px">Upcoming Renewals (Next 30 Days)</h2>
+    <table class="renewal-table">
+        <thead><tr><th>Entity</th><th>Plan</th><th>Next Billing</th><th>Amount</th><th>Cycle</th></tr></thead>
+        <tbody>
+        {% for sub in upcoming_renewals %}
+        <tr class="{% if sub.next_billing_date and sub.next_billing_date <= today_plus_7 %}soon{% endif %}">
+            <td><a href="{% url 'subscription_manage' sub.id %}" style="color:var(--ink);text-decoration:none;font-weight:600">{{ sub.client.name }}</a></td>
+            <td>{{ sub.plan.name }}</td>
+            <td>{{ sub.next_billing_date|date:"M d, Y" }}</td>
+            <td style="font-weight:600">${{ sub.monthly_revenue|floatformat:2 }}/mo</td>
+            <td>{{ sub.get_billing_cycle_display }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <h3>No upcoming renewals</h3>
+    <p>No subscriptions are up for renewal in the next 30 days.</p>
+</div>
+{% endif %}
+{% endblock %}

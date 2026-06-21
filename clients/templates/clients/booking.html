@@ -1,0 +1,400 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book — {{ provider.name }} | Mortea</title>
+    <meta name="description" content="Book an appointment at {{ provider.name }} in {{ provider.city }}. {{ provider.get_category_display }}.">
+    <link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+    <style>
+        .booking-page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+        .bk-container { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
+
+        /* Progress */
+        .bk-progress { display: flex; justify-content: space-between; margin-bottom: 44px; position: relative; }
+        .bk-progress::before { content: ''; position: absolute; top: 18px; left: 12%; right: 12%; height: 2px; background: var(--border); z-index: 0; }
+        .bk-step { display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; z-index: 1; cursor: pointer; }
+        .bk-step-dot { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--ink-3); transition: all .25s; }
+        .bk-step.active .bk-step-dot { border-color: var(--brand); background: var(--brand); color: #fff; }
+        .bk-step.done .bk-step-dot { border-color: var(--brand); background: var(--brand-light); color: var(--brand); }
+        .bk-step-label { font-size: 11px; font-weight: 600; color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.05em; }
+        .bk-step.active .bk-step-label { color: var(--brand); }
+        .bk-step.done .bk-step-label { color: var(--brand); }
+
+        /* Card */
+        .bk-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 36px 40px; box-shadow: var(--shadow); }
+        .bk-provider-name { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+        .bk-provider-meta { font-size: 14px; color: var(--ink-3); margin-bottom: 28px; }
+
+        /* Steps */
+        .bk-panel { display: none; }
+        .bk-panel.active { display: block; }
+        .bk-panel h3 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--ink); margin-bottom: 20px; }
+
+        /* Service cards */
+        .bk-service-list { display: flex; flex-direction: column; gap: 10px; }
+        .bk-service-option { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all .2s; gap: 12px; }
+        .bk-service-option:hover { border-color: var(--brand-muted); background: var(--brand-light); }
+        .bk-service-option.selected { border-color: var(--brand); background: var(--brand-light); }
+        .bk-service-option input { display: none; }
+        .bk-so-left { min-width: 0; }
+        .bk-so-name { font-weight: 600; color: var(--ink); font-size: 15px; }
+        .bk-so-duration { font-size: 13px; color: var(--ink-3); }
+        .bk-so-price { font-weight: 700; color: var(--ink); font-size: 16px; white-space: nowrap; }
+        .bk-so-popular { font-size: 10px; font-weight: 700; text-transform: uppercase; background: var(--brand); color: #fff; padding: 2px 8px; border-radius: var(--radius-full); }
+
+        /* Staff */
+        .bk-staff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .bk-staff-option { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all .2s; }
+        .bk-staff-option:hover { border-color: var(--brand-muted); background: var(--brand-light); }
+        .bk-staff-option.selected { border-color: var(--brand); background: var(--brand-light); }
+        .bk-staff-option input { display: none; }
+        .bk-staff-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--brand); flex-shrink: 0; }
+        .bk-staff-name { font-weight: 600; color: var(--ink); font-size: 14px; }
+        .bk-staff-role { font-size: 12px; color: var(--ink-3); }
+
+        /* Date/time */
+        .bk-date-time { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .bk-field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+        .bk-field input, .bk-field select, .bk-field textarea {
+            width: 100%; padding: 12px 16px; font-family: 'Inter', sans-serif; font-size: 15px;
+            border: 1.5px solid var(--border); border-radius: var(--radius);
+            background: var(--surface); color: var(--ink); outline: none;
+            transition: border-color .2s;
+        }
+        .bk-field input:focus, .bk-field select:focus, .bk-field textarea:focus { border-color: var(--brand); }
+        .bk-field textarea { resize: vertical; min-height: 80px; }
+        .bk-field input[type="date"] { color-scheme: light; }
+
+        /* Client details */
+        .bk-client-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .bk-client-grid .bk-field:last-child { grid-column: 1 / -1; }
+
+        /* Errors */
+        .bk-errors { background: #fff5f5; border: 1px solid #fed7d7; border-radius: var(--radius); padding: 14px 18px; margin-bottom: 20px; }
+        .bk-errors p { font-size: 14px; color: #c53030; }
+        .bk-errors p:not(:last-child) { margin-bottom: 4px; }
+
+        /* Navigation */
+        .bk-nav { display: flex; justify-content: space-between; margin-top: 28px; }
+        .bk-nav-right { margin-left: auto; display: flex; gap: 10px; }
+        .bk-btn-back { padding: 12px 28px; font-size: 15px; font-weight: 500; border-radius: var(--radius-full); border: 1.5px solid var(--border); background: var(--surface); color: var(--ink-2); cursor: pointer; transition: all .15s; }
+        .bk-btn-back:hover { border-color: var(--ink-3); }
+        .bk-btn-next { padding: 12px 32px; font-size: 15px; font-weight: 600; border-radius: var(--radius-full); border: none; background: var(--brand); color: #fff; cursor: pointer; transition: all .2s; }
+        .bk-btn-next:hover { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(183,110,121,.3); }
+
+        /* Summary */
+        .bk-summary { background: var(--bg-warm); border-radius: var(--radius); padding: 20px; }
+        .bk-summary-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+        .bk-summary-row .lbl { color: var(--ink-3); }
+        .bk-summary-row .val { font-weight: 600; color: var(--ink); }
+        .bk-summary-div { border-top: 1px solid var(--border); margin: 8px 0; }
+
+        @media (max-width: 600px) {
+            .bk-step-label { display: none; }
+            .bk-card { padding: 24px 20px; }
+            .bk-date-time, .bk-client-grid, .bk-staff-grid { grid-template-columns: 1fr; }
+            .bk-nav { flex-direction: column-reverse; gap: 10px; }
+            .bk-nav-right { flex-direction: column; width: 100%; }
+            .bk-btn-back, .bk-btn-next { width: 100%; text-align: center; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<nav id="topNav">
+    <div class="nav-inner">
+        <a href="/" class="nav-logo">Mortea</a>
+        <div class="nav-links">
+            <a href="/#categories" class="nav-link">Find Services</a>
+            <a href="/#for-professionals" class="nav-link">For Professionals</a>
+            <a href="/#about" class="nav-link">About</a>
+            <a href="{% url 'choose_login' %}" class="nav-link">Login</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+</nav>
+
+<div class="booking-page">
+<div class="bk-container">
+
+    <!-- Back link -->
+    <a href="{% url 'provider_profile' provider.slug %}" style="display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--ink-3);text-decoration:none;margin-bottom:28px;transition:color .15s" onmouseenter="this.style.color='var(--ink)'" onmouseleave="this.style.color='var(--ink-3)'">← Back to {{ provider.name }}</a>
+
+    <!-- Progress steps -->
+    <div class="bk-progress">
+        <div class="bk-step active" data-step="1"><div class="bk-step-dot">1</div><div class="bk-step-label">Service</div></div>
+        <div class="bk-step" data-step="2"><div class="bk-step-dot">2</div><div class="bk-step-label">Staff</div></div>
+        <div class="bk-step" data-step="3"><div class="bk-step-dot">3</div><div class="bk-step-label">Date & Time</div></div>
+        <div class="bk-step" data-step="4"><div class="bk-step-dot">4</div><div class="bk-step-label">Details</div></div>
+        <div class="bk-step" data-step="5"><div class="bk-step-dot">5</div><div class="bk-step-label">Confirm</div></div>
+    </div>
+
+    {% if errors %}
+    <div class="bk-errors">
+        {% for err in errors %}<p>⚠ {{ err }}</p>{% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="bk-card">
+        <div class="bk-provider-name">{{ provider.name }}</div>
+        <div class="bk-provider-meta">{{ provider.get_category_display }} · {{ provider.city }}, {{ provider.province }}</div>
+
+        <form method="POST" id="bookingForm">
+            {% csrf_token %}
+
+            <!-- Step 1: Choose Service -->
+            <div class="bk-panel active" data-panel="1">
+                <h3>Select a service</h3>
+                <div class="bk-service-list">
+                    {% for svc in provider.services.all %}
+                    <label class="bk-service-option{% if form_data.service == svc.id|stringformat:'s' %} selected{% endif %}">
+                        <input type="radio" name="service" value="{{ svc.id }}" {% if form_data.service == svc.id|stringformat:'s' %}checked{% endif %}>
+                        <div class="bk-so-left">
+                            <div class="bk-so-name">{{ svc.name }}</div>
+                            {% if svc.duration_minutes %}<div class="bk-so-duration">{{ svc.duration_minutes }} min</div>{% endif %}
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            {% if svc.is_popular %}<span class="bk-so-popular">Popular</span>{% endif %}
+                            {% if svc.price %}<span class="bk-so-price">${{ svc.price|floatformat:"0" }}</span>{% endif %}
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Step 2: Choose Staff -->
+            <div class="bk-panel" data-panel="2">
+                <h3>Preferred staff member</h3>
+                <p style="font-size:14px;color:var(--ink-3);margin-bottom:16px">Optional — leave blank for first available</p>
+                <div class="bk-staff-grid">
+                    <label class="bk-staff-option{% if not form_data.staff %} selected{% endif %}">
+                        <input type="radio" name="staff" value="" {% if not form_data.staff %}checked{% endif %}>
+                        <div class="bk-staff-avatar" style="background:var(--bg-warm);color:var(--ink-3)">♢</div>
+                        <div><div class="bk-staff-name">Any Available</div><div class="bk-staff-role">First available</div></div>
+                    </label>
+                    {% for member in provider.staff.all %}
+                    <label class="bk-staff-option{% if form_data.staff == member.id|stringformat:'s' %} selected{% endif %}">
+                        <input type="radio" name="staff" value="{{ member.id }}" {% if form_data.staff == member.id|stringformat:'s' %}checked{% endif %}>
+                        <div class="bk-staff-avatar">{{ member.name|slice:":1" }}</div>
+                        <div><div class="bk-staff-name">{{ member.name }}</div><div class="bk-staff-role">{{ member.role }}</div></div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Step 3: Date & Time -->
+            <div class="bk-panel" data-panel="3">
+                <h3>Choose date & time</h3>
+                <div class="bk-date-time">
+                    <div class="bk-field">
+                        <label>Date</label>
+                        <input type="date" name="date" id="bkDate" value="{{ form_data.date|default:'' }}" min="{{ today_iso|default:'' }}">
+                    </div>
+                    <div class="bk-field">
+                        <label>Time</label>
+                        <select name="time" id="bkTime">
+                            <option value="">Select a time…</option>
+                            <option value="09:00" {% if form_data.time == '09:00' %}selected{% endif %}>9:00 AM</option>
+                            <option value="09:30" {% if form_data.time == '09:30' %}selected{% endif %}>9:30 AM</option>
+                            <option value="10:00" {% if form_data.time == '10:00' %}selected{% endif %}>10:00 AM</option>
+                            <option value="10:30" {% if form_data.time == '10:30' %}selected{% endif %}>10:30 AM</option>
+                            <option value="11:00" {% if form_data.time == '11:00' %}selected{% endif %}>11:00 AM</option>
+                            <option value="11:30" {% if form_data.time == '11:30' %}selected{% endif %}>11:30 AM</option>
+                            <option value="12:00" {% if form_data.time == '12:00' %}selected{% endif %}>12:00 PM</option>
+                            <option value="12:30" {% if form_data.time == '12:30' %}selected{% endif %}>12:30 PM</option>
+                            <option value="13:00" {% if form_data.time == '13:00' %}selected{% endif %}>1:00 PM</option>
+                            <option value="13:30" {% if form_data.time == '13:30' %}selected{% endif %}>1:30 PM</option>
+                            <option value="14:00" {% if form_data.time == '14:00' %}selected{% endif %}>2:00 PM</option>
+                            <option value="14:30" {% if form_data.time == '14:30' %}selected{% endif %}>2:30 PM</option>
+                            <option value="15:00" {% if form_data.time == '15:00' %}selected{% endif %}>3:00 PM</option>
+                            <option value="15:30" {% if form_data.time == '15:30' %}selected{% endif %}>3:30 PM</option>
+                            <option value="16:00" {% if form_data.time == '16:00' %}selected{% endif %}>4:00 PM</option>
+                            <option value="16:30" {% if form_data.time == '16:30' %}selected{% endif %}>4:30 PM</option>
+                            <option value="17:00" {% if form_data.time == '17:00' %}selected{% endif %}>5:00 PM</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Your Details -->
+            <div class="bk-panel" data-panel="4">
+                <h3>Your details</h3>
+                <div class="bk-client-grid">
+                    <div class="bk-field">
+                        <label>Full name *</label>
+                        <input type="text" name="client_name" value="{{ form_data.client_name|default:'' }}" placeholder="Your full name" required>
+                    </div>
+                    <div class="bk-field">
+                        <label>Phone *</label>
+                        <input type="tel" name="client_phone" value="{{ form_data.client_phone|default:'' }}" placeholder="(514) 555-0123" required>
+                    </div>
+                    <div class="bk-field">
+                        <label>Email *</label>
+                        <input type="email" name="client_email" value="{{ form_data.client_email|default:'' }}" placeholder="you@email.com" required>
+                    </div>
+                    <div class="bk-field">
+                        <label>Notes (optional)</label>
+                        <textarea name="notes" placeholder="Any special requests, allergies, or questions…">{{ form_data.notes|default:'' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Confirm -->
+            <div class="bk-panel" data-panel="5">
+                <h3>Confirm your booking</h3>
+                <div class="bk-summary" id="bkSummary">
+                    <div class="bk-summary-row"><span class="lbl">Provider</span><span class="val">{{ provider.name }}</span></div>
+                    <div class="bk-summary-row"><span class="lbl">Service</span><span class="val" id="sumService">—</span></div>
+                    <div class="bk-summary-row"><span class="lbl">Staff</span><span class="val" id="sumStaff">Any available</span></div>
+                    <div class="bk-summary-div"></div>
+                    <div class="bk-summary-row"><span class="lbl">Date</span><span class="val" id="sumDate">—</span></div>
+                    <div class="bk-summary-row"><span class="lbl">Time</span><span class="val" id="sumTime">—</span></div>
+                    <div class="bk-summary-div"></div>
+                    <div class="bk-summary-row"><span class="lbl">Name</span><span class="val" id="sumName">—</span></div>
+                    <div class="bk-summary-row"><span class="lbl">Phone</span><span class="val" id="sumPhone">—</span></div>
+                    <div class="bk-summary-row"><span class="lbl">Email</span><span class="val" id="sumEmail">—</span></div>
+                </div>
+            </div>
+
+            <!-- Navigation buttons -->
+            <div class="bk-nav">
+                <button type="button" class="bk-btn-back" id="btnBack" onclick="prevStep()" style="display:none">← Back</button>
+                <div class="bk-nav-right">
+                    <button type="button" class="bk-btn-next" id="btnNext" onclick="nextStep()">Continue</button>
+                    <button type="submit" class="bk-btn-next" id="btnSubmit" style="display:none">Confirm Booking</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+<script>
+document.getElementById('hamburger').addEventListener('click',function(){this.classList.toggle('active')});
+window.addEventListener('scroll',function(){document.getElementById('topNav').classList.toggle('scrolled',window.scrollY>10)});
+
+// ── Step navigation ──────────────────────────────────────────────────
+var currentStep = 1;
+var totalSteps = 5;
+
+function showStep(n) {
+    document.querySelectorAll('.bk-panel').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelector('[data-panel="'+n+'"]').classList.add('active');
+
+    document.querySelectorAll('.bk-step').forEach(function(s){ s.classList.remove('active','done'); });
+    document.querySelectorAll('.bk-step').forEach(function(s){
+        var stepNum = parseInt(s.getAttribute('data-step'));
+        if (stepNum === n) s.classList.add('active');
+        if (stepNum < n) s.classList.add('done');
+    });
+
+    currentStep = n;
+    document.getElementById('btnBack').style.display = n > 1 ? '' : 'none';
+    document.getElementById('btnNext').style.display = n < totalSteps ? '' : 'none';
+    document.getElementById('btnSubmit').style.display = n === totalSteps ? '' : 'none';
+}
+
+function nextStep() {
+    // Validate current step
+    if (currentStep === 1) {
+        var svc = document.querySelector('input[name="service"]:checked');
+        if (!svc) { alert('Please select a service.'); return; }
+    }
+    if (currentStep === 3) {
+        var date = document.getElementById('bkDate').value;
+        var time = document.getElementById('bkTime').value;
+        if (!date) { alert('Please select a date.'); return; }
+        if (!time) { alert('Please select a time.'); return; }
+    }
+    if (currentStep === 4) {
+        var name = document.querySelector('input[name="client_name"]').value.trim();
+        var phone = document.querySelector('input[name="client_phone"]').value.trim();
+        var email = document.querySelector('input[name="client_email"]').value.trim();
+        if (!name) { alert('Please enter your name.'); return; }
+        if (!phone) { alert('Please enter your phone number.'); return; }
+        if (!email) { alert('Please enter your email.'); return; }
+    }
+
+    if (currentStep === 5) {
+        // Will submit
+        document.getElementById('bookingForm').submit();
+        return;
+    }
+
+    // Build summary for step 5
+    if (currentStep === 4) {
+        updateSummary();
+    }
+
+    showStep(currentStep + 1);
+}
+
+function prevStep() {
+    showStep(currentStep - 1);
+}
+
+function updateSummary() {
+    var svc = document.querySelector('input[name="service"]:checked');
+    if (svc) {
+        var label = svc.closest('label');
+        document.getElementById('sumService').textContent = label.querySelector('.bk-so-name').textContent;
+    }
+    var staff = document.querySelector('input[name="staff"]:checked');
+    if (staff && staff.value) {
+        var sLabel = staff.closest('label');
+        document.getElementById('sumStaff').textContent = sLabel.querySelector('.bk-staff-name').textContent;
+    } else {
+        document.getElementById('sumStaff').textContent = 'Any available';
+    }
+    document.getElementById('sumDate').textContent = document.getElementById('bkDate').value || '—';
+    document.getElementById('sumTime').textContent = document.getElementById('bkTime').value || '—';
+    document.getElementById('sumName').textContent = document.querySelector('input[name="client_name"]').value || '—';
+    document.getElementById('sumPhone').textContent = document.querySelector('input[name="client_phone"]').value || '—';
+    document.getElementById('sumEmail').textContent = document.querySelector('input[name="client_email"]').value || '—';
+}
+
+// Click on progress steps to navigate
+document.querySelectorAll('.bk-step').forEach(function(step){
+    step.addEventListener('click', function(){
+        var target = parseInt(this.getAttribute('data-step'));
+        // Only allow going back or to current+1
+        if (target <= currentStep + 1 && target <= totalSteps) {
+            // Validate if going forward
+            if (target > currentStep) {
+                if (currentStep === 1 && !document.querySelector('input[name="service"]:checked')) { return; }
+                if (currentStep === 3 && (!document.getElementById('bkDate').value || !document.getElementById('bkTime').value)) { return; }
+                if (currentStep === 4 && (!document.querySelector('input[name="client_name"]').value.trim())) { return; }
+                if (target === 5) updateSummary();
+            }
+            showStep(target);
+        }
+    });
+});
+
+// Service card click
+document.querySelectorAll('.bk-service-option').forEach(function(card){
+    card.addEventListener('click', function(e){
+        if (e.target.tagName === 'INPUT') return;
+        this.querySelector('input').checked = true;
+        document.querySelectorAll('.bk-service-option').forEach(function(c){ c.classList.remove('selected'); });
+        this.classList.add('selected');
+    });
+});
+
+// Staff card click
+document.querySelectorAll('.bk-staff-option').forEach(function(card){
+    card.addEventListener('click', function(e){
+        if (e.target.tagName === 'INPUT') return;
+        this.querySelector('input').checked = true;
+        document.querySelectorAll('.bk-staff-option').forEach(function(c){ c.classList.remove('selected'); });
+        this.classList.add('selected');
+    });
+});
+</script>
+</body>
+</html>

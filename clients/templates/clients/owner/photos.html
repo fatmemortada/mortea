@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Photos — {{ provider.name }} | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.panel { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; }
+.sidebar { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 88px; }
+.sidebar a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; color: var(--ink-2); text-decoration: none; }
+.sidebar a:hover, .sidebar a.active { background: var(--brand-light); color: var(--brand-dark); }
+.sidebar a .si { font-size: 16px; width: 24px; text-align: center; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px; }
+.gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.gallery-item { aspect-ratio: 1; border-radius: var(--radius); overflow: hidden; background: var(--bg-warm); position: relative; }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-item-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: var(--ink-4); }
+.gallery-item .overlay { position: absolute; top: 6px; right: 6px; }
+.btn-sm { padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: var(--radius-full); border: 1px solid var(--border); background: var(--surface); cursor: pointer; }
+.btn-sm.danger { color: #dc2626; border-color: #fecaca; background: #fff; }
+.btn-sm.danger:hover { background: #fef2f2; }
+.btn { padding: 10px 22px; font-size: 14px; font-weight: 600; border-radius: var(--radius-full); border: none; background: var(--brand); color: #fff; cursor: pointer; }
+.inline-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 20px; }
+.field { margin: 0; }
+.field input { padding: 10px 14px; font-family: 'Inter', sans-serif; font-size: 14px; border: 1.5px solid var(--border); border-radius: var(--radius); outline: none; }
+.field input:focus { border-color: var(--brand); }
+.play-badge { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.2); }
+.play-badge span { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.9); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+@media (max-width:700px){ .panel{grid-template-columns:1fr;} .sidebar{position:static;flex-direction:row;overflow-x:auto;} .gallery-grid{grid-template-columns:1fr 1fr;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><div class="panel">
+<div class="sidebar">
+<a href="{% url 'owner_dashboard' provider.slug %}"><span class="si">📊</span> Overview</a>
+<a href="{% url 'owner_edit_profile' provider.slug %}"><span class="si">✏️</span> Edit Profile</a>
+<a href="{% url 'owner_services' provider.slug %}"><span class="si">💰</span> Services</a>
+<a href="{% url 'owner_photos' provider.slug %}" class="active"><span class="si">📸</span> Photos & Videos</a>
+<a href="{% url 'owner_social' provider.slug %}"><span class="si">📱</span> Social Links</a>
+<a href="{% url 'owner_bookings' provider.slug %}"><span class="si">📋</span> Bookings</a>
+<a href="{% url 'provider_profile' provider.slug %}" target="_blank"><span class="si">👁</span> View Profile</a>
+</div>
+<div class="main"><h1>Photos & Videos</h1>
+<div class="card"><h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:16px">Upload Media</h3>
+<form method="POST" enctype="multipart/form-data" class="inline-form">{% csrf_token %}<input type="hidden" name="action" value="add">
+<div class="field"><input type="file" name="image" accept="image/*"></div>
+<div class="field"><input type="text" name="caption" placeholder="Caption (optional)"></div>
+<div class="field"><input type="url" name="video_url" placeholder="Or paste YouTube/Vimeo URL"></div>
+<button type="submit" class="btn">Upload</button></form></div>
+<div class="card"><h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:16px">Gallery</h3>
+{% if provider.photos.exists %}
+<div class="gallery-grid">
+{% for photo in provider.photos.all %}
+<div class="gallery-item">
+{% if photo.image %}<img src="{{ photo.image.url }}" alt="{{ photo.caption }}">{% else %}<div class="gallery-item-placeholder">🎬</div>{% endif %}
+{% if photo.is_video %}<div class="play-badge"><span>▶</span></div>{% endif %}
+<form method="POST" style="position:absolute;top:6px;right:6px" onsubmit="return confirm('Delete this?')">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="photo_id" value="{{ photo.id }}"><button type="submit" class="btn-sm danger">×</button></form></div>
+{% endfor %}</div>
+{% else %}<p style="color:var(--ink-3)">No photos or videos yet.</p>{% endif %}
+</div></div></div></div>
+</body></html>

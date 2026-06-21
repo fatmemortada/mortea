@@ -1,0 +1,58 @@
+{% extends "clients/base.html" %}
+{% block title %}Accept Invitation — Mortacc{% endblock %}
+{% block topbar_title %}Join Your Firm{% endblock %}
+
+{% block content %}
+<div style="max-width:460px;margin:60px auto;">
+    <div style="background:rgba(255,255,255,.94);border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:36px 32px;box-shadow:0 18px 60px rgba(80,60,40,.08);">
+
+        {% if error %}
+            <div style="text-align:center;padding:20px 0;">
+                <div style="font-size:2rem;margin-bottom:12px;">⚠️</div>
+                <h2 style="font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:8px;">Invitation unavailable</h2>
+                <p style="font-size:.9rem;color:var(--gray-500);">{{ error }}</p>
+                <a href="/" style="display:inline-block;margin-top:20px;" class="btn btn-ghost">Back to Home</a>
+            </div>
+        {% else %}
+            <div style="margin-bottom:24px;">
+                <h1 style="font-size:1.3rem;font-weight:700;color:var(--navy);margin-bottom:6px;">
+                    Join {{ invite.firm.name }}
+                </h1>
+                <p style="font-size:.9rem;color:var(--gray-500);">
+                    You've been invited as <strong>{{ invite.get_role_display }}</strong>. Set a password to activate your account.
+                </p>
+            </div>
+
+            {% if error %}
+            <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:.87rem;color:#991b1b;">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div style="margin-bottom:14px;">
+                    <label style="font-size:.82rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:4px;">Email</label>
+                    <input type="email" value="{{ invite.email }}" disabled
+                        style="width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:var(--radius);font-size:.9rem;background:var(--gray-50);color:var(--gray-500);box-sizing:border-box;">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="font-size:.82rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:4px;">Password</label>
+                    <input type="password" name="password" required minlength="8" autofocus
+                        placeholder="At least 8 characters"
+                        style="width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:var(--radius);font-size:.9rem;box-sizing:border-box;">
+                </div>
+                <div style="margin-bottom:22px;">
+                    <label style="font-size:.82rem;font-weight:600;color:var(--gray-700);display:block;margin-bottom:4px;">Confirm Password</label>
+                    <input type="password" name="confirm_password" required minlength="8"
+                        placeholder="Repeat password"
+                        style="width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:var(--radius);font-size:.9rem;box-sizing:border-box;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;padding:11px;">
+                    Activate Account →
+                </button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

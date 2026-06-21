@@ -1,0 +1,38 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Batch #{{ batch.id }} — Mortea Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: #f5f5f5; }
+.container { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 600; color: #1a1a1a; }
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin: 20px 0; }
+.stat { background: #fff; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 700; color: #b76e79; }
+.stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #8a8a8a; margin-top: 4px; }
+.card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 20px; }
+.card h3 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #f0ece9; }
+th { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #8a8a8a; }
+.badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.badge-ok { background: #dcfce7; color: #166534; }
+.badge-err { background: #fee2e2; color: #991b1b; }
+.score { display: inline-block; width: 60px; height: 6px; background: #e5e7eb; border-radius: 3px; vertical-align: middle; margin-right: 6px; }
+.score-fill { height: 100%; border-radius: 3px; background: #16a34a; }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><span style="font-size:12px;color:#8a8a8a">Admin</span></div></nav>
+<div class="page"><div class="container">
+<a href="{% url 'csv_import' %}" style="color:#8a8a8a;text-decoration:none;font-size:13px">← Back to Import</a>
+<h1>Batch #{{ batch.id }}</h1>
+<p style="color:#8a8a8a;margin-bottom:20px">{{ batch.filename }} — {{ batch.created_at|date:"M d, Y H:i" }}</p>
+
+<div class="stats"><div class="stat"><div class="stat-val">{{ batch.total_rows }}</div><div class="stat-label">Total Rows</div></div><div class="stat"><div class="stat-val">{{ batch.imported_count }}</div><div class="stat-label">Imported</div></div><div class="stat"><div class="stat-val">{{ batch.error_rows|length }}</div><div class="stat-label">Errors</div></div></div>
+
+{% if batch.error_rows %}
+<div class="card"><h3>Errors</h3><table><thead><tr><th>Row</th><th>Name</th><th>Error</th></tr></thead><tbody>{% for e in batch.error_rows %}<tr><td>{{ e.row }}</td><td>{{ e.name }}</td><td style="color:#dc2626">{{ e.error }}</td></tr>{% endfor %}</tbody></table></div>
+{% endif %}
+
+<div class="card"><h3>Imported Providers ({{ providers|length }})</h3>
+<table><thead><tr><th>Name</th><th>City</th><th>Category</th><th>Completeness</th><th>Claimed</th></tr></thead><tbody>
+{% for p in providers %}<tr><td><a href="{% url 'provider_profile' p.slug %}" style="color:#b76e79;font-weight:500">{{ p.name }}</a></td><td>{{ p.city }}</td><td>{{ p.get_category_display }}</td><td><div class="score"><div class="score-fill" style="width:{% widthratio p.verification_score 5 100 %}%"></div></div> {{ p.verification_score }}/5</td><td><span class="badge {% if p.is_claimed %}badge-ok{% else %}badge-err{% endif %}">{% if p.is_claimed %}Claimed{% else %}Unclaimed{% endif %}</span></td></tr>{% empty %}<tr><td colspan="5" style="color:#8a8a8a">No providers found in this batch window.</td></tr>{% endfor %}</tbody></table></div>
+</div></div></body></html>

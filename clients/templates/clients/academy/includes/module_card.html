@@ -1,0 +1,29 @@
+{% load static %}
+<a href="{% url 'academy_module' module.id %}" class="module-card">
+    <div class="module-card-thumb" style="background:{{ module.thumbnail_gradient }}">
+        <span class="module-card-thumb-icon">{{ module.thumbnail_icon }}</span>
+        <span class="module-card-badge">{{ module.watch_time_minutes }} min</span>
+        {% if module.placeholder %}
+        <span class="module-card-coming-soon">Coming Soon</span>
+        {% endif %}
+    </div>
+    <div class="module-card-body">
+        <div class="module-card-meta">
+            <span class="module-card-difficulty difficulty-{{ module.difficulty }}">{{ module.difficulty }}</span>
+            <span class="module-card-chapters">{{ module.chapter_count }} chapter{{ module.chapter_count|pluralize }}</span>
+        </div>
+        <h3 class="module-card-title">{{ module.title }}</h3>
+        <p class="module-card-desc">{{ module.short_description }}</p>
+    </div>
+    <div class="module-card-footer">
+        {% if progress and progress.started %}
+        <div class="module-card-progress">
+            <div class="module-card-progress-bar" style="width:{{ progress.percent }}%"></div>
+        </div>
+        <span class="module-card-progress-text">{{ progress.percent }}% complete</span>
+        <span class="module-card-btn">Continue</span>
+        {% else %}
+        <span class="module-card-btn module-card-btn-start">Start Learning →</span>
+        {% endif %}
+    </div>
+</a>

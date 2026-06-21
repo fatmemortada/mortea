@@ -1,0 +1,218 @@
+{% extends "clients/base.html" %}
+{% block title %}Upgrade Plan — Mortacc{% endblock %}
+{% block topbar_title %}Upgrade Your Plan{% endblock %}
+
+{% block extra_head %}
+<style>
+    .upgrade-wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 32px 0;
+    }
+    .upgrade-header {
+        text-align: center;
+        margin-bottom: 36px;
+    }
+    .upgrade-header h1 {
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 8px;
+    }
+    .upgrade-header p {
+        font-size: .95rem;
+        color: var(--gray-500);
+    }
+    .plan-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+    @media (max-width: 600px) { .plan-cards { grid-template-columns: 1fr; } }
+    .plan-card {
+        background: rgba(255,255,255,.94);
+        border: 2px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 28px 24px;
+        position: relative;
+        transition: border-color .15s, box-shadow .15s;
+    }
+    .plan-card.recommended {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 4px rgba(59,130,246,.08);
+    }
+    .plan-card.current-plan {
+        opacity: .55;
+        pointer-events: none;
+    }
+    .badge-recommended {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--blue);
+        color: #fff;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .05em;
+        padding: 3px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+    .badge-current {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--gray-400);
+        color: #fff;
+        font-size: .72rem;
+        font-weight: 700;
+        padding: 3px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+    .plan-card h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--navy);
+        margin-bottom: 4px;
+    }
+    .plan-price {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--navy);
+        margin: 12px 0 4px;
+    }
+    .plan-price span {
+        font-size: .9rem;
+        font-weight: 500;
+        color: var(--gray-500);
+    }
+    .plan-features {
+        list-style: none;
+        margin: 16px 0 24px;
+        padding: 0;
+    }
+    .plan-features li {
+        font-size: .87rem;
+        color: var(--gray-600);
+        padding: 5px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .plan-features li::before {
+        content: "✓";
+        color: var(--green);
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    .btn-upgrade {
+        width: 100%;
+        padding: 12px;
+        font-size: .9rem;
+        font-weight: 600;
+        border-radius: var(--radius);
+        border: none;
+        cursor: pointer;
+        transition: opacity .15s;
+    }
+    .btn-upgrade:hover { opacity: .88; }
+    .btn-upgrade-primary { background: var(--blue); color: #fff; }
+    .btn-upgrade-outline { background: transparent; border: 1.5px solid var(--gray-300); color: var(--gray-700); }
+    .billing-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 28px;
+        font-size: .88rem;
+        color: var(--gray-600);
+    }
+    .billing-toggle label { cursor: pointer; font-weight: 500; }
+    .billing-toggle .save-badge {
+        background: var(--green-soft, #f0fdf4);
+        color: var(--green);
+        font-size: .75rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 10px;
+    }
+    .note {
+        text-align: center;
+        font-size: .82rem;
+        color: var(--gray-400);
+        margin-top: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upgrade-wrap">
+    <div class="upgrade-header">
+        <h1>Upgrade your plan</h1>
+        <p>You're currently on the <strong>{{ current_plan|title }}</strong> plan. Choose a higher tier to unlock more clients and features.</p>
+    </div>
+
+    <!-- Billing cycle toggle -->
+    <div class="billing-toggle">
+        <label>
+            <input type="radio" name="billing_toggle" value="monthly" {% if billing_cycle != "yearly" %}checked{% endif %} onchange="setBilling('monthly')"> Monthly
+        </label>
+        <label>
+            <input type="radio" name="billing_toggle" value="yearly" {% if billing_cycle == "yearly" %}checked{% endif %} onchange="setBilling('yearly')"> Annual <span class="save-badge">Save 17%</span>
+        </label>
+    </div>
+
+    <div class="plan-cards">
+        {% for plan_key, details in plan_details.items %}
+        <div class="plan-card {% if plan_key == target_plan %}recommended{% endif %} {% if plan_key == current_plan %}current-plan{% endif %}">
+            {% if plan_key == current_plan %}
+                <div class="badge-current">Current</div>
+            {% elif plan_key == target_plan %}
+                <div class="badge-recommended">Recommended</div>
+            {% endif %}
+
+            <h2>{{ details.name }}</h2>
+            <div class="plan-price monthly-price" {% if billing_cycle == "yearly" %}style="display:none"{% endif %}>
+                C${{ details.price_monthly }}<span>/mo</span>
+            </div>
+            <div class="plan-price yearly-price" {% if billing_cycle != "yearly" %}style="display:none"{% endif %}>
+                C${{ details.price_yearly }}<span>/yr</span>
+            </div>
+
+            <ul class="plan-features">
+                {% for feature in details.features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+
+            {% if plan_key != current_plan %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="plan" value="{{ plan_key }}">
+                <input type="hidden" name="billing_cycle" id="billing_input_{{ plan_key }}" value="{{ billing_cycle }}">
+                <button type="submit" class="btn-upgrade {% if plan_key == target_plan %}btn-upgrade-primary{% else %}btn-upgrade-outline{% endif %}">
+                    Upgrade to {{ details.name }} →
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <p class="note">Upgrades take effect immediately with prorated billing. You can manage or cancel your subscription at any time from <a href="{% url 'billing_portal' %}">Billing Portal</a>.</p>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function setBilling(cycle) {
+    document.querySelectorAll('.monthly-price').forEach(el => el.style.display = cycle === 'monthly' ? '' : 'none');
+    document.querySelectorAll('.yearly-price').forEach(el => el.style.display = cycle === 'yearly' ? '' : 'none');
+    document.querySelectorAll('[id^="billing_input_"]').forEach(el => el.value = cycle);
+}
+</script>
+{% endblock %}

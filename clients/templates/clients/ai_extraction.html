@@ -1,0 +1,80 @@
+{% extends "clients/base.html" %}
+{% block title %}AI Document Extraction — {{ client.name }}{% endblock %}
+{% block topbar_title %}AI Document Extraction{% endblock %}
+{% block content %}<div style="max-width:900px">
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Upload a minute book, articles, register or resolution — AI extracts directors, shareholders, share classes and key details</p></div>
+<a href="{% url 'entity_detail' client.id %}" class="btn btn-ghost btn-sm">← Entity</a></div>
+
+{% if not api_configured %}
+<div class="alert alert-warning mb-3"><strong>Not configured:</strong> set the <code>ANTHROPIC_API_KEY</code> environment variable to enable AI extraction.</div>
+{% endif %}
+{% if upload_error %}<div class="alert alert-warning mb-3">{{ upload_error }}</div>{% endif %}
+
+<div class="card mb-3"><div class="card-header"><span class="card-title">Upload Document</span>
+<span style="font-size:12px;color:var(--ink-4)">PDF, PNG or JPG — scanned documents work too · max 10 MB</span></div>
+<div class="card-body"><form method="POST" enctype="multipart/form-data" onsubmit="document.getElementById('extractBtn').disabled=true;document.getElementById('extractBtn').textContent='Extracting… (may take a minute)'">
+{% csrf_token %}<input type="hidden" name="action" value="extract">
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+<input type="file" name="document" accept=".pdf,.png,.jpg,.jpeg" required class="form-control" style="max-width:380px">
+<button type="submit" id="extractBtn" class="btn btn-primary" {% if not api_configured %}disabled{% endif %}>✨ Extract with AI</button>
+</div></form></div></div>
+
+{% if latest %}
+<div class="card mb-3"><div class="card-header"><span class="card-title">Extracted from {{ latest.document_name }}</span>
+<form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="apply"><input type="hidden" name="extraction_id" value="{{ latest.id }}">
+<button type="submit" class="btn btn-primary btn-sm" onclick="return confirm('Apply this data to the entity records? Existing values are never overwritten — only gaps are filled and new people added.')">Apply to Records</button></form>
+</div>
+<div class="card-body">
+<div class="info-grid mb-3">
+<div class="info-card"><div class="info-label">Entity Name</div><div class="info-value" style="font-size:14px">{{ latest.extracted_data.entity_name|default:"—" }}</div></div>
+<div class="info-card"><div class="info-label">Jurisdiction</div><div class="info-value" style="font-size:14px">{{ latest.extracted_data.jurisdiction|default:"—" }}</div></div>
+<div class="info-card"><div class="info-label">Incorporated</div><div class="info-value" style="font-size:14px">{{ latest.extracted_data.incorporation_date|default:"—" }}</div></div>
+<div class="info-card"><div class="info-label">Business Number</div><div class="info-value" style="font-size:14px">{{ latest.extracted_data.business_number|default:"—" }}</div></div>
+<div class="info-card"><div class="info-label">Fiscal Year End</div><div class="info-value" style="font-size:14px">{{ latest.extracted_data.fiscal_year_end|default:"—" }}</div></div>
+<div class="info-card"><div class="info-label">Registered Address</div><div class="info-value" style="font-size:13px">{{ latest.extracted_data.registered_address|default:"—" }}</div></div>
+</div>
+
+{% if latest.extracted_data.directors %}
+<h3 style="font-size:14px;margin:14px 0 8px">Directors &amp; Officers ({{ latest.extracted_data.directors|length }})</h3>
+<table><thead><tr><th>Name</th><th>Officer Title</th><th>Appointed</th><th>Address</th></tr></thead><tbody>
+{% for d in latest.extracted_data.directors %}
+<tr><td><strong>{{ d.full_name }}</strong></td><td>{{ d.officer_title|default:"—" }}</td><td>{{ d.appointment_date|default:"—" }}</td><td style="font-size:12px">{{ d.address|default:"—" }}</td></tr>
+{% endfor %}</tbody></table>
+{% endif %}
+
+{% if latest.extracted_data.shareholders %}
+<h3 style="font-size:14px;margin:14px 0 8px">Shareholders ({{ latest.extracted_data.shareholders|length }})</h3>
+<table><thead><tr><th>Name</th><th>Class</th><th>Shares</th><th>Address</th></tr></thead><tbody>
+{% for s in latest.extracted_data.shareholders %}
+<tr><td><strong>{{ s.full_name }}</strong></td><td>{{ s.share_class|default:"—" }}</td><td>{{ s.num_shares }}</td><td style="font-size:12px">{{ s.address|default:"—" }}</td></tr>
+{% endfor %}</tbody></table>
+{% endif %}
+
+{% if latest.extracted_data.share_classes %}
+<h3 style="font-size:14px;margin:14px 0 8px">Share Classes ({{ latest.extracted_data.share_classes|length }})</h3>
+<table><thead><tr><th>Class</th><th>Voting</th><th>Rights &amp; Restrictions</th></tr></thead><tbody>
+{% for sc in latest.extracted_data.share_classes %}
+<tr><td><strong>{{ sc.name }}</strong></td><td>{% if sc.voting %}Yes{% else %}No{% endif %}</td><td style="font-size:12px">{{ sc.rights_restrictions|default:"—" }}</td></tr>
+{% endfor %}</tbody></table>
+{% endif %}
+
+{% if latest.extracted_data.notes %}
+<div class="alert alert-warning" style="margin-top:14px"><strong>AI notes:</strong> {{ latest.extracted_data.notes }}</div>
+{% endif %}
+</div></div>
+{% endif %}
+
+<div class="card"><div class="card-header"><span class="card-title">Extraction History</span></div>
+<div class="card-body" style="padding:0"><table>
+<thead><tr><th>Document</th><th>Date</th><th>Status</th><th></th></tr></thead>
+<tbody>
+{% for e in extractions %}
+<tr><td><strong>{{ e.document_name }}</strong>{% if e.error_message %}<div style="font-size:11px;color:var(--red)">{{ e.error_message }}</div>{% endif %}</td>
+<td>{{ e.created_at|date:"M d, Y H:i" }}</td>
+<td>{% if e.status == 'applied' %}<span class="badge badge-completed">Applied {{ e.applied_at|date:"M d" }}</span>{% elif e.status == 'completed' %}<span class="badge badge-in-progress">Ready to review</span>{% else %}<span class="badge badge-needs-attention">Failed</span>{% endif %}</td>
+<td><form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete"><input type="hidden" name="extraction_id" value="{{ e.id }}"><button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this extraction?')">✕</button></form></td></tr>
+{% empty %}
+<tr><td colspan="4"><div class="empty-state"><p>No extractions yet. Upload a corporate document above to get started.</p></div></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+</div>{% endblock %}

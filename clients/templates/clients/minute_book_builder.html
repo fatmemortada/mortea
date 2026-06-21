@@ -1,0 +1,451 @@
+{% extends "clients/base.html" %}
+{% block title %}Minute Book Builder — {{ client.name }} — Mortacc{% endblock %}
+{% block topbar_title %}Minute Book Builder{% endblock %}
+
+{% block extra_head %}
+<style>
+    .builder-shell { max-width: 1060px; }
+
+    /* ── Header strip ── */
+    .builder-header {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); padding: 22px 26px;
+        margin-bottom: 20px; display: flex; align-items: center;
+        justify-content: space-between; gap: 20px; flex-wrap: wrap;
+    }
+    .builder-client-info h2 {
+        font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 4px;
+    }
+    .builder-client-meta {
+        font-size: 12.5px; color: var(--ink-3); display: flex; gap: 14px; flex-wrap: wrap;
+    }
+    .builder-client-meta span { display: flex; align-items: center; gap: 5px; }
+    .meta-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+    .meta-dot.green { background: var(--green); }
+    .meta-dot.amber { background: var(--amber); }
+    .meta-dot.gray  { background: var(--ink-4); }
+
+    .builder-language {
+        display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+    }
+    .lang-btn {
+        padding: 7px 14px; border-radius: 6px; border: 1px solid var(--border);
+        background: var(--surface); font-size: 12.5px; font-weight: 500;
+        color: var(--ink-3); cursor: pointer; font-family: inherit;
+        transition: all .15s;
+    }
+    .lang-btn:hover { border-color: var(--brand-muted); color: var(--ink); }
+    .lang-btn.active { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); font-weight: 600; }
+
+    /* ── Preset bar ── */
+    .preset-bar {
+        display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+        align-items: center;
+    }
+    .preset-btn {
+        padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);
+        background: var(--surface); font-size: 12.5px; font-weight: 500;
+        color: var(--ink-2); cursor: pointer; font-family: inherit;
+        transition: all .15s; white-space: nowrap;
+    }
+    .preset-btn:hover { border-color: var(--brand-muted); color: var(--brand); background: var(--brand-soft); }
+    .preset-btn.primary { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .preset-btn.primary:hover { background: var(--brand-dark); }
+    .preset-btn.accent { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bg); }
+    .preset-btn.accent:hover { background: #fde68a; border-color: var(--amber); }
+    .preset-sep { width: 1px; height: 24px; background: var(--border); margin: 0 4px; }
+
+    /* ── Doc group cards ── */
+    .doc-group {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius-lg); margin-bottom: 14px; overflow: hidden;
+    }
+    .doc-group-header {
+        padding: 14px 20px; display: flex; align-items: center; gap: 10px;
+        cursor: pointer; user-select: none; transition: background .12s;
+        border-bottom: 1px solid transparent;
+    }
+    .doc-group-header:hover { background: var(--bg); }
+    .doc-group.open .doc-group-header { border-bottom-color: var(--border); }
+    .doc-group-arrow {
+        font-size: 10px; color: var(--ink-4); transition: transform .2s; flex-shrink: 0;
+    }
+    .doc-group.open .doc-group-arrow { transform: rotate(90deg); }
+    .doc-group-icon { font-size: 18px; flex-shrink: 0; }
+    .doc-group-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+    .doc-group-count { font-size: 11.5px; color: var(--ink-4); margin-left: auto; }
+    .doc-group-body { display: none; }
+    .doc-group.open .doc-group-body { display: block; }
+
+    .doc-list { padding: 6px 0; }
+    .doc-row {
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 20px; transition: background .1s;
+        border-bottom: 1px solid var(--border);
+    }
+    .doc-row:last-child { border-bottom: none; }
+    .doc-row:hover { background: var(--bg); }
+
+    /* Custom checkbox */
+    .doc-checkbox {
+        appearance: none; -webkit-appearance: none;
+        width: 18px; height: 18px; border: 2px solid var(--border);
+        border-radius: 4px; flex-shrink: 0; cursor: pointer;
+        position: relative; transition: all .12s;
+    }
+    .doc-checkbox:checked {
+        background: var(--brand); border-color: var(--brand);
+    }
+    .doc-checkbox:checked::after {
+        content: ''; position: absolute; left: 5px; top: 1px;
+        width: 5px; height: 10px; border: solid #fff;
+        border-width: 0 2px 2px 0; transform: rotate(45deg);
+    }
+    .doc-checkbox:disabled {
+        opacity: .35; cursor: not-allowed;
+    }
+
+    .doc-icon { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
+    .doc-name { font-size: 13.5px; font-weight: 500; color: var(--ink); flex: 1; }
+    .doc-name.disabled { color: var(--ink-4); }
+    .doc-readiness {
+        font-size: 11.5px; font-weight: 500; padding: 3px 9px; border-radius: 99px;
+        flex-shrink: 0;
+    }
+    .doc-readiness.ready { background: var(--green-bg); color: var(--green); }
+    .doc-readiness.missing { background: var(--red-bg); color: var(--red); }
+    .doc-preview {
+        font-size: 12px; color: var(--ink-4); text-decoration: none; padding: 4px 8px;
+        border-radius: 5px; transition: all .12s; flex-shrink: 0;
+    }
+    .doc-preview:hover { color: var(--brand); background: var(--brand-soft); }
+
+    /* ── Generate bar (sticky bottom) ── */
+    .generate-bar {
+        position: sticky; bottom: 20px; z-index: 50;
+        background: var(--ink); border-radius: var(--radius-lg);
+        padding: 16px 24px; display: flex; align-items: center;
+        gap: 14px; box-shadow: 0 8px 32px rgba(15,23,42,.25);
+        margin-top: 24px; flex-wrap: wrap;
+    }
+    .generate-count {
+        font-size: 13px; color: rgba(255,255,255,.5); flex-shrink: 0;
+    }
+    .generate-count strong { color: #fff; font-size: 18px; }
+    .generate-cta {
+        padding: 11px 24px; border-radius: 8px; font-size: 13.5px; font-weight: 600;
+        border: none; cursor: pointer; font-family: inherit; transition: all .15s;
+        white-space: nowrap;
+    }
+    .generate-cta.primary {
+        background: var(--brand); color: #fff;
+    }
+    .generate-cta.primary:hover { background: var(--brand-dark); box-shadow: 0 4px 12px rgba(37,99,235,.35); }
+    .generate-cta.secondary {
+        background: rgba(255,255,255,.08); color: rgba(255,255,255,.7);
+        border: 1px solid rgba(255,255,255,.12);
+    }
+    .generate-cta.secondary:hover { background: rgba(255,255,255,.14); color: #fff; }
+    .generate-cta:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Stats mini ── */
+    .builder-stats {
+        display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 20px;
+    }
+    .builder-stat {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius); padding: 14px 16px; text-align: center;
+    }
+    .builder-stat .bval { font-size: 22px; font-weight: 700; color: var(--ink); line-height: 1; }
+    .builder-stat .blbl { font-size: 11px; color: var(--ink-4); text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
+
+    /* ── No data banner ── */
+    .no-data-banner {
+        background: var(--amber-bg); border: 1px solid #fde68a;
+        border-radius: var(--radius-lg); padding: 18px 22px;
+        margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+        font-size: 13.5px; color: #92400e;
+    }
+    .no-data-banner a { color: #92400e; font-weight: 600; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+        .builder-stats { grid-template-columns: repeat(2,1fr); }
+        .builder-header { flex-direction: column; align-items: flex-start; }
+        .generate-bar { flex-direction: column; align-items: stretch; text-align: center; }
+    }
+</style>
+{% endblock %}
+
+{% block topbar_breadcrumb %}
+<nav class="topbar-breadcrumb">
+    <a href="{% url 'minute_books' %}" style="color:var(--ink-3);text-decoration:none;">Minute Books</a>
+    <span class="crumb-sep">/</span>
+    <span>{{ client.name }}</span>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="builder-shell">
+
+<!-- ═══ Header ═══ -->
+<div class="builder-header">
+    <div class="builder-client-info">
+        <h2>{{ client.name }}</h2>
+        <div class="builder-client-meta">
+            <span>
+                <span class="meta-dot {% if profile %}green{% else %}gray{% endif %}"></span>
+                {% if jurisdiction_display %}{{ jurisdiction_display }}{% else %}No corporate profile{% endif %}
+            </span>
+            <span>
+                <span class="meta-dot {% if director_count > 0 %}green{% else %}amber{% endif %}"></span>
+                {{ director_count }} director{{ director_count|pluralize }}
+            </span>
+            <span>
+                <span class="meta-dot {% if shareholder_count > 0 %}green{% else %}amber{% endif %}"></span>
+                {{ shareholder_count }} shareholder{{ shareholder_count|pluralize }}
+            </span>
+        </div>
+    </div>
+    <div class="builder-language">
+        <span style="font-size:11px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.6px;font-weight:600;">Language</span>
+        <button class="lang-btn active" data-lang="english" onclick="setLanguage('english')">EN</button>
+        <button class="lang-btn" data-lang="french" onclick="setLanguage('french')">FR</button>
+    </div>
+</div>
+
+<!-- ═══ Stats ═══ -->
+<div class="builder-stats">
+    <div class="builder-stat">
+        <div class="bval">{{ total_doc_types }}</div>
+        <div class="blbl">Document Types</div>
+    </div>
+    <div class="builder-stat">
+        <div class="bval" id="selectedCount">0</div>
+        <div class="blbl">Selected</div>
+    </div>
+    <div class="builder-stat">
+        <div class="bval" style="color:{% if profile %}#16a34a{% else %}#dc2626{% endif %};">
+            {% if can_generate %}✓{% else %}⚠{% endif %}
+        </div>
+        <div class="blbl">Status</div>
+    </div>
+    <div class="builder-stat">
+        <div class="bval">{{ director_count|add:shareholder_count }}</div>
+        <div class="blbl">People Records</div>
+    </div>
+</div>
+
+<!-- ═══ No data warning ═══ -->
+{% if not can_generate %}
+<div class="no-data-banner">
+    ⚠️ <span>This client needs a <strong>Corporate Profile</strong>, at least <strong>1 director</strong>, and at least <strong>1 shareholder</strong> before documents can be generated. <a href="{% url 'entity_detail' client.id %}">Set up corporate records →</a></span>
+</div>
+{% endif %}
+
+<!-- ═══ Presets ═══ -->
+<div class="preset-bar">
+    <button class="preset-btn primary" onclick="applyPreset('full')">📚 Full Minute Book</button>
+    <button class="preset-btn accent" onclick="applyPreset('banking')">🏦 Banking Package</button>
+    <span class="preset-sep"></span>
+    <button class="preset-btn" onclick="applyPreset('all')">Select All</button>
+    <button class="preset-btn" onclick="applyPreset('none')">Deselect All</button>
+</div>
+
+<!-- ═══ Document Groups ═══ -->
+<form id="builderForm" method="post" action="{% url 'pdf_selected_documents' client.id %}" target="_blank">
+{% csrf_token %}
+<input type="hidden" name="format" id="formatInput" value="pdf">
+
+{% for category, docs in categories.items %}
+<div class="doc-group open" id="group-{{ forloop.counter }}">
+    <div class="doc-group-header" onclick="toggleGroup('group-{{ forloop.counter }}')">
+        <span class="doc-group-arrow">▶</span>
+        <span class="doc-group-icon">
+            {% if category == 'Registers' %}📋
+            {% elif category == 'Governance' %}⚖️
+            {% elif category == 'Share Documents' %}📜
+            {% elif category == 'Meeting Documents' %}📅
+            {% elif category == 'Banking' %}🏦
+            {% else %}📄{% endif %}
+        </span>
+        <span class="doc-group-title">{{ category }}</span>
+        <span class="doc-group-count">{{ docs|length }} document{{ docs|length|pluralize }}</span>
+    </div>
+    <div class="doc-group-body">
+        <div class="doc-list">
+            {% for doc in docs %}
+            <div class="doc-row">
+                <input type="checkbox" class="doc-checkbox" name="docs"
+                       value="{{ doc.key }}" id="doc-{{ doc.key }}"
+                       {% if not doc.has_data %}disabled{% endif %}
+                       onchange="updateCount()">
+                <span class="doc-icon">
+                    {% if category == 'Registers' %}📋
+                    {% elif category == 'Governance' %}⚖️
+                    {% elif category == 'Share Documents' %}📜
+                    {% elif category == 'Meeting Documents' %}📅
+                    {% elif category == 'Banking' %}🏦
+                    {% else %}📄{% endif %}
+                </span>
+                <span class="doc-name {% if not doc.has_data %}disabled{% endif %}">{{ doc.name }}</span>
+                <span class="doc-readiness {% if doc.has_data %}ready{% else %}missing{% endif %}">
+                    {% if doc.has_data %}Ready{% else %}Needs data{% endif %}
+                </span>
+                {% if doc.has_data %}
+                <a href="{{ doc.preview_url }}" target="_blank" class="doc-preview" title="Preview PDF">👁 Preview</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Per-person documents — always in last group -->
+<div class="doc-group open" id="group-perperson">
+    <div class="doc-group-header" onclick="toggleGroup('group-perperson')">
+        <span class="doc-group-arrow">▶</span>
+        <span class="doc-group-icon">👤</span>
+        <span class="doc-group-title">Per-Person Documents</span>
+        <span class="doc-group-count">{{ director_count|add:shareholder_count }} document{{ director_count|add:shareholder_count|pluralize }}</span>
+    </div>
+    <div class="doc-group-body">
+        <div class="doc-list">
+            {% if has_share_certs %}
+            <div class="doc-row">
+                <input type="checkbox" class="doc-checkbox" name="docs"
+                       value="share_certificates" id="doc-share_certificates"
+                       onchange="updateCount()">
+                <span class="doc-icon">🏷️</span>
+                <span class="doc-name">Share Certificates ({{ shareholder_count }} shareholder{{ shareholder_count|pluralize }})</span>
+                <span class="doc-readiness ready">Ready</span>
+            </div>
+            {% else %}
+            <div class="doc-row">
+                <input type="checkbox" class="doc-checkbox" name="docs"
+                       value="share_certificates" id="doc-share_certificates" disabled>
+                <span class="doc-icon">🏷️</span>
+                <span class="doc-name disabled">Share Certificates</span>
+                <span class="doc-readiness missing">Needs shareholders</span>
+            </div>
+            {% endif %}
+
+            {% if has_consents %}
+            <div class="doc-row">
+                <input type="checkbox" class="doc-checkbox" name="docs"
+                       value="consent_directors" id="doc-consent_directors"
+                       onchange="updateCount()">
+                <span class="doc-icon">✍️</span>
+                <span class="doc-name">Consent to Act as Director ({{ director_count }} director{{ director_count|pluralize }})</span>
+                <span class="doc-readiness ready">Ready</span>
+            </div>
+            {% else %}
+            <div class="doc-row">
+                <input type="checkbox" class="doc-checkbox" name="docs"
+                       value="consent_directors" id="doc-consent_directors" disabled>
+                <span class="doc-icon">✍️</span>
+                <span class="doc-name disabled">Consent to Act as Director</span>
+                <span class="doc-readiness missing">Needs directors</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Generate Bar ═══ -->
+<div class="generate-bar">
+    <div class="generate-count">
+        <strong id="genCount">0</strong> documents selected
+    </div>
+    <div style="flex:1;"></div>
+    <button type="button" class="generate-cta secondary" onclick="generateDocs('zip')"
+            {% if not can_generate %}disabled{% endif %}>
+        📦 Download as ZIP
+    </button>
+    <button type="button" class="generate-cta primary" onclick="generateDocs('pdf')"
+            {% if not can_generate %}disabled{% endif %}>
+        📄 Generate Combined PDF
+    </button>
+</div>
+
+</form>
+
+</div><!-- /builder-shell -->
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Language state
+let currentLang = 'english';
+function setLanguage(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    // Update preview URLs to include language parameter
+    document.querySelectorAll('.doc-preview').forEach(link => {
+        const url = new URL(link.href);
+        // Preview URLs go directly to the individual PDF views
+        // Language is already handled by client.language on the server side
+        // For full bilingual support, we'd need separate URL params
+    });
+}
+
+// Group toggle
+function toggleGroup(groupId) {
+    document.getElementById(groupId).classList.toggle('open');
+}
+
+// Update selected count
+function updateCount() {
+    const checked = document.querySelectorAll('#builderForm .doc-checkbox:checked').length;
+    document.getElementById('selectedCount').textContent = checked;
+    document.getElementById('genCount').textContent = checked;
+}
+// Initial count
+updateCount();
+
+// Presets
+function applyPreset(presetType) {
+    const allCheckboxes = document.querySelectorAll('#builderForm .doc-checkbox:not(:disabled)');
+
+    if (presetType === 'full') {
+        // Full minute book: check everything
+        allCheckboxes.forEach(cb => cb.checked = true);
+    } else if (presetType === 'banking') {
+        // Banking package preset
+        allCheckboxes.forEach(cb => cb.checked = false);
+        const bankingKeys = ['banking_resolution', 'directors_register', 'officers_register',
+                              'bylaw_no1', 'share_certificates', 'consent_directors'];
+        bankingKeys.forEach(key => {
+            const cb = document.getElementById('doc-' + key);
+            if (cb && !cb.disabled) cb.checked = true;
+        });
+    } else if (presetType === 'all') {
+        allCheckboxes.forEach(cb => cb.checked = true);
+    } else if (presetType === 'none') {
+        allCheckboxes.forEach(cb => cb.checked = false);
+    }
+    updateCount();
+}
+
+// Generate
+function generateDocs(format) {
+    const checked = document.querySelectorAll('#builderForm .doc-checkbox:checked');
+    if (checked.length === 0) {
+        alert('Please select at least one document to generate.');
+        return;
+    }
+
+    if (format === 'zip' && checked.length > 30) {
+        if (!confirm('Generating ' + checked.length + ' documents as a ZIP. This may take a moment. Continue?')) {
+            return;
+        }
+    }
+
+    document.getElementById('formatInput').value = format;
+    document.getElementById('builderForm').submit();
+}
+</script>
+{% endblock %}

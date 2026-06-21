@@ -1,0 +1,128 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }} | Mortea</title>
+<meta name="description" content="{{ meta_desc }}">
+<meta property="og:title" content="{{ title }}"><meta property="og:description" content="{{ meta_desc }}"><meta property="og:type" content="website">
+<link rel="canonical" href="https://mortea.com/services/{{ service_slug }}/{{ city_slug }}/">
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"{{ service_info.name }} in {{ city }}","provider":{"@type":"LocalBusiness","name":"Mortea"},"areaServed":{"@type":"City","name":"{{ city }}"},"description":"{{ meta_desc }}"}</script>
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+.page { padding-top: 64px; background: var(--bg-warm); }
+.hero-seo { background: linear-gradient(135deg, var(--brand-dark), var(--brand)); color: #fff; padding: 64px 32px 56px; text-align: center; }
+.hero-seo h1 { font-family: 'Playfair Display', serif; font-size: clamp(32px,5vw,48px); font-weight: 600; margin-bottom: 12px; }
+.hero-seo .sub { font-size: 18px; opacity: .9; max-width: 640px; margin: 0 auto 24px; line-height: 1.6; }
+.hero-seo .cta { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--brand-dark); padding: 14px 32px; border-radius: var(--radius-full); font-weight: 600; text-decoration: none; font-size: 16px; transition: all .2s; }
+.hero-seo .cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+.container { max-width: 1120px; margin: 0 auto; padding: 48px 24px; }
+.section-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 24px; }
+.benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.benefit { text-align: center; padding: 24px 16px; border-radius: var(--radius); background: var(--bg-warm); border: 1px solid var(--border-light); }
+.benefit-icon { font-size: 32px; margin-bottom: 8px; }
+.benefit h4 { font-weight: 600; margin-bottom: 4px; }
+.benefit p { font-size: 13px; color: var(--ink-3); }
+
+.provider-card { display: flex; gap: 16px; padding: 16px; border: 1px solid var(--border-light); border-radius: var(--radius); margin-bottom: 12px; text-decoration: none; color: inherit; transition: all .2s; }
+.provider-card:hover { border-color: var(--brand-muted); box-shadow: var(--shadow); transform: translateY(-1px); }
+.pc-avatar { width: 80px; height: 80px; border-radius: var(--radius); background: var(--brand-light); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--brand); flex-shrink: 0; }
+.pc-info h4 { font-size: 17px; font-weight: 600; color: var(--ink); }
+.pc-info .stars { color: var(--star); font-size: 14px; }
+.pc-info .loc { font-size: 13px; color: var(--ink-3); }
+
+.result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.result-card { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; text-decoration: none; color: inherit; display: block; }
+.result-card:hover { box-shadow: var(--shadow); }
+.result-card .ba { display: grid; grid-template-columns: 1fr 1fr; height: 140px; }
+.result-card .ba-side { display: flex; align-items: center; justify-content: center; font-size: 28px; position: relative; }
+.result-card .ba-before { background: #f5f0ed; }
+.result-card .ba-after { background: #edf5f0; }
+.result-card .ba-label { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: var(--radius-full); background: rgba(0,0,0,.06); }
+.result-card .rc-body { padding: 10px 14px; font-size: 13px; }
+.result-card .rc-body .proc { font-weight: 600; color: var(--brand); }
+.result-card .rc-body .loc { color: var(--ink-3); }
+
+.faq-item { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light); }
+.faq-item h4 { font-weight: 600; margin-bottom: 4px; font-size: 15px; }
+.faq-item p { font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+.review-card { padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+.review-card:last-child { border-bottom: none; }
+.review-card .ra { font-weight: 600; }
+.review-card .rs { color: var(--star); font-size: 13px; }
+.review-card .rb { font-size: 14px; color: var(--ink-2); margin-top: 4px; }
+
+.related-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.related-links a { padding: 6px 16px; font-size: 13px; font-weight: 500; border-radius: var(--radius-full); border: 1px solid var(--border); color: var(--ink-2); text-decoration: none; }
+.related-links a:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-light); }
+@media (max-width:700px){ .benefits{grid-template-columns:1fr;} .result-grid{grid-template-columns:1fr 1fr;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="{% url 'results_gallery' %}" class="nav-link">Results</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+
+<div class="page">
+<section class="hero-seo">
+<h1>{{ title }}</h1>
+<p class="sub">{{ service_info.intro }}</p>
+<a href="{% url 'search_results' %}?q={{ service_info.name|urlencode }}&location={{ city|urlencode }}" class="cta">🔍 Find {{ service_info.name }} Providers in {{ city }}</a>
+</section>
+
+<div class="container">
+
+<!-- Benefits -->
+<div class="card"><h2 class="section-title">Why Choose {{ service_info.name }}?</h2>
+<div class="benefits">
+<div class="benefit"><div class="benefit-icon">🏆</div><h4>Top-Rated Providers</h4><p>Every provider is reviewed by real clients. Compare ratings and find the best.</p></div>
+<div class="benefit"><div class="benefit-icon">📸</div><h4>Before & After Photos</h4><p>See real results from real providers before you book.</p></div>
+<div class="benefit"><div class="benefit-icon">💰</div><h4>Transparent Pricing</h4><p>View service prices upfront. No surprises, no hidden fees.</p></div>
+</div></div>
+
+<!-- Providers -->
+<div class="card"><h2 class="section-title">{{ total_providers }} {{ service_info.name }} Provider{{ total_providers|pluralize }} in {{ city }}</h2>
+{% if providers %}
+{% for p in providers %}
+<a href="{% url 'provider_profile' p.slug %}" class="provider-card">
+<div class="pc-avatar">{{ p.name|slice:':1' }}</div>
+<div class="pc-info"><h4>{{ p.name }}</h4><div class="stars">★ {{ p.rating }} ({{ p.review_count }})</div><div class="loc">📍 {{ p.address }} · {{ p.phone }}</div></div>
+</a>{% endfor %}
+{% else %}<p style="color:var(--ink-3)">No providers found in {{ city }} yet. Be the first — <a href="/#for-professionals">list your business on Mortea</a>.</p>{% endif %}
+</div>
+
+<!-- Results -->
+{% if results %}
+<div class="card"><h2 class="section-title">Before & After — {{ service_info.name }}</h2>
+<div class="result-grid">
+{% for r in results|slice:':6' %}
+<a href="{% url 'provider_profile' r.provider.slug %}" class="result-card">
+<div class="ba"><div class="ba-side ba-before"><span class="ba-label">Before</span>📷</div><div class="ba-side ba-after"><span class="ba-label">After</span>✨</div></div>
+<div class="rc-body"><span class="proc">{{ r.provider.name }}</span> · <span class="loc">{{ r.date|date:"F Y" }}</span></div>
+</a>{% endfor %}</div></div>
+{% endif %}
+
+<!-- Reviews -->
+{% if reviews %}
+<div class="card"><h2 class="section-title">Client Reviews</h2>
+{% for r in reviews %}
+<div class="review-card"><span class="ra">{{ r.author_name }}</span> <span class="rs">★ {{ r.rating }}</span> — <span style="font-size:12px;color:var(--ink-4)">{{ r.provider.name }}</span><div class="rb">{{ r.body }}</div></div>
+{% endfor %}</div>
+{% endif %}
+
+<!-- FAQ -->
+<div class="card"><h2 class="section-title">Frequently Asked Questions</h2>
+<div class="faq-item"><h4>How much does {{ service_info.name|lower }} cost in {{ city }}?</h4><p>Prices vary by provider. Use Mortea to compare pricing across multiple providers in {{ city }}. Most {{ service_info.name|lower }} treatments range from $100 to $800+ depending on the provider and treatment area.</p></div>
+<div class="faq-item"><h4>How do I choose the best {{ service_info.name|lower }} provider?</h4><p>Look for providers with high ratings (4.5+), verified reviews, and before-and-after photos of their work on Mortea. You can also filter by location and compare services side by side.</p></div>
+<div class="faq-item"><h4>Can I book {{ service_info.name|lower }} through Mortea?</h4><p>Yes! Mortea lets you browse providers, compare their services, and submit booking requests directly. Find a provider you like, view their profile, and click "Book Now" to schedule your appointment.</p></div>
+</div>
+
+<!-- Internal Linking -->
+<div class="card"><h2 class="section-title">Explore More</h2>
+<h4 style="margin-bottom:10px;color:var(--ink-2)">Related Services in {{ city }}</h4>
+<div class="related-links">{% for slug, name in related_services %}<a href="{% url 'service_city' slug city_slug %}">{{ name }}</a>{% endfor %}</div>
+<h4 style="margin-top:16px;margin-bottom:10px;color:var(--ink-2)">{{ service_info.name }} in Other Cities</h4>
+<div class="related-links">{% for slug, name in related_cities %}<a href="{% url 'service_city' service_slug slug %}">{{ name }}</a>{% endfor %}</div>
+</div>
+</div></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>document.getElementById('hamburger')?.addEventListener('click',function(){this.classList.toggle('active')});window.addEventListener('scroll',function(){document.getElementById('topNav').classList.toggle('scrolled',window.scrollY>10)});</script>
+</body></html>

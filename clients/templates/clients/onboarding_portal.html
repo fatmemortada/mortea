@@ -1,0 +1,732 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Onboarding Portal{% if client %} — {{ client.name }}{% endif %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --navy:#2f2a26; --blue:#b8956a; --blue-light:#dbeafe; --blue-soft:#f8f2ea;
+            --teal:#0d9488; --teal-light:#ccfbf1; --green:#16a34a; --green-light:#dcfce7;
+            --amber:#d97706; --amber-light:#fef3c7; --red:#dc2626; --red-light:#fee2e2;
+            --purple:#7c3aed; --purple-light:#ede9fe;
+            --gray-50:#fdfbf8; --gray-100:#f6f1ea; --gray-200:#e9dfd2;
+            --gray-300:#d8cab8; --gray-400:#94a3b8; --gray-500:#7b6f64;
+            --gray-600:#475569; --gray-700:#4b4037; --gray-800:#1e293b; --gray-900:#2f2a26;
+            --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+            --shadow:0 4px 16px rgba(0,0,0,.08);
+            --radius:12px; --transition:150ms cubic-bezier(.4,0,.2,1);
+        }
+        html, body { height: 100%; }
+        body { font-family:'DM Sans',sans-serif; font-size:15px; color:var(--gray-800); background:var(--gray-50); line-height:1.6; }
+
+        /* ── Portal shell ── */
+        .portal-shell { display:flex; min-height:100vh; }
+
+        .portal-sidebar {
+            width: 280px;
+            background: var(--navy);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .portal-brand {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .portal-brand .wordmark {
+            font-family: 'DM Serif Display', serif;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .portal-brand .wordmark span { color: #d6b48a; }
+
+        .portal-brand .tagline {
+            font-size: 11px;
+            color: rgba(255,255,255,.4);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-top: 2px;
+        }
+
+        .portal-client-info {
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .portal-client-info .label {
+            font-size: 11px;
+            color: rgba(255,255,255,.4);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 4px;
+        }
+
+        .portal-client-info .name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .portal-client-info .email {
+            font-size: 12px;
+            color: rgba(255,255,255,.5);
+            margin-top: 2px;
+        }
+
+        /* Progress */
+        .sidebar-progress {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+
+        .sidebar-progress .prog-label {
+            font-size: 12px;
+            color: rgba(255,255,255,.5);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .prog-bar-track {
+            height: 6px;
+            background: rgba(255,255,255,.1);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .prog-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d6b48a, #34d399);
+            border-radius: 999px;
+            transition: width .5s ease;
+        }
+
+        /* Checklist */
+        .sidebar-checklist {
+            padding: 16px 24px;
+            flex: 1;
+        }
+
+        .sidebar-checklist .check-label {
+            font-size: 11px;
+            color: rgba(255,255,255,.4);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: 10px;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 0;
+            font-size: 13px;
+        }
+
+        .check-item.done { color: #34d399; }
+        .check-item.missing { color: rgba(255,255,255,.5); }
+
+        .check-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .check-icon.done { background: #34d399; color: var(--navy); }
+        .check-icon.missing { background: rgba(255,255,255,.12); color: rgba(255,255,255,.3); }
+
+        /* ── Main ── */
+        .portal-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+        .portal-topbar {
+            background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 0 32px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .portal-topbar .steps-nav {
+            display: flex;
+            gap: 4px;
+        }
+
+        .step-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1.5px solid var(--gray-200);
+            color: var(--gray-500);
+            background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+            transition: var(--transition);
+        }
+
+        .step-pill:hover { border-color: var(--blue); color: var(--blue); }
+        .step-pill.active { background: linear-gradient(135deg,#c7a27c,#b58b63); color: #fff; border-color: var(--blue); }
+        .step-pill.done { background: var(--green-light); color: var(--green); border-color: #86efac; }
+
+        .portal-content { padding: 32px; flex: 1; }
+
+        /* Step panels */
+        .step-panel { display: none; }
+        .step-panel.active { display: block; animation: fadeIn .2s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+        .step-heading {
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .step-heading h2 { font-size: 20px; font-weight: 600; color: var(--gray-900); }
+        .step-heading .step-desc { font-size: 14px; color: var(--gray-500); margin-top: 4px; }
+
+        .req-badge { padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap; }
+        .req-badge.required { background:var(--red-light);color:var(--red); }
+        .req-badge.optional { background:var(--blue-soft);color:var(--blue); }
+
+        /* Form */
+        .form-grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:18px; }
+        .form-full { grid-column:1/-1; }
+        .form-group { margin-bottom:18px; }
+        .form-label { display:block;font-size:13px;font-weight:500;color:var(--gray-700);margin-bottom:6px; }
+        .form-hint { font-size:12px;color:var(--gray-400);margin-top:4px; }
+        .form-control { width:100%;padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:8px;font-family:inherit;font-size:14px;color:var(--gray-800);background:#fff;transition:var(--transition);outline:none; }
+        .form-control:focus { border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+        textarea.form-control { min-height:90px;resize:vertical; }
+
+        /* File upload */
+        .file-upload-area {
+            border: 2px dashed var(--gray-200);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            background: var(--gray-50);
+        }
+        .file-upload-area:hover { border-color: var(--blue); background: var(--blue-soft); }
+        .file-upload-area input[type="file"] { position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%; }
+        .file-upload-area .upload-icon { font-size:24px;margin-bottom:6px; }
+        .file-upload-area .upload-text { font-size:13px;color:var(--gray-500); }
+        .file-upload-area .upload-text strong { color:var(--blue); }
+
+        /* Doc list */
+        .doc-list { margin-top:10px; }
+        .doc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: rgba(255,255,255,.92); backdrop-filter: blur(16px);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+        .doc-item a { font-size:13px;color:var(--blue);text-decoration:none;font-weight:500; }
+        .doc-item a:hover { text-decoration:underline; }
+        .doc-item .doc-meta { font-size:11px;color:var(--gray-400);margin-top:2px; }
+        .doc-item .doc-delete { background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:16px;padding:2px 6px;border-radius:4px; }
+        .doc-item .doc-delete:hover { background:var(--red-light);color:var(--red); }
+
+        /* Nav row */
+        .nav-row { display:flex;justify-content:space-between;gap:12px;margin-top:28px;padding-top:20px;border-top:1px solid var(--gray-100); }
+        .btn { display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:8px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:var(--transition);text-decoration:none;white-space:nowrap; }
+        .btn-primary { background:var(--blue);color:#fff; }
+        .btn-primary:hover { background:#1d4ed8; }
+        .btn-ghost { background:transparent;color:var(--gray-600);border:1.5px solid var(--gray-200); }
+        .btn-ghost:hover { background:var(--gray-100); }
+        .btn-success { background:var(--green);color:#fff;padding:12px 28px;font-size:15px; }
+        .btn-success:hover { background:#15803d; }
+        .btn-danger-sm { background:none;border:none;cursor:pointer;color:var(--red);font-size:12px;padding:3px 8px;border-radius:5px; }
+        .btn-danger-sm:hover { background:var(--red-light); }
+
+        /* Alerts */
+        .alert { padding:12px 16px;border-radius:8px;font-size:14px;margin-bottom:20px;display:flex;align-items:flex-start;gap:10px; }
+        .alert-success { background:var(--green-light);color:#15803d;border:1px solid #bbf7d0; }
+        .alert-warning { background:var(--amber-light);color:#92400e;border:1px solid #fde68a; }
+        .alert-locked { background:var(--blue-soft);color:#1e40af;border:1px solid #bfdbfe; }
+
+        /* Review box */
+        .review-card { background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:18px;margin-bottom:16px; }
+        .review-card h4 { font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500);margin-bottom:12px; }
+        .review-row { display:flex;gap:8px;font-size:14px;padding:5px 0;border-bottom:1px solid var(--gray-100); }
+        .review-row:last-child { border-bottom:none; }
+        .review-key { color:var(--gray-500);width:160px;flex-shrink:0; }
+        .review-val { color:var(--gray-800);font-weight:500; }
+        .file-present { color:var(--green);font-weight:600; }
+        .file-missing { color:var(--red); }
+
+        /* Mobile */
+        @media (max-width: 900px) {
+            .portal-sidebar { display:none; }
+            .portal-topbar { padding:0 16px; }
+            .steps-nav { gap:2px; overflow-x:auto; }
+            .step-pill { padding:5px 10px;font-size:11px; }
+            .portal-content { padding:20px 16px; }
+            .form-grid-2 { grid-template-columns:1fr; }
+            .step-heading { flex-direction:column;gap:8px; }
+        }
+
+        .inline-form { display:inline; }
+    </style>
+</head>
+<body>
+<div class="portal-shell">
+
+    <!-- Sidebar -->
+    <aside class="portal-sidebar">
+        <div class="portal-brand">
+            <div class="wordmark">Mort<span>acc</span></div>
+            <div class="tagline">Client Portal</div>
+        </div>
+
+        {% if client %}
+        <div class="portal-client-info">
+            <div class="label">You are</div>
+            <div class="name">{{ client.name }}</div>
+            <div class="email">{{ client.email }}</div>
+        </div>
+        {% endif %}
+
+        <div class="sidebar-progress">
+            <div class="prog-label">
+                <span>Progress</span>
+                <span>{{ completed }}/{{ total }} complete</span>
+            </div>
+            <div class="prog-bar-track">
+                <div class="prog-bar-fill" style="width:{{ progress }}%"></div>
+            </div>
+        </div>
+
+        <div class="sidebar-checklist">
+            <div class="check-label">Required Items</div>
+
+            {% with checks="Legal full name,Phone number,Address,Business name,Business number,Service needed,ID document,Tax document,Bank document" %}
+            {% for item in checks|split:"," %}
+            {% if item in missing_items %}
+            <div class="check-item missing">
+                <div class="check-icon missing">○</div>
+                {{ item }}
+            </div>
+            {% else %}
+            <div class="check-item done">
+                <div class="check-icon done">✓</div>
+                {{ item }}
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% endwith %}
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="portal-main">
+
+        <!-- Top nav -->
+        <header class="portal-topbar">
+            <div class="steps-nav">
+                <div class="step-pill {% if current_step == 1 %}active{% elif current_step > 1 %}done{% endif %}" data-step="1" onclick="goToStep(1)">1. Personal</div>
+                <div class="step-pill {% if current_step == 2 %}active{% elif current_step > 2 %}done{% endif %}" data-step="2" onclick="goToStep(2)">2. Business</div>
+                <div class="step-pill {% if current_step == 3 %}active{% elif current_step > 3 %}done{% endif %}" data-step="3" onclick="goToStep(3)">3. Identity</div>
+                <div class="step-pill {% if current_step == 4 %}active{% elif current_step > 4 %}done{% endif %}" data-step="4" onclick="goToStep(4)">4. Tax</div>
+                <div class="step-pill {% if current_step == 5 %}active{% elif current_step > 5 %}done{% endif %}" data-step="5" onclick="goToStep(5)">5. Banking</div>
+                <div class="step-pill {% if current_step == 6 %}active{% endif %}" data-step="6" onclick="goToStep(6)">6. Review</div>
+            </div>
+            {% if client %}
+            <div style="font-size:13px;color:var(--gray-500);">
+                {% if client.status == "in_review" %}
+                    <span style="background:var(--purple-light);color:var(--purple);padding:4px 10px;border-radius:20px;font-weight:500;font-size:12px;">● Submitted — In Review</span>
+                {% elif client.status == "in_progress" %}
+                    <span style="background:var(--amber-light);color:var(--amber);padding:4px 10px;border-radius:20px;font-weight:500;font-size:12px;">● In Progress</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </header>
+
+        <div class="portal-content">
+
+            {% if success_message %}
+            <div class="alert alert-success">✓ {{ success_message }}</div>
+            {% endif %}
+
+            {% if not can_edit_uploads %}
+            <div class="alert alert-locked">
+                Your onboarding package has been submitted. You can review your information below, but uploads are locked. Contact your accountant if changes are needed.
+            </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="next_step" id="ns" value="">
+
+                <!-- Step 1: Personal -->
+                {% if current_step == 1 %}<div id="step-1" class="step-panel active">{% else %}<div id="step-1" class="step-panel">{% endif %}
+                    <div class="step-heading">
+                        <div>
+                            <h2>Personal Information</h2>
+                            <div class="step-desc">Your accountant needs these details to identify you and prepare your file.</div>
+                        </div>
+                        <span class="req-badge required">Required</span>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group form-full">
+                            <label class="form-label">Legal Full Name</label>
+                            <input type="text" name="legal_full_name" class="form-control" value="{{ submission.legal_full_name|default:'' }}" placeholder="As it appears on your government ID" {% if not can_edit_uploads %}disabled{% endif %}>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="text" name="phone_number" class="form-control" value="{{ submission.phone_number|default:'' }}" placeholder="(514) 555-0100" {% if not can_edit_uploads %}disabled{% endif %}>
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">Home Address</label>
+                            <textarea name="address" class="form-control" placeholder="Street, City, Province, Postal Code" {% if not can_edit_uploads %}disabled{% endif %}>{{ submission.address|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="nav-row">
+                        <span></span>
+                        <button type="submit" name="save_draft" value="step2" class="btn btn-primary">Save &amp; Continue →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Business -->
+                {% if current_step == 2 %}<div id="step-2" class="step-panel active">{% else %}<div id="step-2" class="step-panel">{% endif %}
+                    <div class="step-heading">
+                        <div>
+                            <h2>Business Information</h2>
+                            <div class="step-desc">Tell us about your business so we can prepare the right services.</div>
+                        </div>
+                        <span class="req-badge required">Required</span>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Business Name</label>
+                            <input type="text" name="business_name" class="form-control" value="{{ submission.business_name|default:'' }}" placeholder="Legal business name" {% if not can_edit_uploads %}disabled{% endif %}>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Business Number (CRA)</label>
+                            <input type="text" name="business_number" class="form-control" value="{{ submission.business_number|default:'' }}" placeholder="9 digits, e.g. 123456789" {% if not can_edit_uploads %}disabled{% endif %}>
+                            <div class="form-hint">Your CRA Business Number. Leave blank if you don't have one yet.</div>
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">Services Needed</label>
+                            <input type="text" name="service_needed" class="form-control" value="{{ submission.service_needed|default:'' }}" placeholder="e.g. Corporate tax, bookkeeping, HST filing…" {% if not can_edit_uploads %}disabled{% endif %}>
+                        </div>
+                        <div class="form-group form-full">
+                            <label class="form-label">Additional Notes</label>
+                            <textarea name="notes" class="form-control" placeholder="Anything else you'd like your accountant to know" {% if not can_edit_uploads %}disabled{% endif %}>{{ submission.notes|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="nav-row">
+                        <button type="button" class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
+                        <button type="submit" name="save_draft" value="step3" class="btn btn-primary">Save &amp; Continue →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Identity -->
+                {% if current_step == 3 %}<div id="step-3" class="step-panel active">{% else %}<div id="step-3" class="step-panel">{% endif %}
+                    <div class="step-heading">
+                        <div>
+                            <h2>Identity Documents</h2>
+                            <div class="step-desc">Upload a government-issued photo ID. A passport, driver's licence, or PR card works.</div>
+                        </div>
+                        <span class="req-badge required">Required</span>
+                    </div>
+
+                    {% if can_edit_uploads %}
+                    <div class="form-group">
+                        <label class="form-label">Primary ID Document</label>
+                        <div class="file-upload-area">
+                            <input type="file" name="id_document" accept=".pdf,.jpg,.jpeg,.png">
+                            <div class="upload-icon">📎</div>
+                            <div class="upload-text"><strong>Click to upload</strong> or drag and drop<br>PDF, JPG, PNG accepted</div>
+                        </div>
+                        {% if submission.id_document %}
+                        <div class="doc-list">
+                            <div class="doc-item">
+                                <div><a href="{{ submission.id_document.url }}" target="_blank">Current ID document</a><div class="doc-meta">Previously uploaded</div></div>
+                                <a href="?remove=id_document" class="doc-delete" title="Remove" onclick="return confirm('Remove this file?')">✕</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Additional Identity Files <span style="color:var(--gray-400);font-weight:400">(optional)</span></label>
+                        <div class="file-upload-area">
+                            <input type="file" name="identity_files" multiple accept=".pdf,.jpg,.jpeg,.png">
+                            <div class="upload-icon">📂</div>
+                            <div class="upload-text"><strong>Upload multiple files</strong> if needed</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if identity_documents %}
+                    <div class="doc-list">
+                        {% for doc in identity_documents %}
+                        <div class="doc-item">
+                            <div><a href="{{ doc.file.url }}" target="_blank">{{ doc.document_name }}</a><div class="doc-meta">Uploaded by {{ doc.get_uploaded_by_display }}</div></div>
+                            {% if can_edit_uploads %}
+                            <a href="?delete_doc={{ doc.id }}" class="doc-delete" onclick="return confirm('Delete this file?')">✕</a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="nav-row">
+                        <button type="button" class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
+                        <button type="submit" name="save_draft" value="step4" class="btn btn-primary">Save &amp; Continue →</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Tax -->
+                {% if current_step == 4 %}<div id="step-4" class="step-panel active">{% else %}<div id="step-4" class="step-panel">{% endif %}
+                    <div class="step-heading">
+                        <div>
+                            <h2>Tax Documents</h2>
+                            <div class="step-desc">Upload your most recent T4, T1 General, or Notice of Assessment from the CRA.</div>
+                        </div>
+                        <span class="req-badge required">Required</span>
+                    </div>
+
+                    {% if can_edit_uploads %}
+                    <div class="form-group">
+                        <label class="form-label">Primary Tax Document</label>
+                        <div class="file-upload-area">
+                            <input type="file" name="tax_document" accept=".pdf,.jpg,.jpeg,.png">
+                            <div class="upload-icon">📄</div>
+                            <div class="upload-text"><strong>Click to upload</strong> or drag and drop<br>T4, T1, NOA, or other tax forms</div>
+                        </div>
+                        {% if submission.tax_document %}
+                        <div class="doc-list">
+                            <div class="doc-item">
+                                <div><a href="{{ submission.tax_document.url }}" target="_blank">Current tax document</a></div>
+                                <a href="?remove=tax_document" class="doc-delete" onclick="return confirm('Remove this file?')">✕</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Additional Tax Files <span style="color:var(--gray-400);font-weight:400">(optional)</span></label>
+                        <div class="file-upload-area">
+                            <input type="file" name="tax_files" multiple>
+                            <div class="upload-icon">📂</div>
+                            <div class="upload-text"><strong>Upload multiple years</strong> or multiple documents</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if tax_documents %}
+                    <div class="doc-list">
+                        {% for doc in tax_documents %}
+                        <div class="doc-item">
+                            <div><a href="{{ doc.file.url }}" target="_blank">{{ doc.document_name }}</a><div class="doc-meta">{{ doc.get_uploaded_by_display }}</div></div>
+                            {% if can_edit_uploads %}<a href="?delete_doc={{ doc.id }}" class="doc-delete" onclick="return confirm('Delete this file?')">✕</a>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="nav-row">
+                        <button type="button" class="btn btn-ghost" onclick="goToStep(3)">← Back</button>
+                        <button type="submit" name="save_draft" value="step5" class="btn btn-primary">Save &amp; Continue →</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Banking -->
+                {% if current_step == 5 %}<div id="step-5" class="step-panel active">{% else %}<div id="step-5" class="step-panel">{% endif %}
+                    <div class="step-heading">
+                        <div>
+                            <h2>Banking &amp; Other Documents</h2>
+                            <div class="step-desc">Upload a void cheque or recent bank statement. You can also add minute book files here.</div>
+                        </div>
+                        <span class="req-badge required">Banking required</span>
+                    </div>
+
+                    {% if can_edit_uploads %}
+                    <div class="form-group">
+                        <label class="form-label">Primary Bank Document</label>
+                        <div class="file-upload-area">
+                            <input type="file" name="bank_document" accept=".pdf,.jpg,.jpeg,.png">
+                            <div class="upload-icon">🏦</div>
+                            <div class="upload-text"><strong>Void cheque or bank statement</strong></div>
+                        </div>
+                        {% if submission.bank_document %}
+                        <div class="doc-list">
+                            <div class="doc-item">
+                                <div><a href="{{ submission.bank_document.url }}" target="_blank">Current bank document</a></div>
+                                <a href="?remove=bank_document" class="doc-delete" onclick="return confirm('Remove this file?')">✕</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Additional Banking Files <span style="color:var(--gray-400);font-weight:400">(optional)</span></label>
+                        <div class="file-upload-area">
+                            <input type="file" name="banking_files" multiple>
+                            <div class="upload-icon">📂</div>
+                            <div class="upload-text"><strong>Upload more</strong> banking documents</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Other Supporting Documents <span style="color:var(--gray-400);font-weight:400">(optional)</span></label>
+                        <div class="file-upload-area">
+                            <input type="file" name="other_files" multiple>
+                            <div class="upload-icon">📁</div>
+                            <div class="upload-text">Anything that doesn't fit the other categories</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Minute Book / Incorporation Documents <span style="color:var(--gray-400);font-weight:400">(optional)</span></label>
+                        <div class="file-upload-area">
+                            <input type="file" name="minute_book_files" multiple>
+                            <div class="upload-icon">📋</div>
+                            <div class="upload-text">Articles of incorporation, bylaws, resolutions, share certificates</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% for doc in banking_documents %}
+                    <div class="doc-item">
+                        <div><a href="{{ doc.file.url }}" target="_blank">{{ doc.document_name }}</a></div>
+                        {% if can_edit_uploads %}<a href="?delete_doc={{ doc.id }}" class="doc-delete" onclick="return confirm('Delete this file?')">✕</a>{% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="nav-row">
+                        <button type="button" class="btn btn-ghost" onclick="goToStep(4)">← Back</button>
+                        <button type="submit" name="save_draft" value="step6" class="btn btn-primary">Save &amp; Review →</button>
+                    </div>
+                </div>
+
+                <!-- Step 6: Review -->
+                {% if current_step == 6 %}<div id="step-6" class="step-panel active">{% else %}<div id="step-6" class="step-panel">{% endif %}
+                    <div class="step-heading">
+                        <div>
+                            <h2>Review &amp; Submit</h2>
+                            <div class="step-desc">Check everything looks correct, then submit your package to your accountant.</div>
+                        </div>
+                        <span class="req-badge optional">Final step</span>
+                    </div>
+
+                    <div class="review-card">
+                        <h4>Personal Information</h4>
+                        <div class="review-row"><span class="review-key">Legal Full Name</span><span class="review-val">{{ submission.legal_full_name|default:"—" }}</span></div>
+                        <div class="review-row"><span class="review-key">Phone</span><span class="review-val">{{ submission.phone_number|default:"—" }}</span></div>
+                        <div class="review-row"><span class="review-key">Address</span><span class="review-val">{{ submission.address|default:"—" }}</span></div>
+                    </div>
+
+                    <div class="review-card">
+                        <h4>Business Information</h4>
+                        <div class="review-row"><span class="review-key">Business Name</span><span class="review-val">{{ submission.business_name|default:"—" }}</span></div>
+                        <div class="review-row"><span class="review-key">Business Number</span><span class="review-val">{{ submission.business_number|default:"—" }}</span></div>
+                        <div class="review-row"><span class="review-key">Services Needed</span><span class="review-val">{{ submission.service_needed|default:"—" }}</span></div>
+                        <div class="review-row"><span class="review-key">Notes</span><span class="review-val">{{ submission.notes|default:"—" }}</span></div>
+                    </div>
+
+                    <div class="review-card">
+                        <h4>Documents</h4>
+                        <div class="review-row"><span class="review-key">ID Document</span><span class="review-val {% if submission.id_document %}file-present{% else %}file-missing{% endif %}">{% if submission.id_document %}✓ Uploaded{% else %}✗ Missing{% endif %}</span></div>
+                        <div class="review-row"><span class="review-key">Tax Document</span><span class="review-val {% if submission.tax_document %}file-present{% else %}file-missing{% endif %}">{% if submission.tax_document %}✓ Uploaded{% else %}✗ Missing{% endif %}</span></div>
+                        <div class="review-row"><span class="review-key">Bank Document</span><span class="review-val {% if submission.bank_document %}file-present{% else %}file-missing{% endif %}">{% if submission.bank_document %}✓ Uploaded{% else %}✗ Missing{% endif %}</span></div>
+                        <div class="review-row"><span class="review-key">Additional Files</span><span class="review-val">{{ identity_documents|length|add:tax_documents|length|add:banking_documents|length|add:other_documents|length }} files</span></div>
+                        <div class="review-row"><span class="review-key">Minute Book</span><span class="review-val">{{ minute_book_documents|length }} files</span></div>
+                    </div>
+
+                    {% if missing_items %}
+                    <div class="alert alert-warning">
+                        <div>
+                            <strong>Some required items are still missing:</strong>
+                            {% for item in missing_items %}<div>• {{ item }}</div>{% endfor %}
+                            <div style="margin-top:8px;">You can still submit — your accountant will follow up on anything outstanding.</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="nav-row">
+                        <button type="button" class="btn btn-ghost" onclick="goToStep(5)">← Back</button>
+                        {% if can_edit_uploads %}
+                        <div style="display:flex;gap:10px;">
+                            <button type="submit" name="save_draft" class="btn btn-ghost">Save Draft</button>
+                            <button type="submit" name="submit_final" class="btn btn-success" onclick="return confirm('Submit your onboarding package? Your accountant will be notified.')">
+                                Submit Package ✓
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </form>
+        </div><!-- /portal-content -->
+    </div><!-- /portal-main -->
+</div><!-- /portal-shell -->
+
+<script>
+// Current step is set by Django server-side - read from active pill
+let currentStep = parseInt(document.querySelector('.step-pill.active')?.dataset.step || '1');
+
+function goToStep(n) {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.step-pill').forEach(p => {
+        const sn = parseInt(p.dataset.step);
+        p.classList.remove('active', 'done');
+        if (sn === n) p.classList.add('active');
+        else if (sn < n) p.classList.add('done');
+    });
+    document.getElementById('step-' + n).classList.add('active');
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Show filename when file chosen
+document.querySelectorAll('.file-upload-area').forEach(area => {
+    const input = area.querySelector('input[type="file"]');
+    if (!input) return;
+    input.addEventListener('change', () => {
+        const names = Array.from(input.files).map(f => f.name).join(', ');
+        const txt = area.querySelector('.upload-text');
+        if (names && txt) txt.innerHTML = `<strong>${names}</strong>`;
+    });
+});
+</script>
+</body>
+</html>

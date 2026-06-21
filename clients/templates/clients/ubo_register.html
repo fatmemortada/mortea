@@ -1,0 +1,43 @@
+{% extends "clients/base.html" %}
+{% block title %}UBO Register — {{ client.name }}{% endblock %}
+{% block topbar_title %}UBO Register{% endblock %}
+{% block content %}<div style="max-width:800px">
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Ultimate Beneficial Ownership Register — individuals with 25%+ ownership or control</p></div>
+<a href="{% url 'ubo_export_pdf' client.id %}" class="btn btn-ghost btn-sm">Export PDF</a></div>
+
+{% if suggested_ubos %}
+<div class="alert alert-warning mb-3">
+    <strong>Suggested UBOs:</strong> These shareholders own 25%+ but aren't in the UBO register yet.
+    {% for s in suggested_ubos %}<br>• {{ s.name }} ({{ s.pct }}%){% endfor %}
+</div>
+{% endif %}
+
+<div class="card mb-3"><div class="card-header"><span class="card-title">UBO Records</span>
+<form method="POST" style="display:inline">{% csrf_token %}<button type="submit" name="verify_all" class="btn btn-ghost btn-sm">Verify All ({{ today|date:"M d" }})</button></form>
+</div>
+<div class="card-body" style="padding:0"><table>
+<thead><tr><th>Name</th><th>Ownership %</th><th>Control</th><th>Residence</th><th>Verified</th><th></th></tr></thead>
+<tbody>
+{% for r in records %}
+<tr><td><strong>{{ r.full_name }}</strong></td><td>{{ r.ownership_percentage }}%</td><td>{{ r.get_control_type_display }}</td><td>{{ r.jurisdiction_of_residence|default:"—" }}</td><td>{{ r.last_verified_at|date:"M d, Y"|default:"—" }}</td>
+<td><form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="ubo_id" value="{{ r.id }}"><button type="submit" name="delete_ubo" class="btn btn-danger btn-sm" onclick="return confirm('Remove?')">✕</button></form></td></tr>
+{% empty %}
+<tr><td colspan="6"><div class="empty-state"><p>No UBO records yet. Add below or check suggested UBOs above.</p></div></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+
+<div class="card"><div class="card-header"><span class="card-title">Add UBO</span></div>
+<div class="card-body"><form method="POST">{% csrf_token %}
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Full Name *</label><input type="text" name="full_name" class="form-control" required></div>
+<div class="form-group"><label class="form-label">Ownership % *</label><input type="number" name="ownership_percentage" class="form-control" step="0.01" min="25" max="100" required></div>
+<div class="form-group"><label class="form-label">Date of Birth</label><input type="date" name="date_of_birth" class="form-control"></div>
+<div class="form-group"><label class="form-label">Jurisdiction of Residence</label><input type="text" name="jurisdiction_of_residence" class="form-control" placeholder="Canada"></div>
+<div class="form-group form-full"><label class="form-label">Address</label><input type="text" name="address" class="form-control"></div>
+<div class="form-group"><label class="form-label">Control Type</label>
+<select name="control_type" class="form-control"><option value="ownership">Direct Ownership</option><option value="indirect">Indirect Control</option><option value="both">Both</option></select></div>
+<div class="form-group"><label class="form-label">Notes</label><input type="text" name="notes" class="form-control"></div>
+</div>
+<button type="submit" name="add_ubo" class="btn btn-primary">Add UBO</button>
+</form></div></div>
+</div>{% endblock %}

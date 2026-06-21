@@ -1,0 +1,65 @@
+{% extends "clients/base.html" %}
+{% block title %}AI Documents — Mortacc{% endblock %}
+{% block nav_ai %}active{% endblock %}
+{% block topbar_title %}AI Document Suite{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'ai_document_create' %}" class="btn btn-primary">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        New Document
+    </a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .doc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; }
+    .doc-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; transition:var(--transition); }
+    .doc-card:hover { border-color:var(--brand-muted); box-shadow:var(--shadow-sm); }
+    .doc-type { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--brand); font-weight:600; margin-bottom:4px; }
+    .doc-title { font-size:14px; font-weight:600; color:var(--ink); margin-bottom:6px; }
+    .doc-meta { font-size:11px; color:var(--ink-4); display:flex; gap:12px; }
+    .doc-status { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:99px; }
+    .doc-status.draft { background:var(--amber-bg); color:var(--amber); }
+    .doc-status.generated { background:var(--brand-soft); color:var(--brand); }
+    .doc-status.reviewed { background:var(--purple-bg); color:var(--purple); }
+    .doc-status.final { background:var(--green-bg); color:var(--green); }
+    .doc-status.error { background:var(--red-bg); color:var(--red); }
+    .doc-actions { display:flex; gap:6px; margin-top:12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 style="font-size:18px;font-weight:700;margin:0;">AI-Generated Corporate Documents</h2>
+    <p style="color:var(--ink-3);font-size:13px;margin:4px 0 0;">Generate Articles of Incorporation, amalgamation agreements, estate freeze packages, and more</p>
+</div>
+
+{% if documents %}
+<div class="doc-grid">
+    {% for doc in documents %}
+    <div class="doc-card">
+        <div class="doc-type">{{ doc.get_document_type_display }}</div>
+        <div class="doc-title">{{ doc.title }}</div>
+        <div class="doc-meta">
+            <span>{{ doc.client.name }}</span>
+            <span>{{ doc.created_at|date:"M d, Y" }}</span>
+            <span>${{ doc.document_fee|floatformat:2 }}</span>
+        </div>
+        <span class="doc-status {{ doc.status }}">{{ doc.get_status_display }}</span>
+        <div class="doc-actions">
+            <a href="{% url 'ai_document_detail' doc.id %}" class="btn btn-ghost btn-sm">View</a>
+            {% if doc.invoice %}
+            <a href="{% url 'pdf_invoice' doc.client.id doc.invoice.id %}" class="btn btn-ghost btn-sm">Invoice</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--ink-4)" stroke-width="1.5"><path d="M9 12h6m-3-3v6m-7 4V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+    <p style="margin-top:12px;font-size:15px;font-weight:500;color:var(--ink-3);">No AI documents yet</p>
+    <p style="font-size:13px;color:var(--ink-4);">Generate corporate documents using Claude AI. Start with your first document above.</p>
+    <a href="{% url 'ai_document_create' %}" class="btn btn-primary" style="margin-top:12px;">Generate First Document</a>
+</div>
+{% endif %}
+{% endblock %}

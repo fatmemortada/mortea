@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — {{ provider.name }} | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.panel { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: start; }
+.sidebar { display: flex; flex-direction: column; gap: 4px; position: sticky; top: 88px; }
+.sidebar a { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; color: var(--ink-2); text-decoration: none; transition: all .15s; }
+.sidebar a:hover, .sidebar a.active { background: var(--brand-light); color: var(--brand-dark); }
+.sidebar a .si { font-size: 16px; width: 24px; text-align: center; }
+.main { display: flex; flex-direction: column; gap: 24px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; box-shadow: var(--shadow-sm); }
+.card h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 14px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; text-align: center; }
+.stat-val { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; color: var(--brand); line-height: 1; }
+.stat-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); margin-top: 6px; }
+.row-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-light); }
+.row-item:last-child { border-bottom: none; }
+.row-left { font-size: 14px; font-weight: 500; color: var(--ink); }
+.row-right { font-size: 13px; color: var(--ink-3); }
+.badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 3px 10px; border-radius: var(--radius-full); }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-confirmed { background: #dcfce7; color: #166534; }
+.view-link { font-size: 13px; font-weight: 500; color: var(--brand); text-decoration: none; }
+.view-link:hover { text-decoration: underline; }
+@media (max-width:700px){ .panel{grid-template-columns:1fr;} .sidebar{position:static;flex-direction:row;overflow-x:auto;gap:2px;} .stats{grid-template-columns:1fr 1fr;} }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="/#categories" class="nav-link">Find Services</a><a href="/#for-professionals" class="nav-link">For Professionals</a><a href="/#about" class="nav-link">About</a><a href="{% url 'choose_login' %}" class="nav-link">Login</a></div></div></nav>
+<div class="page"><div class="panel">
+<div class="sidebar">
+<a href="{% url 'owner_dashboard' provider.slug %}" class="active"><span class="si">📊</span> Overview</a>
+<a href="{% url 'owner_edit_profile' provider.slug %}"><span class="si">✏️</span> Edit Profile</a>
+<a href="{% url 'owner_services' provider.slug %}"><span class="si">💰</span> Services</a>
+<a href="{% url 'owner_photos' provider.slug %}"><span class="si">📸</span> Photos & Videos</a>
+<a href="{% url 'owner_social' provider.slug %}"><span class="si">📱</span> Social Links</a>
+<a href="{% url 'owner_bookings' provider.slug %}"><span class="si">📋</span> Bookings</a>
+<a href="{% url 'owner_analytics' provider.slug %}"><span class="si">📈</span> Analytics</a>
+<a href="{% url 'owner_results' provider.slug %}"><span class="si">🔄</span> Results</a>
+<a href="{% url 'provider_profile' provider.slug %}" target="_blank"><span class="si">👁</span> View Profile</a>
+</div>
+<div class="main">
+<h1>{{ provider.name }}</h1>
+<div class="stats">
+<div class="stat"><div class="stat-val">{{ provider.rating }}</div><div class="stat-label">Rating</div></div>
+<div class="stat"><div class="stat-val">{{ provider.review_count }}</div><div class="stat-label">Reviews</div></div>
+<div class="stat"><div class="stat-val">{{ provider.services.count }}</div><div class="stat-label">Services</div></div>
+<div class="stat"><div class="stat-val">{{ recent_bookings|length }}</div><div class="stat-label">Recent Bookings</div></div>
+</div>
+<div class="card"><h3>Recent Bookings</h3>
+{% if recent_bookings %}
+{% for b in recent_bookings %}
+<div class="row-item"><div class="row-left">{{ b.client_name }} — {{ b.service.name|default:"—" }}</div><div class="row-right">{{ b.date|date:"M j" }} {{ b.time|time:"g:iA" }} · <span class="badge {% if b.status == 'confirmed' %}badge-confirmed{% else %}badge-pending{% endif %}">{{ b.get_status_display }}</span></div></div>
+{% endfor %}
+<a href="{% url 'owner_bookings' provider.slug %}" class="view-link" style="display:block;margin-top:12px">View all bookings →</a>
+{% else %}<p style="color:var(--ink-3);font-size:14px">No bookings yet.</p>{% endif %}
+</div>
+<div class="card"><h3>Recent Reviews</h3>
+{% if recent_reviews %}
+{% for r in recent_reviews %}
+<div class="row-item"><div class="row-left">{{ r.author_name }} — ★ {{ r.rating }}</div><div class="row-right">{% if r.reply %}✓ Replied{% else %}<a href="{% url 'owner_respond_review' provider.slug r.id %}" class="view-link">Reply</a>{% endif %}</div></div>
+{% endfor %}
+{% else %}<p style="color:var(--ink-3);font-size:14px">No reviews yet.</p>{% endif %}
+</div>
+</div></div></div>
+</body></html>

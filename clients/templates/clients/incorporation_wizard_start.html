@@ -1,0 +1,152 @@
+{% extends "clients/base.html" %}
+{% block title %}New Incorporation — Mortacc{% endblock %}
+{% block nav_incorporation_wizard %}active{% endblock %}
+{% block topbar_title %}New Incorporation{% endblock %}
+
+{% block extra_head %}
+<style>
+    .wiz-layout { display:grid; grid-template-columns:1fr 360px; gap:20px; }
+    @media (max-width:900px) { .wiz-layout { grid-template-columns:1fr; } }
+
+    .start-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:28px; }
+    .start-card h2 { font-size:18px; font-weight:700; color:var(--ink); margin:0 0 8px; }
+    .start-card .subtitle { font-size:13px; color:var(--ink-3); margin-bottom:24px; }
+
+    .form-section { margin-bottom:20px; }
+    .form-label { display:block; font-size:12px; font-weight:600; color:var(--ink-2); margin-bottom:5px; }
+    .form-help { font-size:11px; color:var(--ink-3); margin-top:3px; }
+
+    .jurisdiction-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; margin-bottom:12px; }
+    .jurisdiction-option { position:relative; }
+    .jurisdiction-option input { position:absolute; opacity:0; }
+    .jurisdiction-option label {
+        display:block; padding:12px 14px; border:2px solid var(--border); border-radius:var(--radius);
+        cursor:pointer; font-size:12px; font-weight:500; color:var(--ink-2); text-align:center;
+        transition:var(--transition);
+    }
+    .jurisdiction-option input:checked + label { border-color:var(--brand); background:var(--brand-soft); color:var(--brand); font-weight:600; }
+
+    .structure-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; }
+    .structure-option { position:relative; }
+    .structure-option input { position:absolute; opacity:0; }
+    .structure-option label {
+        display:block; padding:14px 16px; border:2px solid var(--border); border-radius:var(--radius);
+        cursor:pointer; font-size:13px; font-weight:500; color:var(--ink-2);
+        transition:var(--transition);
+    }
+    .structure-option label .desc { font-size:10px; color:var(--ink-4); font-weight:400; margin-top:2px; }
+    .structure-option input:checked + label { border-color:var(--brand); background:var(--brand-soft); color:var(--brand); font-weight:600; }
+
+    .active-badge { display:inline-block; font-size:10px; font-weight:600; padding:2px 8px; border-radius:99px; background:var(--blue-bg); color:var(--blue); }
+    .project-list { display:flex; flex-direction:column; gap:6px; }
+    .project-item {
+        display:flex; justify-content:space-between; align-items:center;
+        padding:10px 14px; background:var(--surface); border:1px solid var(--border);
+        border-radius:var(--radius); text-decoration:none; color:var(--ink);
+        transition:var(--transition);
+    }
+    .project-item:hover { border-color:var(--brand-muted); }
+    .project-name { font-weight:600; font-size:12px; }
+    .project-step { font-size:10px; color:var(--ink-3); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wiz-layout">
+    <div>
+        <div class="start-card">
+            <h2>Start a New Incorporation</h2>
+            <p class="subtitle">Step-by-step guided workflow from name search to welcome package. Documents auto-generated at each step.</p>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-section">
+                    <label class="form-label">Client / Entity</label>
+                    <select name="client_id" class="filter-select" style="width:100%;padding:10px" required>
+                        <option value="">Select client...</option>
+                        {% for c in clients %}
+                        <option value="{{ c.id }}">{{ c.name }} ({{ c.email }})</option>
+                        {% endfor %}
+                    </select>
+                    {% if not clients %}
+                    <p class="form-help" style="color:var(--red)">No clients available. <a href="{% url 'corporate_intake' %}" style="color:var(--brand)">Add a client first</a>.</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Jurisdiction</label>
+                    <div class="jurisdiction-grid">
+                        {% for jur in 'federal,ontario,bc,alberta,quebec,nova_scotia,manitoba,saskatchewan,new_brunswick'|split:',' %}
+                        <div class="jurisdiction-option">
+                            <input type="radio" name="jurisdiction" value="{{ jur }}" id="jur_{{ jur }}" {% if jur == 'federal' %}checked{% endif %}>
+                            <label for="jur_{{ jur }}">{{ jur|title|replace:'_',' ' }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label class="form-label">Corporate Structure</label>
+                    <div class="structure-grid">
+                        <div class="structure-option">
+                            <input type="radio" name="structure_type" value="named" id="struct_named" checked>
+                            <label for="struct_named">Named Corporation<div class="desc">Choose a custom business name</div></label>
+                        </div>
+                        <div class="structure-option">
+                            <input type="radio" name="structure_type" value="numbered" id="struct_numbered">
+                            <label for="struct_numbered">Numbered Company<div class="desc">Assigned by the registry</div></label>
+                        </div>
+                        <div class="structure-option">
+                            <input type="radio" name="structure_type" value="professional" id="struct_professional">
+                            <label for="struct_professional">Professional Corporation<div class="desc">For regulated professionals</div></label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="padding:12px 28px;font-size:14px" {% if not clients %}disabled{% endif %}>
+                    Start Incorporation →
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <aside>
+        {% if active_projects %}
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px">
+            <h3 style="font-size:13px;font-weight:600;color:var(--ink);margin:0 0 10px">
+                Active Projects <span class="active-badge">{{ active_projects.count }}</span>
+            </h3>
+            <div class="project-list">
+                {% for p in active_projects %}
+                <a href="{% url 'incorporation_wizard' p.id %}" class="project-item">
+                    <div>
+                        <div class="project-name">{{ p.client.name }}</div>
+                        <div class="project-step">{{ p.get_jurisdiction_display }} · {{ p.get_current_step_display }}</div>
+                    </div>
+                    <span style="font-size:10px;color:var(--ink-3)">{{ p.days_in_progress }}d</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px">
+            <h3 style="font-size:13px;font-weight:600;color:var(--ink);margin:0 0 8px">What's Included</h3>
+            <ul style="list-style:none;padding:0;margin:0;font-size:12px;color:var(--ink-3);line-height:1.9">
+                <li>🔍 Name availability check</li>
+                <li>📋 NUANS report (federal)</li>
+                <li>📄 Articles of Incorporation</li>
+                <li>📜 By-law No. 1</li>
+                <li>✍️ Organizational resolutions</li>
+                <li>🏛️ Director/officer appointments</li>
+                <li>📊 Share structure setup</li>
+                <li>🔢 CRA Business Number</li>
+                <li>💰 GST/HST registration</li>
+                <li>🏦 Banking resolution package</li>
+                <li>📚 Complete minute book</li>
+                <li>🎁 Client welcome package</li>
+            </ul>
+        </div>
+    </aside>
+</div>
+{% endblock %}

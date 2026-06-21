@@ -1,0 +1,26 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Send Emails — Mortea Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.container { max-width: 640px; margin: 0 auto; padding: 40px 24px 80px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px 32px; }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.field select { width: 100%; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 15px; border: 1.5px solid var(--border); border-radius: var(--radius); outline: none; }
+.btn { padding: 14px 36px; font-size: 16px; font-weight: 600; border-radius: var(--radius-full); border: none; background: var(--brand); color: #fff; cursor: pointer; width: 100%; }
+.btn:hover { background: var(--brand-dark); }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><span style="font-size:12px;color:var(--ink-3);font-weight:600">Admin</span></div></nav>
+<div class="page"><div class="container">
+<a href="{% url 'email_dashboard' %}" style="color:var(--ink-3);text-decoration:none;font-size:14px">← Back to email dashboard</a>
+<h1>Send Bulk Email</h1>
+<div class="card">
+<form method="POST">{% csrf_token %}
+<div class="field"><label>Email Template</label><select name="template_type" required><option value="">Select…</option>{% for t in templates %}<option value="{{ t.template_type }}">{{ t.get_template_type_display }} — {{ t.subject }}</option>{% endfor %}</select></div>
+<div class="field"><label>Category Filter (optional)</label><select name="category"><option value="">All Categories</option>{% for val, label in categories %}<option value="{{ val }}">{{ label }}</option>{% endfor %}</select></div>
+<div class="field"><label>City Filter (optional)</label><select name="city"><option value="">All Cities</option>{% for c in cities %}{% if c %}<option value="{{ c }}">{{ c }}</option>{% endif %}{% endfor %}</select></div>
+<div class="field"><label>Claimed Status</label><select name="is_claimed"><option value="">All</option><option value="yes">Claimed only</option><option value="no">Unclaimed only</option></select></div>
+<button type="submit" class="btn">Send Emails (max 50)</button>
+</form></div></div></div></body></html>

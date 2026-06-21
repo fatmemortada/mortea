@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: letter; margin: 2cm 2.2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', serif; font-size: 11pt; color: #1a1a1a; line-height: 1.8; }
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 24px; }
+  .doc-logo { font-size: 20pt; font-weight: bold; } .doc-logo span { color: #b8956a; }
+  .doc-meta { text-align: right; font-size: 8.5pt; color: #555; line-height: 1.6; }
+  .doc-title { text-align: center; margin: 20px 0 36px; }
+  .doc-title h1 { font-size: 15pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .doc-title .corp-name { font-size: 12pt; font-style: italic; color: #333; }
+  .doc-title .jurisdiction { font-size: 9pt; color: #666; margin-top: 4px; }
+  .body-text { margin-bottom: 24px; }
+  .body-text p { margin-bottom: 14px; }
+  .field-block { margin: 24px 0; padding: 16px 20px; border: 1px solid #d1d5db; border-radius: 4px; background: #f9fafb; }
+  .field-block .field { display: flex; margin-bottom: 10px; }
+  .field-block .field-label { width: 180px; font-weight: bold; font-size: 9.5pt; color: #555; flex-shrink: 0; }
+  .field-block .field-value { font-size: 10.5pt; color: #1a1a1a; }
+  .sig-block { margin-top: 60px; }
+  .sig-line-wrap { display: flex; gap: 60px; margin-top: 10px; }
+  .sig-item { flex: 1; }
+  .sig-item .line { border-bottom: 1px solid #1a1a1a; margin-bottom: 6px; height: 50px; }
+  .sig-item .name { font-size: 9.5pt; font-weight: bold; }
+  .sig-item .label { font-size: 8.5pt; color: #555; }
+  .small { font-size: 8.5pt; color: #666; }
+  .mt { margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="doc-logo">Mort<span>acc</span></div>
+  <div class="doc-meta">{{ client.name }}<br>Consent to Act as Director<br>{{ today|date:"F j, Y" }}</div>
+</div>
+
+<div class="doc-title">
+  <h1>Consent to Act as Director</h1>
+  <div class="corp-name">{{ client.name }}</div>
+  <div class="jurisdiction">
+    {% if jurisdiction_display %}Incorporated under the laws of {{ jurisdiction_display }} · {% endif %}Canada
+  </div>
+</div>
+
+<div class="body-text">
+  <p>
+    I, the undersigned, hereby consent to act as a director of
+    <strong>{{ client.name }}</strong> (the "Corporation"),
+    a corporation incorporated under the laws of {{ jurisdiction_display|default:"Canada" }}.
+  </p>
+
+  <div class="field-block">
+    <div class="field">
+      <span class="field-label">Full Name:</span>
+      <span class="field-value">{{ director.full_name }}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Address:</span>
+      <span class="field-value">{{ director.address|default:"—" }}</span>
+    </div>
+    {% if director.officer_title %}
+    <div class="field">
+      <span class="field-label">Officer Title:</span>
+      <span class="field-value">{{ director.officer_title }}</span>
+    </div>
+    {% endif %}
+    <div class="field">
+      <span class="field-label">Appointment Date:</span>
+      <span class="field-value">{{ director.appointment_date|date:"F j, Y"|default:"—" }}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Corporation:</span>
+      <span class="field-value">{{ client.name }}</span>
+    </div>
+    {% if profile and profile.business_number %}
+    <div class="field">
+      <span class="field-label">Business Number:</span>
+      <span class="field-value">{{ profile.business_number }}</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <p>
+    I confirm that I am qualified to act as a director of the Corporation pursuant to the
+    applicable corporate legislation, that I am not disqualified from acting as a director,
+    and that I consent to act in such capacity effective as of the date set out below.
+  </p>
+
+  <p>
+    I acknowledge that I have read and understood the duties and responsibilities of a director
+    of the Corporation and I hereby agree to faithfully discharge those duties.
+  </p>
+</div>
+
+<div class="sig-block">
+  <p><strong>IN WITNESS WHEREOF</strong>, I have executed this Consent as of
+  <strong>{{ director.appointment_date|date:"F j, Y"|default:today|date:"F j, Y" }}</strong>.</p>
+
+  <div class="sig-line-wrap" style="margin-top: 40px;">
+    <div class="sig-item">
+      <div class="line"></div>
+      <div class="name">{{ director.full_name }}</div>
+      <div class="label">Director{% if director.officer_title %} · {{ director.officer_title }}{% endif %}</div>
+    </div>
+    <div class="sig-item">
+      <div class="line"></div>
+      <div class="label">Date</div>
+    </div>
+  </div>
+</div>
+
+<p class="small mt">Prepared by Mortacc Solutions Inc. · support@mortacc.com · mortacc.com</p>
+
+</body>
+</html>

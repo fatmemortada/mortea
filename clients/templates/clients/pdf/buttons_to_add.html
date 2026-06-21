@@ -1,0 +1,36 @@
+<!-- ─────────────────────────────────────────────────────────────────── -->
+<!-- ADD THESE BUTTONS TO THE CORPORATE TAB IN client_detail.html      -->
+<!-- Place them alongside your existing 7 PDF buttons                  -->
+<!-- ─────────────────────────────────────────────────────────────────── -->
+
+<a href="{% url 'pdf_bylaw_no1' client.id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+  📄 General By-Law No. 1
+</a>
+
+<a href="{% url 'pdf_waiver_notice_directors' client.id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+  📄 Waiver of Notice (Directors)
+</a>
+
+<a href="{% url 'pdf_waiver_notice_shareholders' client.id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+  📄 Waiver of Notice (Shareholders)
+</a>
+
+<a href="{% url 'pdf_central_securities_register' client.id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+  📄 Central Securities Register
+</a>
+
+<a href="{% url 'pdf_shareholder_ledger' client.id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+  📄 Shareholder Ledger
+</a>
+
+<a href="{% url 'pdf_share_transfer_register' client.id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+  📄 Register of Share Transfers
+</a>
+
+<a href="{% url 'pdf_subscription_for_shares' client.id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+  📄 Subscription for Shares
+</a>
+
+<a href="{% url 'pdf_banking_resolution' client.id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+  📄 Banking Resolution
+</a>

@@ -1,0 +1,41 @@
+{% load static %}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>My Requests | Mortea</title>
+<link rel="icon" type="image/svg+xml" href="{% static 'clients/icons/favicon.svg' %}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+{% load static %}<link rel="stylesheet" href="{% static 'clients/css/landing.css' %}">
+<style>
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg-warm); }
+.container { max-width: 800px; margin: 0 auto; padding: 40px 24px 80px; }
+h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.sub { color: var(--ink-3); margin-bottom: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 16px; }
+.quote-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+.quote-row:last-child { border-bottom: none; }
+.badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: var(--radius-full); }
+.badge-open { background: #dcfce7; color: #166534; }
+.badge-closed { background: #e0e7ff; color: #3730a3; }
+.badge-accepted { background: #f0fdf4; color: #16a34a; }
+.btn-sm { padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: var(--radius-full); border: 1.5px solid var(--border); background: var(--surface); cursor: pointer; color: var(--ink-2); }
+.btn-sm:hover { background: var(--brand-light); color: var(--brand); }
+</style></head><body>
+<nav id="topNav"><div class="nav-inner"><a href="/" class="nav-logo">Mortea</a><div class="nav-links"><a href="{% url 'submit_request' %}" class="nav-link">Post Request</a></div></div></nav>
+<div class="page"><div class="container">
+<h1>My Requests</h1><p class="sub">{{ email }}</p>
+<a href="{% url 'submit_request' %}" style="display:inline-block;padding:10px 24px;font-size:14px;font-weight:600;border-radius:var(--radius-full);background:var(--brand);color:#fff;text-decoration:none;margin-bottom:24px">+ New Request</a>
+{% for req in requests %}
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<div><strong style="font-size:17px">{{ req.get_service_display }}</strong> · {{ req.city }}</div>
+<span class="badge {% if req.status == 'open' %}badge-open{% else %}badge-closed{% endif %}">{{ req.get_status_display }}</span></div>
+<p style="color:var(--ink-2);font-size:14px;margin-bottom:8px">{{ req.description|truncatewords:20 }}</p>
+<div style="font-size:13px;color:var(--ink-3);margin-bottom:12px">{{ req.quote_count }} quote{{ req.quote_count|pluralize }} received</div>
+{% if req.quotes.exists %}
+{% for q in req.quotes.all %}
+<div class="quote-row">
+<div><strong>{{ q.provider.name }}</strong> · {{ q.price_estimate }}</div>
+<div style="display:flex;gap:6px;align-items:center">
+{% if q.status == 'accepted' %}<span class="badge badge-accepted">✓ Accepted</span>{% elif req.status == 'open' %}
+<form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="accept"><input type="hidden" name="quote_id" value="{{ q.id }}"><button type="submit" class="btn-sm">Accept Offer</button></form>
+{% endif %}
+<a href="{% url 'provider_profile' q.provider.slug %}" class="btn-sm">View Profile</a></div></div>{% endfor %}{% endif %}</div>{% empty %}
+<div style="text-align:center;padding:48px"><p style="color:var(--ink-3);margin-bottom:16px">No requests yet.</p><a href="{% url 'submit_request' %}" class="btn-sm" style="padding:10px 24px;font-size:14px">Post Your First Request</a></div>{% endfor %}
+</div></div></body></html>

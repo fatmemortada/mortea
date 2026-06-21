@@ -1,0 +1,115 @@
+{% extends "clients/base.html" %}{% block title %}Biometric Login — Mortacc{% endblock %}{% block nav_settings %}active{% endblock %}{% block topbar_title %}Biometric Login Settings{% endblock %}
+{% block extra_head %}<style>.bio-card{max-width:600px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px}.bio-device{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px}.bio-device .icon{font-size:24px;margin-right:12px}.bio-device .name{font-weight:600;font-size:13px}.bio-device .meta{font-size:10px;color:var(--ink-3)}.status-badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:99px}.status-badge.active{background:var(--green-bg);color:var(--green)}.empty-state{padding:40px;text-align:center}.empty-state .icon{font-size:48px;margin-bottom:12px}.btn-register{display:inline-flex;align-items:center;gap:8px;padding:12px 24px}.face-id{color:var(--brand)}.log-info{font-size:11px;color:var(--ink-3);background:var(--brand-soft);border-radius:var(--radius);padding:12px;margin-top:16px;line-height:1.6}</style>{% endblock %}
+{% block content %}
+<div class="bio-card">
+<h2 style="font-size:18px;font-weight:700;margin:0 0 4px">🔐 Biometric Login</h2>
+<p style="font-size:13px;color:var(--ink-3);margin-bottom:20px">Sign in with Face ID, Touch ID, Windows Hello, or a hardware security key instead of your password.</p>
+
+<div id="bio-status"></div>
+
+{% if credentials %}
+<h3 style="font-size:13px;font-weight:600;color:var(--ink);margin:16px 0 8px">Registered Devices</h3>
+{% for cred in credentials %}
+<div class="bio-device">
+    <div style="display:flex;align-items:center">
+        <span class="icon">{% if 'apple' in cred.device_name|lower or 'face' in cred.device_name|lower or 'touch' in cred.device_name|lower %}🍎{% elif 'windows' in cred.device_name|lower %}🪟{% elif 'android' in cred.device_name|lower %}📱{% else %}🔑{% endif %}</span>
+        <div><div class="name">{{ cred.device_name }}</div><div class="meta">Added {{ cred.created_at|date:"M d, Y" }} · Last used {{ cred.last_used_at|date:"M d, Y"|default:"Never" }}</div></div>
+    </div>
+    <form method="POST">{% csrf_token %}<input type="hidden" name="action" value="remove_credential"><input type="hidden" name="credential_id" value="{{ cred.credential_id }}"><button type="submit" class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red-muted)">Remove</button></form>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty-state"><div class="icon">👆</div><h3>No biometric devices registered</h3><p style="font-size:13px;color:var(--ink-3);line-height:1.5">Register your device to sign in with Face ID, fingerprint, or Windows Hello instead of typing your password every time.</p></div>
+{% endif %}
+
+<button id="register-biometric" class="btn btn-primary btn-register" style="margin-top:12px" onclick="registerBiometric()">
+    {% if credentials %}➕ Add Another Device{% else %}🖐 Register Face ID / Fingerprint{% endif %}
+</button>
+<div id="register-message" style="margin-top:8px;font-size:12px"></div>
+
+<div class="log-info">
+    <strong>Supported devices:</strong> iPhone/iPad (Face ID / Touch ID), Mac (Touch ID), Windows (Windows Hello), Android (fingerprint), YubiKey and other FIDO2 security keys.<br>
+    <strong>Privacy:</strong> Your biometric data never leaves your device. Only a cryptographic key pair is stored.
+</div>
+</div>
+
+<script>
+async function registerBiometric() {
+    const msg = document.getElementById('register-message');
+    msg.textContent = 'Starting registration...';
+    msg.style.color = 'var(--ink-3)';
+
+    try {
+        // Get creation options from server
+        const beginResp = await fetch('/api/webauthn/register/begin/', {method:'POST',headers:{'X-CSRFToken':getCsrf()}});
+        const options = await beginResp.json();
+
+        if (!beginResp.ok) {
+            msg.textContent = 'Error: ' + (options.error || 'Could not start registration');
+            msg.style.color = 'var(--red)';
+            return;
+        }
+
+        // Decode challenge and user ID
+        options.challenge = base64UrlToBuffer(options.challenge);
+        options.user.id = base64UrlToBuffer(options.user.id);
+        if (options.excludeCredentials) {
+            options.excludeCredentials = options.excludeCredentials.map(c => ({...c, id: base64UrlToBuffer(c.id)}));
+        }
+
+        // Create credential
+        const credential = await navigator.credentials.create({publicKey: options});
+
+        // Send to server
+        const completeResp = await fetch('/api/webauthn/register/complete/', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-CSRFToken':getCsrf()},
+            body: JSON.stringify({
+                id: credential.id,
+                rawId: bufferToBase64Url(credential.rawId),
+                type: credential.type,
+                response: {
+                    clientDataJSON: bufferToBase64Url(credential.response.clientDataJSON),
+                    attestationObject: bufferToBase64Url(credential.response.attestationObject),
+                    transports: credential.response.getTransports ? credential.response.getTransports() : ['internal'],
+                },
+            }),
+        });
+        const result = await completeResp.json();
+
+        if (result.success) {
+            msg.textContent = '✅ ' + result.device_name + ' registered! You can now sign in with biometrics.';
+            msg.style.color = 'var(--green)';
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            msg.textContent = '❌ ' + (result.error || 'Registration failed');
+            msg.style.color = 'var(--red)';
+        }
+    } catch (err) {
+        msg.textContent = '❌ ' + (err.message || 'Browser may not support biometrics');
+        msg.style.color = 'var(--red)';
+    }
+}
+
+function getCsrf() {
+    const cookies = document.cookie.split(';');
+    for (let c of cookies) {
+        const [name, value] = c.trim().split('=');
+        if (name === 'csrftoken') return value;
+    }
+    return '';
+}
+
+function base64UrlToBuffer(b64) {
+    b64 = b64.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    return Uint8Array.from(atob(b64), c => c.charCodeAt(0)).buffer;
+}
+
+function bufferToBase64Url(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    bytes.forEach(b => binary += String.fromCharCode(b));
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+</script>{% endblock %}

@@ -1,0 +1,534 @@
+{% extends "clients/base.html" %}
+{% block title %}Compliance Dashboard — Mortacc{% endblock %}
+{% block nav_compliance %}active{% endblock %}
+{% block topbar_title %}Compliance Dashboard{% endblock %}
+{% block topbar_actions %}
+    <button class="btn btn-primary" onclick="document.getElementById('add-task-modal').style.display='flex'">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        Add Task
+    </button>
+{% endblock %}
+
+{% block extra_head %}
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css' rel='stylesheet' />
+<style>
+    .stat-grid-5 { display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px; }
+
+    .overdue-banner {
+        background:#fef2f2;border:1px solid #fecaca;border-radius:var(--radius-lg);
+        padding:14px 18px;margin-bottom:18px;
+        display:flex;align-items:center;gap:10px;
+    }
+    .overdue-banner svg { color:var(--red);flex-shrink:0; }
+    .overdue-banner-text { font-size:13.5px;color:#991b1b;font-weight:500; }
+    .overdue-banner-sub  { font-size:12px;color:#b91c1c;margin-top:1px; }
+
+    .filter-bar { display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap; }
+    .search-bar {
+        width:210px;padding:7px 11px 7px 32px;
+        border:1px solid var(--border);border-radius:var(--radius);
+        font-family:inherit;font-size:13px;color:var(--ink-2);
+        background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z' clip-rule='evenodd'/%3E%3C/svg%3E") 10px center no-repeat;
+        outline:none;transition:var(--transition);
+    }
+    .search-bar:focus { border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .filter-select {
+        padding:7px 26px 7px 10px;border:1px solid var(--border);border-radius:var(--radius);
+        font-family:inherit;font-size:13px;color:var(--ink-2);background:var(--surface);
+        cursor:pointer;outline:none;appearance:none;
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2394a3b8' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+        background-repeat:no-repeat;background-position:right 9px center;
+        transition:var(--transition);
+    }
+
+    .task-row td { vertical-align:middle; }
+    .task-row.overdue { background:#fff5f5; }
+    .task-row.overdue:hover { background:#fef2f2; }
+    .task-row.due-soon { background:#fffbeb; }
+    .task-row.due-soon:hover { background:#fef9c3; }
+
+    .due-label { font-size:12px;margin-top:2px; }
+    .due-label.overdue { color:var(--red);font-weight:500; }
+    .due-label.due-soon { color:var(--amber);font-weight:500; }
+    .due-label.ok { color:var(--ink-4); }
+
+    .client-link { color:var(--ink);text-decoration:none;font-weight:500; }
+    .client-link:hover { color:var(--brand); }
+
+    .complete-btn {
+        background:none;border:1px solid var(--border);border-radius:5px;
+        padding:4px 10px;font-size:12px;font-weight:500;color:var(--ink-3);
+        cursor:pointer;font-family:inherit;transition:var(--transition);
+        display:inline-flex;align-items:center;gap:4px;
+    }
+    .complete-btn:hover { background:var(--green-bg);color:var(--green);border-color:#bbf7d0; }
+
+    /* Timeline view */
+    .timeline-wrap { display:none; }
+    .timeline-month { margin-bottom:24px; }
+    .timeline-month-label {
+        font-size:12px;font-weight:600;color:var(--ink-3);
+        text-transform:uppercase;letter-spacing:.6px;
+        margin-bottom:10px;padding-bottom:6px;
+        border-bottom:1px solid var(--border);
+    }
+    .timeline-items { display:flex;flex-direction:column;gap:8px; }
+    .timeline-item {
+        display:flex;align-items:center;gap:12px;
+        background:var(--surface);border:1px solid var(--border);
+        border-radius:var(--radius);padding:10px 14px;
+    }
+    .timeline-item.overdue { border-color:#fecaca;background:#fff5f5; }
+    .timeline-item.due-soon { border-color:#fde68a;background:#fffbeb; }
+    .tl-date { font-size:11px;font-weight:600;color:var(--ink-3);min-width:70px; }
+    .tl-title { font-size:13.5px;font-weight:500;color:var(--ink);flex:1; }
+    .tl-client { font-size:12px;color:var(--ink-3); }
+
+    /* View toggle */
+    .view-toggle { display:flex;gap:2px;background:var(--surface-2);border-radius:var(--radius);padding:2px; }
+    .view-btn {
+        padding:5px 10px;border-radius:5px;font-size:12px;font-weight:500;
+        color:var(--ink-3);cursor:pointer;border:none;background:none;
+        font-family:inherit;transition:var(--transition);display:flex;align-items:center;gap:5px;
+    }
+    .view-btn.active { background:var(--surface);color:var(--ink);box-shadow:var(--shadow-xs); }
+
+    /* Modal */
+    .modal-backdrop { display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:400;align-items:center;justify-content:center;padding:20px; }
+    .modal { background:var(--surface);border-radius:var(--radius-lg);width:100%;max-width:480px;box-shadow:var(--shadow-lg);animation:fadeUp .18s ease; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+    .modal-header { padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center; }
+    .modal-title { font-size:15px;font-weight:600;color:var(--ink); }
+    .modal-close { background:none;border:none;cursor:pointer;color:var(--ink-4);font-size:20px;line-height:1;padding:2px 6px;border-radius:4px; }
+    .modal-close:hover { background:var(--surface-2); }
+    .modal-body { padding:18px 22px; }
+    .modal-footer { padding:12px 22px 18px;display:flex;gap:8px;justify-content:flex-end; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Stats -->
+<div class="stat-grid-5">
+    <div class="stat-card" style="border-top:2px solid var(--red)">
+        <div class="stat-label">Overdue</div>
+        <div class="stat-value" style="color:var(--red)">{{ overdue_count }}</div>
+        <div class="stat-sub">Past due date</div>
+    </div>
+    <div class="stat-card" style="border-top:2px solid var(--amber)">
+        <div class="stat-label">Due This Month</div>
+        <div class="stat-value" style="color:var(--amber)">{{ due_this_month }}</div>
+        <div class="stat-sub">Next 30 days</div>
+    </div>
+    <div class="stat-card" style="border-top:2px solid var(--brand)">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value" style="color:var(--brand)">{{ pending_count }}</div>
+        <div class="stat-sub">Not yet started</div>
+    </div>
+    <div class="stat-card" style="border-top:2px solid var(--green)">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" style="color:var(--green)">{{ completed_count }}</div>
+        <div class="stat-sub">This year</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Tasks</div>
+        <div class="stat-value">{{ total_count }}</div>
+        <div class="stat-sub">Across all clients</div>
+    </div>
+</div>
+
+<!-- Overdue banner -->
+{% if overdue_count > 0 %}
+<div class="overdue-banner">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+    <div>
+        <div class="overdue-banner-text">{{ overdue_count }} task{{ overdue_count|pluralize }} overdue</div>
+        <div class="overdue-banner-sub">These require immediate attention — filter by "Overdue" below to review.</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Filter bar + view toggle -->
+<div class="filter-bar">
+    <input type="text" class="search-bar" placeholder="Search tasks or clients…" id="task-search" oninput="filterTasks()">
+    <select class="filter-select" id="status-filter" onchange="filterTasks()">
+        <option value="">All statuses</option>
+        <option value="overdue">Overdue</option>
+        <option value="pending">Pending</option>
+        <option value="in_progress">In Progress</option>
+        <option value="completed">Completed</option>
+        <option value="waived">Waived</option>
+    </select>
+    <select class="filter-select" id="type-filter" onchange="filterTasks()">
+        <option value="">All types</option>
+        <option value="annual_return">Annual Return</option>
+        <option value="agm">AGM</option>
+        <option value="t2_filing">T2 Filing</option>
+        <option value="gst_hst_filing">GST/HST Filing</option>
+        <option value="minute_book_update">Minute Book</option>
+        <option value="quebec_declaration">Québec Declaration</option>
+        <option value="other">Other</option>
+    </select>
+    <div style="margin-left:auto">
+        <div class="view-toggle">
+            <button class="view-btn active" id="btn-table" onclick="switchView('table')">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z" clip-rule="evenodd"/></svg>
+                Table
+            </button>
+            <button class="view-btn" id="btn-timeline" onclick="switchView('timeline')">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                Timeline
+            </button>
+            <button class="view-btn" id="btn-calendar" onclick="switchView('calendar')">
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                Calendar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Table view -->
+<div id="view-table">
+    <div class="card">
+        {% if tasks %}
+        {% csrf_token %}
+        <div id="bulk-bar" style="display:none;background:var(--brand-soft);border-bottom:1px solid var(--brand-muted);padding:10px 18px;align-items:center;gap:12px;">
+            <span id="bulk-count" style="font-size:13px;font-weight:500;color:var(--brand);">0 selected</span>
+            <button type="button" class="btn btn-success btn-sm" onclick="bulkAction('complete')">Complete All</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="bulkAction('waive')">Waive All</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="bulkAction('reopen')">Reopen</button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="clearBulk()" style="margin-left:auto;">Clear</button>
+        </div>
+        <div class="table-wrap">
+            <table id="compliance-table">
+                <thead>
+                    <tr>
+                        <th style="width:30px;"><input type="checkbox" id="select-all" onchange="toggleAll(this)" title="Select all"></th>
+                        <th>Task</th>
+                        <th>Client</th>
+                        <th>Type</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for task in tasks %}
+                <tr class="task-row {% if task.is_overdue or task.status == 'overdue' %}overdue{% elif task.due_soon %}due-soon{% endif %}"
+                    data-search="{{ task.title|lower }} {{ task.client.name|lower }}"
+                    data-status="{% if task.is_overdue or task.status == 'overdue' %}overdue{% else %}{{ task.status }}{% endif %}"
+                    data-type="{{ task.task_type }}">
+                    <td><input type="checkbox" class="task-checkbox" value="{{ task.id }}" onchange="updateBulkBar()"></td>
+                    <td>
+                        <div style="font-weight:500">{{ task.title }}</div>
+                        {% if task.description %}<div class="text-small text-muted" style="margin-top:2px">{{ task.description|truncatechars:60 }}</div>{% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'entity_detail' task.client.id %}" class="client-link">{{ task.client.name }}</a>
+                    </td>
+                    <td><span class="text-small text-muted">{{ task.get_task_type_display }}</span></td>
+                    <td>
+                        <div style="font-weight:500">{{ task.due_date|date:"M d, Y" }}</div>
+                        {% if task.is_overdue or task.status == 'overdue' %}
+                            <div class="due-label overdue">{{ task.due_date|timesince }} overdue</div>
+                        {% elif task.due_soon %}
+                            <div class="due-label due-soon">Due soon</div>
+                        {% else %}
+                            <div class="due-label ok">{{ task.due_date|timeuntil }} left</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if task.status == 'completed' %}
+                            <span class="badge badge-completed">Completed</span>
+                        {% elif task.is_overdue or task.status == 'overdue' %}
+                            <span class="badge badge-needs-attention">Overdue</span>
+                        {% elif task.status == 'in_progress' %}
+                            <span class="badge badge-in-progress">In Progress</span>
+                        {% elif task.status == 'waived' %}
+                            <span class="badge badge-not-started">Waived</span>
+                        {% else %}
+                            <span class="badge badge-not-started">Pending</span>
+                        {% endif %}
+                        {% if custom_statuses %}
+                        <form method="POST" style="margin-top:4px">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="set_custom_status">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <select name="custom_status_id" onchange="this.form.submit()" style="font-size:11px;padding:2px 6px;border-radius:6px;border:1px solid {% if task.custom_status %}{{ task.custom_status.color_hex }}{% else %}var(--border){% endif %};color:{% if task.custom_status %}{{ task.custom_status.color_hex }}{% else %}var(--ink-4){% endif %};background:transparent;max-width:130px">
+                                <option value="">— workflow —</option>
+                                {% for cs in custom_statuses %}
+                                <option value="{{ cs.id }}" {% if task.custom_status_id == cs.id %}selected{% endif %}>{{ cs.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                        {% if task.status != 'completed' %}
+                        <form method="POST" style="display:inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <input type="hidden" name="action" value="complete_task">
+                            <button type="submit" class="complete-btn">
+                                <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                Complete
+                            </button>
+                        </form>
+                        {% endif %}
+                        <a href="{% url 'entity_detail' task.client.id %}" class="btn btn-ghost btn-sm">View</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            <p>No compliance tasks yet. They are auto-generated when you add an incorporation date to a client.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Timeline view -->
+<div id="view-timeline" class="timeline-wrap">
+    {% for month, month_tasks in tasks_by_month.items %}
+    <div class="timeline-month">
+        <div class="timeline-month-label">{{ month }}</div>
+        <div class="timeline-items">
+            {% for task in month_tasks %}
+            <div class="timeline-item {% if task.is_overdue or task.status == 'overdue' %}overdue{% elif task.due_soon %}due-soon{% endif %}">
+                <div class="tl-date">{{ task.due_date|date:"M d" }}</div>
+                <div style="flex:1">
+                    <div class="tl-title">{{ task.title }}</div>
+                    <div class="tl-client">{{ task.client.name }} · {{ task.get_task_type_display }}</div>
+                </div>
+                {% if task.status == 'completed' %}
+                    <span class="badge badge-completed">Done</span>
+                {% elif task.is_overdue or task.status == 'overdue' %}
+                    <span class="badge badge-needs-attention">Overdue</span>
+                {% elif task.status == 'in_progress' %}
+                    <span class="badge badge-in-progress">In Progress</span>
+                {% else %}
+                    <span class="badge badge-not-started">Pending</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+        <p>No tasks to display on timeline.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Calendar view -->
+<div id="view-calendar" style="display:none;">
+    <div class="card">
+        <div class="card-body" style="padding:12px;">
+            <div id="compliance-calendar" style="min-height:500px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Workflow Statuses -->
+<div class="card" style="margin-top:20px">
+    <div class="card-header"><span class="card-title">Custom Workflow Statuses</span>
+    <span style="font-size:12px;color:var(--ink-4)">Define statuses that mirror how work moves through your firm — e.g. Blocked, In Review, With Finance</span></div>
+    <div class="card-body">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            {% for cs in custom_statuses %}
+            <form method="POST" style="display:inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="delete_custom_status">
+                <input type="hidden" name="status_id" value="{{ cs.id }}">
+                <span class="badge" style="background:{{ cs.color_hex }}1a;color:{{ cs.color_hex }};border:1px solid {{ cs.color_hex }}40">{{ cs.label }}
+                <button type="submit" style="background:none;border:none;color:inherit;cursor:pointer;padding:0 0 0 4px" onclick="return confirm('Remove this status?')" title="Remove">✕</button></span>
+            </form>
+            {% empty %}
+            <span style="font-size:13px;color:var(--ink-4)">No custom statuses yet.</span>
+            {% endfor %}
+        </div>
+        <form method="POST" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_custom_status">
+            <input type="text" name="label" class="form-control" placeholder="e.g. With Finance" required style="width:200px">
+            <select name="color" class="form-control" style="width:auto">
+                <option value="blue">Blue</option><option value="green">Green</option><option value="amber">Amber</option>
+                <option value="red">Red</option><option value="purple">Purple</option><option value="gray">Gray</option>
+            </select>
+            <button type="submit" class="btn btn-ghost btn-sm">Add Status</button>
+        </form>
+    </div>
+</div>
+
+<!-- Add Task Modal -->
+<div class="modal-backdrop" id="add-task-modal" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">Add Compliance Task</span>
+            <button class="modal-close" onclick="document.getElementById('add-task-modal').style.display='none'">×</button>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_task">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Client *</label>
+                    <select name="client_id" class="form-control" required>
+                        <option value="">Select client…</option>
+                        {% for client in clients %}
+                        <option value="{{ client.id }}">{{ client.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Task Type *</label>
+                    <select name="task_type" class="form-control" required>
+                        <option value="annual_return">Annual Return</option>
+                        <option value="agm">Annual General Meeting</option>
+                        <option value="t2_filing">T2 Corporate Tax Return</option>
+                        <option value="gst_hst_filing">GST/HST Return</option>
+                        <option value="minute_book_update">Minute Book Update</option>
+                        <option value="quebec_declaration">Québec Declaration</option>
+                        <option value="pic_filing">PIC Filing</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Title *</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g. Annual Return — 2025" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Due Date *</label>
+                    <input type="date" name="due_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea name="description" class="form-control" rows="2" placeholder="Optional details…"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="document.getElementById('add-task-modal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// ── Bulk Actions ───────────────────────────────────────────
+function updateBulkBar() {
+    const checked = document.querySelectorAll('.task-checkbox:checked');
+    const bar = document.getElementById('bulk-bar');
+    const count = document.getElementById('bulk-count');
+    count.textContent = checked.length + ' selected';
+    bar.style.display = checked.length > 0 ? 'flex' : 'none';
+}
+function toggleAll(el) {
+    document.querySelectorAll('.task-checkbox').forEach(cb => { cb.checked = el.checked; });
+    updateBulkBar();
+}
+function clearBulk() {
+    document.querySelectorAll('.task-checkbox').forEach(cb => { cb.checked = false; });
+    document.getElementById('select-all').checked = false;
+    updateBulkBar();
+}
+function bulkAction(action) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.innerHTML = '{% csrf_token %}<input name="action" value="bulk_action"><input name="bulk_action" value="' + action + '">';
+    document.querySelectorAll('.task-checkbox:checked').forEach(cb => {
+        form.innerHTML += '<input type="hidden" name="task_ids" value="' + cb.value + '">';
+    });
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function filterTasks() {
+    const q = document.getElementById('task-search').value.toLowerCase();
+    const s = document.getElementById('status-filter').value;
+    const t = document.getElementById('type-filter').value;
+    document.querySelectorAll('.task-row').forEach(row => {
+        const searchMatch  = row.dataset.search.includes(q);
+        const statusMatch  = !s || row.dataset.status === s;
+        const typeMatch    = !t || row.dataset.type === t;
+        row.style.display  = (searchMatch && statusMatch && typeMatch) ? '' : 'none';
+    });
+}
+
+function switchView(view) {
+    document.getElementById('view-table').style.display     = view === 'table'    ? '' : 'none';
+    document.getElementById('view-timeline').style.display  = view === 'timeline' ? 'block' : 'none';
+    document.getElementById('view-calendar').style.display  = view === 'calendar' ? '' : 'none';
+    document.getElementById('btn-table').classList.toggle('active',     view === 'table');
+    document.getElementById('btn-timeline').classList.toggle('active',  view === 'timeline');
+    document.getElementById('btn-calendar').classList.toggle('active',  view === 'calendar');
+    if (view === 'calendar') { setTimeout(() => calendar.render(), 50); }
+}
+
+let calendar;
+document.addEventListener('DOMContentLoaded', function() {
+    const calEl = document.getElementById('compliance-calendar');
+    if (!calEl) return;
+    calendar = new FullCalendar.Calendar(calEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listMonth'
+        },
+        height: 'auto',
+        events: [
+            {% for task in tasks %}
+            {
+                id: '{{ task.id }}',
+                title: '{{ task.title|escapejs }} — {{ task.client.name|escapejs }}',
+                start: '{{ task.due_date|date:"Y-m-d" }}',
+                {% if task.status == 'overdue' %}
+                backgroundColor: '#dc2626',
+                borderColor: '#dc2626',
+                textColor: '#fff',
+                {% elif task.status == 'completed' %}
+                backgroundColor: '#16a34a',
+                borderColor: '#16a34a',
+                textColor: '#fff',
+                {% elif task.due_soon %}
+                backgroundColor: '#d97706',
+                borderColor: '#d97706',
+                textColor: '#fff',
+                {% else %}
+                backgroundColor: '#2563eb',
+                borderColor: '#2563eb',
+                textColor: '#fff',
+                {% endif %}
+                extendedProps: {
+                    client: '{{ task.client.name|escapejs }}',
+                    type: '{{ task.get_task_type_display|escapejs }}',
+                    status: '{{ task.get_status_display|escapejs }}',
+                    url: '{% url "client_dashboard" task.client.id %}'
+                }
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        eventClick: function(info) {
+            if (info.event.extendedProps.url) {
+                window.location.href = info.event.extendedProps.url;
+            }
+        },
+        eventDidMount: function(info) {
+            info.el.title = info.event.extendedProps.client + ' — ' + info.event.extendedProps.type;
+        }
+    });
+});
+</script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+{% endblock %}

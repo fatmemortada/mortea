@@ -1,0 +1,9 @@
+{% if show %}
+<div class="demo-annotation" style="background:var(--brand-soft);border:1px solid var(--brand-muted);border-radius:var(--radius);padding:8px 12px;margin:6px 0;font-size:12px;display:flex;gap:8px;align-items:flex-start;">
+    <span style="flex-shrink:0;font-size:14px;">💡</span>
+    <div>
+        <strong style="color:var(--brand);">{{ title }}</strong>
+        <span style="color:var(--ink-3);">{{ description }}</span>
+    </div>
+</div>
+{% endif %}

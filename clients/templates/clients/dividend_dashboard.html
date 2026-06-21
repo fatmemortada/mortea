@@ -1,0 +1,15 @@
+{% extends "clients/base.html" %}{% block title %}Dividends — Mortacc{% endblock %}{% block nav_dividends %}active{% endblock %}{% block topbar_title %}Dividends &amp; T5 Generator{% endblock %}{% block topbar_actions %}{% if client %}<a href="{% url 'dividend_create' client.id %}" class="btn btn-primary">+ Declare Dividend</a>{% endif %}{% endblock %}
+{% block extra_head %}<style>.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}.stat-card .v{font-size:24px;font-weight:800;color:var(--ink)}.stat-card .l{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3)}.div-table{width:100%;border-collapse:collapse;font-size:12px}.div-table th{text-align:left;padding:8px 10px;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);background:var(--surface-2);border-bottom:2px solid var(--border)}.div-table td{padding:9px 10px;border-bottom:1px solid var(--surface-2)}.div-table tr:hover td{background:var(--surface-2)}.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px}.badge.paid{background:var(--green-bg);color:var(--green)}.badge.draft{background:var(--surface-2);color:var(--ink-3)}.badge.declared{background:var(--blue-bg);color:var(--blue)}</style>{% endblock %}
+{% block content %}
+<div class="stats-row"><div class="stat-card"><div class="v">${{ total_declared|floatformat:0 }}</div><div class="l">Total Declared</div></div><div class="stat-card"><div class="v">${{ total_paid|floatformat:0 }}</div><div class="l">Total Paid</div></div><div class="stat-card"><div class="v">{{ declarations.count }}</div><div class="l">Declarations</div></div></div>
+{% if declarations %}
+<table class="div-table"><thead><tr><th>Entity</th><th>Type</th><th>Amount</th><th>Date</th><th>Recipients</th><th>Status</th><th></th></tr></thead><tbody>
+{% for d in declarations %}<tr>
+    <td>{% if not client %}<a href="{% url 'dividend_client' d.client.id %}" style="color:var(--ink);text-decoration:none;font-weight:600">{{ d.client.name }}</a>{% else %}{{ d.client.name }}{% endif %}</td>
+    <td>{{ d.get_dividend_type_display }}</td><td style="font-weight:600">${{ d.total_amount|floatformat:2 }}</td>
+    <td>{{ d.declaration_date|date:"M d, Y" }}</td><td>{{ d.total_t5_slips }}</td>
+    <td><span class="badge {{ d.status }}">{{ d.get_status_display }}</span></td>
+    <td><a href="{% url 'dividend_detail' d.id %}" class="btn btn-outline btn-sm" style="font-size:10px">View</a></td>
+</tr>{% endfor %}</tbody></table>
+{% else %}<div class="empty-state"><h3>No dividends yet</h3><p>Declare dividends, generate T5 slips, and track shareholder distributions.</p>{% if client %}<a href="{% url 'dividend_create' client.id %}" class="btn btn-primary" style="margin-top:12px">Declare First Dividend</a>{% endif %}</div>{% endif %}
+{% endblock %}

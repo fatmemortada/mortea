@@ -1,0 +1,27 @@
+{% comment %}Chapter navigation sidebar for the lesson player{% endcomment %}
+<div class="chapter-nav-sidebar">
+    <div class="chapter-nav-header">
+        <span class="chapter-nav-title">📋 Chapters</span>
+        <span class="chapter-nav-progress">{{ overall_progress.percent }}% done</span>
+    </div>
+    <div class="chapter-nav-list">
+        {% for ch in chapters %}
+        <a href="{% url 'academy_chapter' module.id ch.id %}"
+           class="chapter-nav-item {% if ch.is_current %}active{% endif %} {% if ch.completed %}completed{% endif %}">
+            <span class="chapter-nav-num">
+                {% if ch.completed %}✓{% else %}{{ forloop.counter }}{% endif %}
+            </span>
+            <div class="chapter-nav-info">
+                <span class="chapter-nav-label">{{ ch.title }}</span>
+                <span class="chapter-nav-duration">{{ ch.duration_minutes }} min{% if ch.type == 'quiz' %} · Quiz{% endif %}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% if module.cta %}
+    <div class="chapter-nav-cta">
+        <a href="{{ module.cta.primary.url }}" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;margin-bottom:6px">{{ module.cta.primary.icon }} {{ module.cta.primary.text }}</a>
+        <a href="{{ module.cta.secondary.url }}" class="btn btn-outline btn-sm" style="width:100%;justify-content:center">{{ module.cta.secondary.icon }} {{ module.cta.secondary.text }}</a>
+    </div>
+    {% endif %}
+</div>

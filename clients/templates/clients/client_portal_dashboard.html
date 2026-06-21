@@ -1,0 +1,148 @@
+{% extends "clients/base.html" %}
+{% block title %}{{ client.name }} Portal — Mortacc{% endblock %}
+{% block topbar_title %}{{ client.name }} Portal{% endblock %}
+
+{% block extra_head %}
+<style>
+    .portal-shell { max-width:1100px; margin:0 auto; }
+    .portal-hero { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:20px; }
+    .portal-stat { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; text-align:center; }
+    .portal-stat .val { font-size:26px; font-weight:800; }
+    .portal-stat .lbl { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-3); margin-top:3px; }
+    .health-circle { display:inline-flex; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; font-size:20px; font-weight:800; margin-bottom:6px; }
+    .health-circle.good { background:var(--green-bg); color:var(--green); }
+    .health-circle.warning { background:var(--amber-bg); color:var(--amber); }
+    .health-circle.bad { background:var(--red-bg); color:var(--red); }
+
+    .portal-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .portal-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); }
+    .portal-card .card-header { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .task-row { display:flex; align-items:center; gap:8px; padding:8px 16px; border-bottom:1px solid var(--surface-2); font-size:12.5px; }
+    .task-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+    .task-dot.overdue { background:var(--red); }
+    .task-dot.pending { background:var(--amber); }
+    .task-dot.completed { background:var(--green); }
+    .inv-row { display:flex; justify-content:space-between; padding:8px 16px; border-bottom:1px solid var(--surface-2); font-size:12.5px; }
+    .inv-amount { font-weight:600; }
+    .inv-amount.overdue { color:var(--red); }
+    .inv-amount.paid { color:var(--green); }
+
+    @media (max-width:768px) { .portal-grid { grid-template-columns:1fr; } .portal-hero { grid-template-columns:1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="portal-shell">
+    <!-- Top Stats -->
+    <div class="portal-hero">
+        <div class="portal-stat">
+            <div class="health-circle {% if health >= 70 %}good{% elif health >= 40 %}warning{% else %}bad{% endif %}">{{ health|floatformat:0 }}</div>
+            <div class="lbl">Compliance Health Score</div>
+        </div>
+        <div class="portal-stat">
+            <div class="val" style="color:var(--red);">{{ overdue_tasks.count }}</div>
+            <div class="lbl">Overdue Tasks</div>
+        </div>
+        <div class="portal-stat">
+            <div class="val" style="color:var(--amber);">${{ unpaid_amount|floatformat:0|default:"0" }}</div>
+            <div class="lbl">Outstanding Balance</div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="portal-grid">
+        <!-- Entity Info -->
+        <div class="portal-card">
+            <div class="card-header"><span class="card-title">Entity Overview</span></div>
+            <div class="card-body" style="padding:12px 16px;">
+                {% if corporate_profile %}
+                <div style="font-size:13px; margin-bottom:6px;"><strong>{{ client.name }}</strong></div>
+                <div style="font-size:12px; color:var(--ink-3);">{{ corporate_profile.get_jurisdiction_display }} · Inc. {{ corporate_profile.incorporation_date|date:"M d, Y" }}</div>
+                <div style="font-size:12px; color:var(--ink-3);">BN: {{ corporate_profile.business_number|default:"—" }}</div>
+                <div style="font-size:12px; color:var(--ink-3);">Directors: {{ directors.count }} · Shareholders: {{ shareholders.count }}</div>
+                {% else %}
+                <p style="color:var(--ink-4);">Entity profile not yet set up.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Upcoming Tasks -->
+        <div class="portal-card">
+            <div class="card-header"><span class="card-title">Upcoming Deadlines</span></div>
+            <div style="max-height:200px;overflow-y:auto;">
+                {% for task in upcoming_tasks %}
+                <div class="task-row">
+                    <div class="task-dot {{ task.status }}"></div>
+                    <span style="flex:1;">{{ task.title }}</span>
+                    <span style="color:var(--ink-4);font-size:11px;">{{ task.due_date|date:"M d, Y" }}</span>
+                </div>
+                {% empty %}
+                <div class="card-body"><p style="color:var(--ink-4);font-size:13px;">No upcoming deadlines.</p></div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Invoices -->
+        <div class="portal-card">
+            <div class="card-header"><span class="card-title">Invoices</span></div>
+            <div style="max-height:200px;overflow-y:auto;">
+                {% for inv in invoices|slice:":10" %}
+                <div class="inv-row">
+                    <span>{{ inv.invoice_number }} <span style="color:var(--ink-4);">{{ inv.invoice_date|date:"M d" }}</span></span>
+                    <span class="inv-amount {{ inv.status }}">${{ inv.total_amount|floatformat:2 }}</span>
+                </div>
+                {% empty %}
+                <div class="card-body"><p style="color:var(--ink-4);font-size:13px;">No invoices.</p></div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="portal-card">
+            <div class="card-header"><span class="card-title">Documents</span></div>
+            <div style="max-height:200px;overflow-y:auto;">
+                {% for doc in docs %}
+                <div style="padding:8px 16px;border-bottom:1px solid var(--surface-2);font-size:12.5px;">
+                    <div>{{ doc.name }}</div>
+                    <div style="font-size:11px;color:var(--ink-4);">{{ doc.created_at|date:"M d, Y" }}</div>
+                </div>
+                {% empty %}
+                <div class="card-body"><p style="color:var(--ink-4);font-size:13px;">No documents shared yet.</p></div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Request -->
+    <div class="card" style="margin-top:14px;">
+        <div class="card-header"><span class="card-title">Submit a Request</span></div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="submit_request">
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Subject</label>
+                        <input class="form-control" name="subject" required placeholder="What do you need?">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-control" name="request_type">
+                            <option value="general">General Inquiry</option>
+                            <option value="document">Document Request</option>
+                            <option value="filing">Filing Request</option>
+                            <option value="update">Update Information</option>
+                            <option value="urgent">Urgent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" name="description" rows="3" placeholder="Describe what you need…"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Request</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

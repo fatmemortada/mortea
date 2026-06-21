@@ -1,0 +1,37 @@
+{% extends "clients/base.html" %}{% block title %}CRA / Revenu Québec — Mortacc{% endblock %}
+{% block topbar_title %}🏛 CRA / Revenu Québec Dashboard{% endblock %}
+{% block extra_head %}
+<style>
+.cra{max-width:1200px;padding:20px}
+.cra-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.cra-stat{background:var(--card-bg,#fff);border:1px solid var(--border-color,#e2e8f0);border-radius:12px;padding:16px;text-align:center}
+.cra-stat .val{font-size:24px;font-weight:800}.cra-stat .lbl{font-size:12px;color:#94a3b8}
+.cra-table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden}
+.cra-table th{text-align:left;padding:10px 14px;background:#f8fafc;font-size:11px;text-transform:uppercase;color:#64748b}
+.cra-table td{padding:10px 14px;border-top:1px solid #f1f5f9;font-size:13px}
+.cra-badge{font-size:10px;font-weight:600;padding:3px 8px;border-radius:99px}
+.cra-up{background:#dcfce7;color:#16a34a}.cra-due{background:#fef3c7;color:#d97706}.cra-over{background:#fee2e2;color:#dc2626}.cra-unk{background:#f1f5f9;color:#94a3b8}
+</style>{% endblock %}
+{% block content %}
+<div class="cra">
+  <div class="cra-stats">
+    <div class="cra-stat"><div class="val" style="color:#dc2626">${{ summary.total_owing|floatformat:0 }}</div><div class="lbl">Total Owing</div></div>
+    <div class="cra-stat"><div class="val" style="color:#16a34a">${{ summary.total_credit|floatformat:0 }}</div><div class="lbl">Total Credits</div></div>
+    <div class="cra-stat"><div class="val">{{ summary.overdue_count }}</div><div class="lbl">Overdue Filings</div></div>
+    <div class="cra-stat"><div class="val">{{ summary.due_soon_count }}</div><div class="lbl">Due Soon</div></div>
+    <div class="cra-stat"><div class="val">{{ summary.installment_entities }}</div><div class="lbl">Installments Required</div></div>
+  </div>
+  <form method="POST">{% csrf_token %}<input type="hidden" name="action" value="sync"><button type="submit" style="background:#2563eb;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;margin-bottom:16px">🔄 Sync All Accounts</button></form>
+  <table class="cra-table"><thead><tr><th>Entity</th><th>Account</th><th>Balance</th><th>Status</th><th>Next Due</th><th>Installments</th></tr></thead><tbody>
+  {% for a in summary.accounts %}
+  <tr>
+    <td><a href="/clients/{{ a.client_id }}/copilot/" style="color:#2563eb;text-decoration:none;font-weight:500">{{ a.client_name }}</a></td>
+    <td>{{ a.account_type }}</td>
+    <td style="font-weight:600;color:{% if a.balance > 0 %}#dc2626{% elif a.balance < 0 %}#16a34a{% else %}#64748b{% endif %}">{% if a.balance != 0 %}${{ a.balance|floatformat:0 }}{% else %}—{% endif %}</td>
+    <td><span class="cra-badge {% if a.status == 'filed' or a.status == 'up_to_date' %}cra-up{% elif a.status == 'due_soon' %}cra-due{% elif a.status == 'overdue' %}cra-over{% else %}cra-unk{% endif %}">{{ a.status|title }}</span></td>
+    <td style="font-size:12px">{{ a.next_due|default:"—" }}</td>
+    <td>{% if a.installments %}⚠ Required{% else %}—{% endif %}</td>
+  </tr>
+  {% endfor %}</tbody></table>
+</div>
+{% endblock %}

@@ -1,0 +1,375 @@
+{% extends "clients/base.html" %}
+{% block title %}{{ chapter.title }} — {{ module.title }} — Mortacc Academy{% endblock %}
+{% block nav_academy %}active{% endblock %}
+
+{% block hide_sidebar %}1{% endblock %}
+
+{% block extra_head %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'clients/css/academy.css' %}">
+<style>
+  /* Player-specific overrides for full-width experience */
+  .topbar { padding-left: 32px; padding-right: 32px; }
+  .main-area--full { padding-top: 0; }
+</style>
+{% endblock %}
+
+{% block topbar_title %}<a href="{% url 'academy_module' module.id %}" style="color:var(--ink-2);text-decoration:none;font-size:14px">{{ module.title }}</a>{% endblock %}
+{% block topbar_actions %}
+<span style="font-size:12px;color:var(--ink-3);font-weight:500">{{ overall_progress.percent }}% complete</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="player-shell">
+
+<!-- Progress Bar -->
+<div class="player-progress-bar">
+    <div class="player-progress-fill" style="width:{{ overall_progress.percent }}%"></div>
+</div>
+
+<!-- Top Navigation Bar -->
+<div class="player-topbar">
+    <a href="{% url 'academy_module' module.id %}" class="player-back-btn">← Module</a>
+    <span class="player-module-title">{{ module.title }}</span>
+    <span class="player-chapter-progress">{{ current_index|add:1 }} / {{ chapters|length }}</span>
+</div>
+
+<div class="player-layout">
+    <!-- Main Content Area -->
+    <div class="player-main">
+        {% if chapter.type == 'quiz' %}
+        <!-- Quiz View -->
+        {% include "clients/academy/includes/quiz_component.html" %}
+        {% else %}
+        <!-- Lesson View -->
+        <div class="player-content" id="playerContent">
+            <!-- Chapter Header -->
+            <div class="player-chapter-header">
+                <div class="player-chapter-meta">
+                    <span class="player-chapter-duration">⏱ {{ chapter.duration_minutes }} min</span>
+                    <span class="player-chapter-type">📖 Lesson</span>
+                </div>
+                <h1 class="player-chapter-title">{{ chapter.title }}</h1>
+            </div>
+
+            <!-- Main Text Content -->
+            <div class="player-text-content">
+                {{ chapter.content.text|safe }}
+            </div>
+
+            <!-- Animated Content -->
+            {% with anim=chapter.content.animation %}
+            {% if anim %}
+            <div class="player-animation-section">
+                <h3 class="player-animation-title">{{ anim.title }}</h3>
+
+                {% if anim.type == 'flowchart' %}
+                <!-- Flowchart Animation -->
+                <div class="flowchart-animation">
+                    {% for step in anim.steps %}
+                    <div class="flowchart-step" style="--delay:{{ forloop.counter0 }}">
+                        <div class="flowchart-step-badge">{{ step.icon }}</div>
+                        <div class="flowchart-step-label">{{ step.label }}</div>
+                        <div class="flowchart-step-desc">{{ step.description }}</div>
+                        {% if not forloop.last %}
+                        <div class="flowchart-connector">
+                            <svg viewBox="0 0 40 20" width="40" height="20"><path d="M0 10 L30 10 M30 5 L40 10 L30 15" stroke="var(--brand)" stroke-width="2" fill="none"/></svg>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% elif anim.type == 'timeline' %}
+                <!-- Timeline Animation -->
+                <div class="timeline-animation">
+                    <div class="timeline-line"></div>
+                    {% for event in anim.events %}
+                    <div class="timeline-event" style="--delay:{{ forloop.counter0 }}">
+                        <div class="timeline-event-dot"></div>
+                        <div class="timeline-event-card {% cycle 'left' 'right' %}">
+                            <div class="timeline-event-date">{{ event.date }}</div>
+                            <div class="timeline-event-title">{{ event.title }}</div>
+                            <div class="timeline-event-desc">{{ event.description }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% elif anim.type == 'comparison' %}
+                <!-- Comparison Table -->
+                <div class="comparison-animation">
+                    <div class="comparison-header">
+                        <div class="comparison-col">{{ anim.left_title }}</div>
+                        <div class="comparison-col vs-col">vs</div>
+                        <div class="comparison-col">{{ anim.right_title }}</div>
+                    </div>
+                    {% for row in anim.rows %}
+                    <div class="comparison-row" style="--delay:{{ forloop.counter0 }}">
+                        <div class="comparison-label">{{ row.label }}</div>
+                        <div class="comparison-left">{{ row.left }}</div>
+                        <div class="comparison-right">{{ row.right }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Key Concepts -->
+            {% with concepts=chapter.content.key_concepts %}
+            {% if concepts %}
+            {% include "clients/academy/includes/key_concepts.html" with key_concepts=concepts %}
+            {% endif %}
+            {% endwith %}
+
+            <!-- Knowledge Checkpoints -->
+            {% with checkpoints=chapter.content.knowledge_checkpoints %}
+            {% if checkpoints %}
+            <div class="knowledge-section">
+                <h3 class="knowledge-section-title">💡 Knowledge Check</h3>
+                {% for cp in checkpoints %}
+                <div class="knowledge-checkpoint" data-correct="{{ cp.correct }}">
+                    <div class="kc-question">{{ cp.question }}</div>
+                    <div class="kc-options">
+                        {% for opt in cp.options %}
+                        <button class="kc-option" data-index="{{ forloop.counter0 }}"
+                                onclick="checkKnowledge(this, {{ cp.correct }}, '{{ cp.explanation|escapejs }}')">
+                            {{ opt }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <div class="kc-feedback" style="display:none"></div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- FAQ Section -->
+            {% with faq=chapter.content.faq %}
+            {% if faq %}
+            <div class="faq-section">
+                <h3 class="faq-section-title">❓ Frequently Asked Questions</h3>
+                {% for item in faq %}
+                <div class="faq-item" onclick="toggleFAQ(this)">
+                    <div class="faq-question">
+                        <span>{{ item.q }}</span>
+                        <span class="faq-arrow">▾</span>
+                    </div>
+                    <div class="faq-answer">{{ item.a }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Resources -->
+            {% with resources=chapter.content.resources %}
+            {% if resources %}
+            <div class="resources-section">
+                <h3 class="resources-section-title">📎 Resources</h3>
+                <div class="resources-list">
+                    {% for res in resources %}
+                    <a href="{{ res.url }}" target="_blank" rel="noopener" class="resource-link">
+                        <span class="resource-type-badge">{{ res.type }}</span>
+                        <span>{{ res.title }}</span>
+                        <span class="resource-arrow">↗</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Chapter Navigation -->
+            <div class="player-navigation">
+                <div class="player-nav-left">
+                    {% if prev_chapter %}
+                    <a href="{% url 'academy_chapter' module.id prev_chapter.id %}" class="btn btn-outline">← {{ prev_chapter.title }}</a>
+                    {% endif %}
+                </div>
+                <button class="btn btn-primary" onclick="markComplete()" id="markCompleteBtn">
+                    {% if chapter_progress and chapter_progress.completed %}✓ Completed{% else %}Mark Complete{% endif %}
+                </button>
+                <div class="player-nav-right">
+                    {% if next_chapter %}
+                    <a href="{% url 'academy_chapter' module.id next_chapter.id %}" class="btn btn-primary">{{ next_chapter.title }} →</a>
+                    {% else %}
+                    <span class="player-module-done">🎉 Module Complete!</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- CTA Banner -->
+            {% if module.cta and not next_chapter %}
+            {% include "clients/academy/includes/cta_banner.html" %}
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Chapter Sidebar -->
+    <div class="player-sidebar">
+        {% include "clients/academy/includes/chapter_nav.html" %}
+    </div>
+</div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'clients/js/academy.js' %}"></script>
+<script>
+// CSRF token from cookie
+function getCSRF() {
+    var name = 'csrftoken';
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+        var c = cookies[i].trim();
+        if (c.indexOf(name + '=') === 0) return c.substring(name.length + 1);
+    }
+    return '';
+}
+
+// Mark chapter complete via AJAX
+function markComplete() {
+    var btn = document.getElementById('markCompleteBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    fetch('{% url "academy_progress_api" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRF(),
+        },
+        body: JSON.stringify({
+            module_id: '{{ module.id }}',
+            chapter_id: '{{ chapter.id }}',
+            completed: true,
+        }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            btn.textContent = '✓ Completed';
+            btn.classList.add('completed');
+            // Update sidebar
+            var currentItem = document.querySelector('.chapter-nav-item.active');
+            if (currentItem) {
+                currentItem.classList.add('completed');
+                var numSpan = currentItem.querySelector('.chapter-nav-num');
+                if (numSpan) numSpan.textContent = '✓';
+            }
+        }
+    })
+    .catch(function() {
+        btn.disabled = false;
+        btn.textContent = 'Mark Complete';
+    });
+}
+
+// Knowledge checkpoint
+function checkKnowledge(btn, correctIndex, explanation) {
+    var checkpoint = btn.closest('.knowledge-checkpoint');
+    var allBtns = checkpoint.querySelectorAll('.kc-option');
+    var feedback = checkpoint.querySelector('.kc-feedback');
+    var selectedIndex = parseInt(btn.getAttribute('data-index'));
+
+    // Disable all options
+    allBtns.forEach(function(b) { b.disabled = true; });
+
+    if (selectedIndex === correctIndex) {
+        btn.classList.add('correct');
+        feedback.innerHTML = '<div class="kc-correct">✓ Correct! ' + explanation + '</div>';
+    } else {
+        btn.classList.add('incorrect');
+        allBtns[correctIndex].classList.add('correct');
+        feedback.innerHTML = '<div class="kc-incorrect">✗ Not quite. ' + explanation + '</div>';
+    }
+    feedback.style.display = 'block';
+}
+
+// FAQ toggle
+function toggleFAQ(item) {
+    item.classList.toggle('open');
+}
+
+// Quiz submission
+var quizForm = document.getElementById('quizForm');
+if (quizForm) {
+    quizForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var submitBtn = quizForm.querySelector('.quiz-submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Scoring...';
+
+        var answers = [];
+        var questions = quizForm.querySelectorAll('.quiz-question');
+        questions.forEach(function(q) {
+            var selected = q.querySelector('input[type="radio"]:checked');
+            answers.push(selected ? parseInt(selected.value) : -1);
+        });
+
+        fetch('{% url "academy_quiz_submit" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRF(),
+            },
+            body: JSON.stringify({
+                module_id: '{{ module.id }}',
+                chapter_id: '{{ chapter.id }}',
+                answers: answers,
+            }),
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            // Hide quiz form, show results
+            quizForm.style.display = 'none';
+            var results = document.getElementById('quizResults');
+            results.style.display = 'block';
+
+            // Score circle
+            var scoreNum = document.getElementById('quizScoreNum');
+            scoreNum.textContent = data.score;
+            var circle = document.getElementById('quizScoreCircle');
+            if (data.passed) {
+                circle.classList.add('passed');
+            } else {
+                circle.classList.add('failed');
+            }
+
+            // Status
+            var status = document.getElementById('quizResultsStatus');
+            if (data.passed) {
+                status.innerHTML = '<div class="quiz-passed">🎉 Passed! You scored ' + data.score + '%</div>';
+            } else {
+                status.innerHTML = '<div class="quiz-failed">📚 Needs Review — ' + data.score + '% (pass threshold: ' + data.pass_threshold + '%)</div>';
+            }
+
+            // Detail review
+            var detail = document.getElementById('quizResultsDetail');
+            var html = '<h4>Question Review</h4>';
+            data.results.forEach(function(r) {
+                var cls = r.is_correct ? 'qr-correct' : 'qr-incorrect';
+                html += '<div class="quiz-review-item ' + cls + '">';
+                html += '<div class="qr-question">' + (r.is_correct ? '✓' : '✗') + ' ' + r.question + '</div>';
+                if (!r.is_correct) {
+                    html += '<div class="qr-explanation">' + r.explanation + '</div>';
+                }
+                html += '</div>';
+            });
+            detail.innerHTML = html;
+        })
+        .catch(function() {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Answers';
+        });
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "clients/base.html" %}
+{% block title %}Annual Packages — Mortacc{% endblock %}
+{% block nav_annual_package %}active{% endblock %}
+{% block topbar_title %}Annual Maintenance Packages{% endblock %}
+{% block topbar_actions %}
+    <form method="POST" style="display:inline">
+        {% csrf_token %}
+        <input type="hidden" name="client_id" value="all">
+        <button type="submit" class="btn btn-primary">Generate All Packages</button>
+    </form>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .pkg-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; }
+    .pkg-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; }
+    .pkg-card.ready { border-left:3px solid var(--green); }
+    .pkg-card.needs-attention { border-left:3px solid var(--amber); }
+    .pkg-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+    .pkg-name { font-weight:600; font-size:14px; color:var(--ink); }
+    .pkg-years { font-size:11px; color:var(--ink-3); }
+    .needs-list { display:flex; flex-direction:column; gap:4px; margin:8px 0; }
+    .need-item { display:flex; align-items:center; gap:6px; font-size:11px; padding:4px 0; }
+    .need-dot { width:6px; height:6px; border-radius:50%; }
+    .need-dot.open { background:var(--red); }
+    .need-dot.done { background:var(--green); }
+    .pkg-footer { display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:10px; border-top:1px solid var(--surface-2); }
+    .pkg-price { font-weight:800; font-size:16px; color:var(--ink); }
+    .pkg-price .est { font-size:10px; color:var(--ink-3); font-weight:400; }
+</style>
+{% endblock %}
+
+{% block content %}
+{% if entity_packages %}
+<h2 style="font-size:14px;font-weight:600;color:var(--ink);margin:0 0 8px">
+    {{ entity_packages|length }} entities need annual maintenance · Today: {{ today|date:"F j, Y" }}
+</h2>
+<p style="font-size:12px;color:var(--ink-3);margin-bottom:16px">Click "Generate Package" to create invoice and document bundle for each entity.</p>
+
+<div class="pkg-grid">
+    {% for ep in entity_packages %}
+    <div class="pkg-card {% if ep.doc_count > 3 %}needs-attention{% else %}ready{% endif %}">
+        <div class="pkg-header">
+            <div>
+                <div class="pkg-name">{{ ep.client.name }}</div>
+                <div class="pkg-years">{{ ep.years_since_inc }} years since incorporation · {{ ep.profile.get_jurisdiction_display }}</div>
+            </div>
+            <span style="font-size:10px;font-weight:600;color:{% if ep.doc_count > 3 %}var(--red){% else %}var(--green){% endif %}">
+                {{ ep.doc_count }} doc(s) needed
+            </span>
+        </div>
+
+        <div class="needs-list">
+            <div class="need-item">
+                <span class="need-dot {% if ep.needs.annual_resolution %}open{% else %}done{% endif %}"></span>
+                Annual Resolution {% if ep.needs.annual_resolution %}<span style="color:var(--red)">— needed</span>{% else %}<span style="color:var(--green)">— done</span>{% endif %}
+            </div>
+            <div class="need-item">
+                <span class="need-dot {% if ep.needs.minute_book_update %}open{% else %}done{% endif %}"></span>
+                Minute Book Update {% if ep.needs.minute_book_update %}<span style="color:var(--red)">— needed</span>{% endif %}
+            </div>
+            <div class="need-item">
+                <span class="need-dot {% if ep.needs.agm_minutes %}open{% else %}done{% endif %}"></span>
+                AGM Minutes {% if ep.needs.agm_minutes %}<span style="color:var(--red)">— needed</span>{% endif %}
+            </div>
+            <div class="need-item">
+                <span class="need-dot {% if ep.needs.directors_update %}open{% else %}done{% endif %}"></span>
+                Directors Register Update
+            </div>
+            <div class="need-item">
+                <span class="need-dot {% if ep.needs.shareholders_update %}open{% else %}done{% endif %}"></span>
+                Shareholders Register Update
+            </div>
+        </div>
+
+        <div class="pkg-footer">
+            <div class="pkg-price">${{ ep.estimated_fee }} <span class="est">estimated</span></div>
+            <div style="display:flex;gap:6px">
+                <a href="{% url 'minute_book_builder' ep.client.id %}" class="btn btn-outline btn-sm" style="font-size:11px">Documents</a>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="client_id" value="{{ ep.client.id }}">
+                    <button type="submit" class="btn btn-primary btn-sm" style="font-size:11px">Generate Package</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h3>No entities need annual packages</h3>
+    <p>All entities are up to date or don't have corporate profiles yet. Add incorporation dates to corporate profiles to start tracking annual maintenance.</p>
+</div>
+{% endif %}
+{% endblock %}

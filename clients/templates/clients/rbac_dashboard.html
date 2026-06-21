@@ -1,0 +1,79 @@
+{% extends "clients/base.html" %}
+{% block title %}Access Control — Mortacc{% endblock %}
+{% block nav_rbac %}active{% endblock %}
+{% block topbar_title %}Role-Based Access Control{% endblock %}
+
+{% block extra_head %}
+<style>
+    .rbac-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+    .role-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:10px;}
+    .role-name{font-size:14px;font-weight:600;margin-bottom:4px;}
+    .role-desc{font-size:12px;color:var(--ink-4);margin-bottom:8px;}
+    .perm-tag{display:inline-block;font-size:9px;font-weight:600;padding:2px 6px;border-radius:99px;margin:1px;}
+    .perm-tag.read{background:var(--brand-soft);color:var(--brand);}
+    .perm-tag.write{background:var(--green-bg);color:var(--green);}
+    .perm-tag.admin{background:var(--red-bg);color:var(--red);}
+    .user-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+    .user-table th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-4);padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;background:var(--surface-2);}
+    .user-table td{padding:7px 10px;border-bottom:1px solid var(--surface-2);}
+    @media(max-width:768px){.rbac-grid{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="rbac-grid">
+    <!-- System Roles -->
+    <div class="card">
+        <div class="card-header"><span class="card-title">System Roles</span></div>
+        <div class="card-body">
+            {% for role in system_roles %}
+            <div class="role-card">
+                <div class="role-name">{{ role.name }}</div>
+                <div class="role-desc">{{ role.description|default:"" }}</div>
+                <div>
+                    {% for perm in role.permissions %}<span class="perm-tag read">{{ perm }}</span>{% endfor %}
+                </div>
+            </div>
+            {% empty %}
+            <p style="color:var(--ink-4);">Run seed_system_roles() to initialize system roles.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- User Assignments -->
+    <div class="card">
+        <div class="card-header"><span class="card-title">User Role Assignments</span></div>
+        <div class="card-body" style="padding:0;">
+            {% if users %}
+            <div class="table-wrap">
+                <table class="user-table">
+                    <thead><tr><th>User</th><th>Role</th><th>Perm Groups</th></tr></thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td>{{ u.user.email }}</td>
+                            <td>{{ u.role_name|default:"—" }}</td>
+                            <td>{{ u.group_count|default:"0" }} groups</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-body"><p style="color:var(--ink-4);">No role assignments yet.</p></div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if audit_logs %}
+<div class="card" style="margin-top:18px;">
+    <div class="card-header"><span class="card-title">Recent Permission Changes</span></div>
+    <div class="card-body">
+        {% for log in audit_logs %}
+        <div style="padding:8px 0;border-bottom:1px solid var(--surface-2);font-size:12.5px;">{{ log.description }} — {{ log.created_at|date:"M d, Y H:i" }}</div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

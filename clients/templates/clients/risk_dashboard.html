@@ -1,0 +1,105 @@
+{% extends "clients/base.html" %}
+{% block title %}Risk Scanner — Mortacc{% endblock %}
+{% block nav_risk %}active{% endblock %}
+{% block topbar_title %}Risk Scanner{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'bulk_risk_scan' %}" class="btn btn-primary">Scan All Entities</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .risk-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px; }
+    .risk-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; text-align:center; }
+    .risk-card.critical { border-color:var(--red-muted); background:var(--red-bg); }
+    .risk-card.high { border-color:#fcd34d; background:#fffbeb; }
+    .risk-card .val { font-size:28px; font-weight:800; }
+    .risk-card.critical .val { color:var(--red); }
+    .risk-card.high .val { color:#b45309; }
+    .risk-card .lbl { font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-3); margin-top:2px; }
+
+    .entity-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+    .entity-card {
+        background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+        padding:16px; transition:var(--transition);
+    }
+    .entity-card:hover { border-color:var(--brand-muted); }
+    .entity-card .name { font-weight:600; font-size:13px; margin-bottom:6px; }
+    .entity-card .name a { color:var(--ink); text-decoration:none; }
+    .score-bar { height:6px; background:var(--surface-2); border-radius:3px; margin:8px 0; overflow:hidden; }
+    .score-fill { height:100%; border-radius:3px; }
+    .score-fill.red { background:var(--red); }
+    .score-fill.amber { background:#d97706; }
+    .score-fill.green { background:var(--green); }
+    .finding-tags { display:flex; gap:4px; flex-wrap:wrap; margin-top:6px; }
+    .tag { font-size:10px; font-weight:600; padding:2px 7px; border-radius:99px; }
+    .tag.critical { background:var(--red-bg); color:var(--red); }
+    .tag.high { background:#fef3c7; color:#b45309; }
+    .tag.medium { background:var(--blue-bg); color:var(--blue); }
+    .tag.low { background:var(--surface-2); color:var(--ink-3); }
+
+    .finding-row { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--surface-2); font-size:12px; }
+    .severity-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .severity-dot.critical { background:var(--red); }
+    .severity-dot.high { background:#d97706; }
+    .severity-dot.medium { background:var(--blue); }
+    .severity-dot.low { background:var(--ink-4); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="risk-stats">
+    <div class="risk-card critical">
+        <div class="val">{{ critical }}</div><div class="lbl">Critical Risks</div>
+    </div>
+    <div class="risk-card high">
+        <div class="val">{{ high }}</div><div class="lbl">High Risks</div>
+    </div>
+    <div class="risk-card">
+        <div class="val">{{ total_findings }}</div><div class="lbl">Total Open Findings</div>
+    </div>
+    <div class="risk-card">
+        <div class="val">{{ at_risk_clients|length }}</div><div class="lbl">Entities at Risk</div>
+    </div>
+</div>
+
+{% if at_risk_clients %}
+<h2 style="font-size:14px;font-weight:600;color:var(--ink);margin:0 0 10px">At-Risk Entities</h2>
+<div class="entity-grid">
+    {% for e in at_risk_clients|slice:":12" %}
+    <div class="entity-card">
+        <div class="name"><a href="{% url 'run_risk_scan' e.client.id %}">{{ e.client.name }}</a></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3)">
+            <span>Score: <strong>{{ e.score }}/100</strong></span>
+            <span>Scanned {{ e.scanned_at|date:"M d" }}</span>
+        </div>
+        <div class="score-bar"><div class="score-fill {% if e.score < 40 %}red{% elif e.score < 70 %}amber{% else %}green{% endif %}" style="width:{{ e.score }}%"></div></div>
+        <div class="finding-tags">
+            {% if e.critical %}<span class="tag critical">{{ e.critical }} critical</span>{% endif %}
+            {% if e.high %}<span class="tag high">{{ e.high }} high</span>{% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% if recent_findings %}
+<h2 style="font-size:14px;font-weight:600;color:var(--ink);margin:20px 0 10px">Recent Findings</h2>
+{% for f in recent_findings %}
+<div class="finding-row">
+    <span class="severity-dot {{ f.severity }}"></span>
+    <span style="font-weight:600;min-width:60px">{{ f.get_severity_display }}</span>
+    <span style="flex:1">{{ f.title }}</span>
+    <span style="color:var(--ink-3);min-width:120px;text-align:right">{{ f.client.name }}</span>
+    <span style="color:var(--ink-4);font-size:10px">{{ f.created_at|date:"M d" }}</span>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if not at_risk_clients and not recent_findings %}
+<div class="empty-state">
+    <h3>No risks detected yet</h3>
+    <p>Run a risk scan on your entities to identify compliance gaps, missing documents, and potential issues.</p>
+    <a href="{% url 'bulk_risk_scan' %}" class="btn btn-primary" style="margin-top:12px">Run First Scan</a>
+</div>
+{% endif %}
+{% endblock %}

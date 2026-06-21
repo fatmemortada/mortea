@@ -1,0 +1,83 @@
+{% extends "clients/base.html" %}
+{% block title %}Collaboration Hub — Mortacc{% endblock %}
+{% block nav_collaboration %}active{% endblock %}
+{% block topbar_title %}Collaboration Hub{% endblock %}
+{% block topbar_actions %}
+    <button class="btn btn-primary" onclick="document.getElementById('new-matter-modal').style.display='flex'">+ New Matter</button>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hub-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+    .hub-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
+    .hub-card .card-header { padding:14px 16px; border-bottom:1px solid var(--border); }
+    .matter-row { display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--surface-2); font-size:12.5px; }
+    .task-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+    .task-dot.overdue { background:var(--red); }
+    .task-dot.pending { background:var(--amber); }
+    .task-dot.complete { background:var(--green); }
+    @media (max-width:768px) { .hub-grid { grid-template-columns:1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hub-grid">
+    <!-- My Matters -->
+    <div class="hub-card">
+        <div class="card-header"><span class="card-title">My Matters</span></div>
+        <div style="max-height:350px;overflow-y:auto;">
+            {% for m in my_matters %}
+            <a href="{% url 'collaboration_matter' m.id %}" style="text-decoration:none;display:block;">
+                <div class="matter-row"><span style="color:var(--ink);font-weight:500;">{{ m.name }}</span><span style="color:var(--ink-4);font-size:11px;margin-left:auto;">{{ m.client.name }}</span></div>
+            </a>
+            {% empty %}
+            <div style="padding:24px;text-align:center;color:var(--ink-4);">No active matters</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Pending Approvals -->
+    <div class="hub-card">
+        <div class="card-header"><span class="card-title">Pending Approvals</span></div>
+        <div style="max-height:350px;overflow-y:auto;">
+            {% for a in pending_approvals %}
+            <div class="matter-row">
+                <div class="task-dot pending"></div>
+                <span>{{ a.task_name }}</span>
+                <span style="color:var(--ink-4);font-size:11px;margin-left:auto;">{{ a.matter.name }}</span>
+            </div>
+            {% empty %}
+            <div style="padding:24px;text-align:center;color:var(--ink-4);">Nothing pending</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Shared Compliance -->
+    <div class="hub-card">
+        <div class="card-header"><span class="card-title">Shared Deadlines</span></div>
+        <div style="max-height:350px;overflow-y:auto;">
+            {% for task in pending_tasks %}
+            <div class="matter-row">
+                <div class="task-dot {% if task.status == 'overdue' %}overdue{% else %}pending{% endif %}"></div>
+                <span>{{ task.title }}</span>
+                <span style="color:var(--ink-4);font-size:11px;margin-left:auto;">{{ task.due_date|date:"M d" }}</span>
+            </div>
+            {% empty %}
+            <div style="padding:24px;text-align:center;color:var(--ink-4);">No shared deadlines</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- New Matter Modal -->
+<div class="modal-backdrop" id="new-matter-modal">
+    <div class="modal">
+        <div class="modal-header"><span class="modal-title">New Matter</span><button type="button" class="modal-close" onclick="this.closest('.modal-backdrop').style.display='none'">&times;</button></div>
+        <div class="modal-body"><form method="POST">{% csrf_token %}
+            <div class="form-group"><label class="form-label">Matter Name</label><input class="form-control" name="name" required></div>
+            <div class="form-group"><label class="form-label">Client</label><select class="form-control" name="client_id">{% for c in all_firms %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></div>
+            <button type="submit" class="btn btn-primary">Create Matter</button>
+        </form></div>
+    </div>
+</div>
+{% endblock %}

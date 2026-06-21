@@ -1,0 +1,78 @@
+{% extends "clients/base.html" %}
+{% block title %}Risk Scan Results — {{ scan.client.name }} — Mortacc{% endblock %}
+{% block nav_risk %}active{% endblock %}
+{% block topbar_title %}Scan Results: {{ scan.client.name }}{% endblock %}
+{% block topbar_actions %}
+    <a href="{% url 'risk_dashboard' %}" class="btn btn-ghost btn-sm">← Risk Dashboard</a>
+    <a href="{% url 'client_detail' scan.client.id %}" class="btn btn-ghost btn-sm">Entity Detail</a>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .score-hero { text-align:center; padding:32px 20px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); margin-bottom:18px; }
+    .score-circle { display:inline-flex; align-items:center; justify-content:center; width:100px; height:100px; border-radius:50%; font-size:36px; font-weight:800; }
+    .score-circle.critical { background:var(--red-bg); color:var(--red); }
+    .score-circle.high { background:#fef3c7; color:#b45309; }
+    .score-circle.medium { background:var(--brand-soft); color:var(--brand); }
+    .score-circle.good { background:var(--green-bg); color:var(--green); }
+    .score-label { font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-4); margin-top:6px; }
+
+    .finding-group { margin-bottom:18px; }
+    .finding-group h4 { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:.3px; margin-bottom:8px; }
+    .finding-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:6px; }
+    .severity-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .severity-dot.critical { background:var(--red); }
+    .severity-dot.high { background:#d97706; }
+    .severity-dot.medium { background:var(--brand); }
+    .severity-dot.low { background:var(--ink-4); }
+    .finding-text { flex:1; }
+    .finding-title { font-size:13px; font-weight:500; color:var(--ink); }
+    .finding-desc { font-size:11px; color:var(--ink-4); margin-top:2px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Score Hero -->
+<div class="score-hero">
+    <div class="score-circle {% if scan.overall_score < 40 %}critical{% elif scan.overall_score < 70 %}high{% elif scan.overall_score < 85 %}medium{% else %}good{% endif %}">
+        {{ scan.overall_score }}
+    </div>
+    <div class="score-label">Overall Risk Score (0-100)</div>
+    <div style="display:flex; gap:20px; justify-content:center; margin-top:14px; font-size:12px;">
+        <span style="color:var(--red);">🔴 {{ scan.critical_count }} critical</span>
+        <span style="color:#d97706;">🟠 {{ scan.high_count }} high</span>
+        <span style="color:var(--brand);">🔵 {{ scan.medium_count }} medium</span>
+        <span style="color:var(--ink-4);">⚪ {{ scan.low_count }} low</span>
+    </div>
+</div>
+
+<!-- Findings by Severity -->
+{% if findings %}
+{% regroup findings|dictsortreversed:"severity" by get_severity_display as severity_groups %}
+{% for group in severity_groups %}
+<div class="finding-group">
+    <h4>{{ group.grouper }} ({{ group.list|length }})</h4>
+    {% for f in group.list %}
+    <div class="finding-row">
+        <div class="severity-dot {{ f.severity }}"></div>
+        <div class="finding-text">
+            <div class="finding-title">{{ f.title }}</div>
+            <div class="finding-desc">{{ f.description|truncatechars:120 }}</div>
+        </div>
+        <span style="font-size:10px; text-transform:uppercase; color:var(--ink-4);">{{ f.category }}</span>
+    </div>
+    {% endfor %}
+</div>
+{% endfor %}
+{% else %}
+<div class="empty-state">
+    <p style="font-size:15px;font-weight:500;color:var(--green);">✨ No risks found!</p>
+    <p style="font-size:13px;color:var(--ink-4);">This entity is in excellent compliance standing.</p>
+</div>
+{% endif %}
+
+<div style="display:flex;gap:8px;justify-content:center;margin-top:20px;">
+    <a href="{% url 'run_risk_scan' scan.client.id %}" class="btn btn-ghost">Re-scan</a>
+    <a href="{% url 'remediation_create' %}" class="btn btn-primary">Start Remediation</a>
+</div>
+{% endblock %}

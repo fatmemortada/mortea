@@ -1,0 +1,47 @@
+{% extends "clients/base.html" %}
+{% block title %}Appointments — {{ client.name }}{% endblock %}
+{% block topbar_title %}Appointments{% endblock %}
+{% block content %}<div style="max-width:900px">
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Officers, powers of attorney, signing authorities, agents and advisors</p></div>
+<a href="{% url 'entity_detail' client.id %}" class="btn btn-ghost btn-sm">← Entity</a></div>
+
+<div class="card mb-3"><div class="card-header"><span class="card-title">Active Appointments ({{ active_appointments|length }})</span></div>
+<div class="card-body" style="padding:0"><table>
+<thead><tr><th>Person</th><th>Role</th><th>Title</th><th>Granted By</th><th>Start</th><th></th></tr></thead>
+<tbody>
+{% for a in active_appointments %}
+<tr><td><strong>{{ a.person_name }}</strong></td><td>{{ a.get_role_display }}</td><td>{{ a.title|default:"—" }}</td><td style="font-size:12px">{{ a.granted_by|default:"—" }}</td><td>{{ a.start_date|date:"M d, Y"|default:"—" }}</td>
+<td style="white-space:nowrap">
+<form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="end_appointment"><input type="hidden" name="appointment_id" value="{{ a.id }}"><button type="submit" class="btn btn-ghost btn-sm" onclick="return confirm('End this appointment today?')">End</button></form>
+<form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete_appointment"><input type="hidden" name="appointment_id" value="{{ a.id }}"><button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this record?')">✕</button></form>
+</td></tr>
+{% empty %}
+<tr><td colspan="6"><div class="empty-state"><p>No active appointments. Add officers, powers of attorney or signing authorities below.</p></div></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+
+{% if ended_appointments %}
+<div class="card mb-3"><div class="card-header"><span class="card-title">Past Appointments ({{ ended_appointments|length }})</span></div>
+<div class="card-body" style="padding:0"><table>
+<thead><tr><th>Person</th><th>Role</th><th>Title</th><th>Start</th><th>Ended</th><th></th></tr></thead>
+<tbody>
+{% for a in ended_appointments %}
+<tr style="opacity:.7"><td>{{ a.person_name }}</td><td>{{ a.get_role_display }}</td><td>{{ a.title|default:"—" }}</td><td>{{ a.start_date|date:"M d, Y"|default:"—" }}</td><td style="color:var(--red)">{{ a.end_date|date:"M d, Y" }}</td>
+<td><form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete_appointment"><input type="hidden" name="appointment_id" value="{{ a.id }}"><button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this record?')">✕</button></form></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+{% endif %}
+
+<div class="card"><div class="card-header"><span class="card-title">New Appointment</span></div>
+<div class="card-body"><form method="POST">{% csrf_token %}<input type="hidden" name="action" value="add_appointment">
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Person *</label><input type="text" name="person_name" class="form-control" required></div>
+<div class="form-group"><label class="form-label">Role</label><select name="role" class="form-control">{% for value, label in role_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select></div>
+<div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-control" placeholder="e.g. President, CFO, Corporate Secretary"></div>
+<div class="form-group"><label class="form-label">Start Date</label><input type="date" name="start_date" class="form-control"></div>
+<div class="form-group form-full"><label class="form-label">Granted By</label><input type="text" name="granted_by" class="form-control" placeholder="e.g. Directors' Resolution dated Jan 15, 2026"></div>
+<div class="form-group form-full"><label class="form-label">Notes</label><input type="text" name="notes" class="form-control"></div>
+</div>
+<button type="submit" class="btn btn-primary">Add Appointment</button>
+</form></div></div>
+</div>{% endblock %}

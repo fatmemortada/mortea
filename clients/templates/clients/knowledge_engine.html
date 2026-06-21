@@ -1,0 +1,40 @@
+{% extends "clients/base.html" %}{% block title %}Knowledge Engine — Mortacc{% endblock %}
+{% block topbar_title %}📚 Accountant Knowledge Engine{% endblock %}
+{% block extra_head %}
+<style>
+.ke{max-width:800px;margin:0 auto;padding:20px}
+.ke-input{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;font-family:inherit}
+.ke-input:focus{border-color:#2563eb;outline:none}
+.ke-answer{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-top:16px;white-space:pre-line;font-size:14px;line-height:1.6}
+.ke-topics{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.ke-topic{padding:8px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:99px;font-size:12px;cursor:pointer}
+.ke-topic:hover{background:#eff6ff;border-color:#2563eb;color:#2563eb}
+</style>{% endblock %}
+{% block content %}
+<div class="ke">
+  <h2 style="font-size:20px;margin-bottom:4px">Accountant Knowledge Engine</h2>
+  <p style="color:#64748b;margin-bottom:20px">Ask any question about Canadian corporate procedures, tax deadlines, or compliance requirements.</p>
+  <form method="POST">{% csrf_token %}
+    <input type="text" name="question" class="ke-input" placeholder='e.g. "How do I file a BC annual report?" or "What are the T2 deadlines?" or "What are the shareholder loan rules?"' value="{{ request.POST.question|default:'' }}">
+    <button type="submit" style="margin-top:10px;background:#2563eb;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px">🔍 Ask</button>
+  </form>
+  <div class="ke-topics">
+    <span class="ke-topic" onclick="document.querySelector('.ke-input').value='How do I file a BC annual report?';this.closest('form').querySelector('button').click()">BC Annual Report</span>
+    <span class="ke-topic" onclick="document.querySelector('.ke-input').value='What are the T2 filing deadlines?';this.closest('form').querySelector('button').click()">T2 Deadlines</span>
+    <span class="ke-topic" onclick="document.querySelector('.ke-input').value='How do I declare a corporate dividend?';this.closest('form').querySelector('button').click()">Dividends</span>
+    <span class="ke-topic" onclick="document.querySelector('.ke-input').value='What are the shareholder loan rules?';this.closest('form').querySelector('button').click()">Shareholder Loans</span>
+    <span class="ke-topic" onclick="document.querySelector('.ke-input').value='How do I file a Quebec declaration annuelle?';this.closest('form').querySelector('button').click()">Québec Declaration</span>
+    <span class="ke-topic" onclick="document.querySelector('.ke-input').value='How do I file an Ontario annual return?';this.closest('form').querySelector('button').click()">Ontario Annual Return</span>
+  </div>
+  {% if answer %}
+  <div class="ke-answer">
+    {% if answer.found %}
+    <span style="font-size:11px;background:#dcfce7;color:#16a34a;padding:2px 8px;border-radius:99px">{{ answer.category|title }} · {{ answer.confidence|title }} confidence</span>
+    <div style="margin-top:8px">{{ answer.answer }}</div>
+    {% else %}
+    <div style="color:#64748b">{{ answer.message }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

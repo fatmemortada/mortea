@@ -1,0 +1,73 @@
+{% extends "clients/base.html" %}
+{% block title %}Cap Table — {{ client.name }}{% endblock %}
+{% block topbar_title %}Cap Table{% endblock %}
+{% block content %}<div style="max-width:1000px">
+<div class="page-header"><div class="page-header-text"><h1>{{ client.name }}</h1><p>Capitalization table — authorized share classes, holdings and ownership percentages</p></div>
+<div style="display:flex;gap:8px">
+<a href="?export=csv" class="btn btn-ghost btn-sm">Export CSV</a>
+<a href="{% url 'entity_detail' client.id %}" class="btn btn-ghost btn-sm">← Entity</a>
+</div></div>
+
+<div class="info-grid mb-3">
+<div class="info-card"><div class="info-label">Total Issued Shares</div><div class="info-value">{{ total_shares }}</div></div>
+<div class="info-card"><div class="info-label">Share Classes</div><div class="info-value">{{ cap_rows|length }}</div></div>
+<div class="info-card"><div class="info-label">Authorized Classes</div><div class="info-value">{{ share_classes|length }}</div></div>
+</div>
+
+{% for row in cap_rows %}
+<div class="card mb-3">
+<div class="card-header"><span class="card-title">{{ row.name }}
+{% if row.share_class %}<span class="badge">{{ row.share_class.get_class_type_display }}{% if row.share_class.voting %} · {{ row.share_class.votes_per_share }} vote{{ row.share_class.votes_per_share|pluralize }}/share{% else %} · Non-voting{% endif %}</span>{% endif %}
+</span>
+<span style="font-size:12px;color:var(--ink-4)">{{ row.issued }} issued — {{ row.pct_of_total }}% of total{% if row.share_class.authorized_shares %} · {{ row.share_class.authorized_shares }} authorized{% endif %}</span></div>
+<div class="card-body" style="padding:0"><table>
+<thead><tr><th>Shareholder</th><th>Shares</th><th>% of Class</th><th>% of Total</th><th>Acquired</th></tr></thead>
+<tbody>
+{% for h in row.holders %}
+<tr><td><strong>{{ h.shareholder.full_name }}</strong></td><td>{{ h.shareholder.num_shares }}</td><td>{{ h.pct_of_class }}%</td><td>{{ h.pct_of_total }}%</td><td>{{ h.shareholder.acquisition_date|date:"M d, Y"|default:"—" }}</td></tr>
+{% endfor %}
+</tbody></table></div></div>
+{% empty %}
+<div class="card mb-3"><div class="card-body"><div class="empty-state"><p>No shares issued yet. Add shareholders from the entity page.</p></div></div></div>
+{% endfor %}
+
+<div class="card mb-3"><div class="card-header"><span class="card-title">Authorized Share Classes</span></div>
+<div class="card-body" style="padding:0"><table>
+<thead><tr><th>Class</th><th>Type</th><th>Voting</th><th>Authorized</th><th>Par Value</th><th>Rights &amp; Restrictions</th><th></th></tr></thead>
+<tbody>
+{% for sc in share_classes %}
+<tr><td><strong>{{ sc.name }}</strong></td><td>{{ sc.get_class_type_display }}</td>
+<td>{% if sc.voting %}{{ sc.votes_per_share }}/share{% else %}Non-voting{% endif %}</td>
+<td>{{ sc.authorized_shares|default:"Unlimited" }}</td><td>{{ sc.par_value|default:"—" }}</td>
+<td style="font-size:12px">{{ sc.rights_restrictions|truncatechars:80|default:"—" }}</td>
+<td><form method="POST" style="display:inline">{% csrf_token %}<input type="hidden" name="action" value="delete_class"><input type="hidden" name="class_id" value="{{ sc.id }}"><button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remove this share class?')">✕</button></form></td></tr>
+{% empty %}
+<tr><td colspan="7"><div class="empty-state"><p>No authorized share classes declared yet. Add one below to formalize the articles.</p></div></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+
+<div class="card mb-3"><div class="card-header"><span class="card-title">Add Share Class</span></div>
+<div class="card-body"><form method="POST">{% csrf_token %}<input type="hidden" name="action" value="add_class">
+<div class="form-grid-2">
+<div class="form-group"><label class="form-label">Class Name *</label><input type="text" name="name" class="form-control" placeholder="e.g. Class A Preferred" required></div>
+<div class="form-group"><label class="form-label">Type</label><select name="class_type" class="form-control"><option value="common">Common</option><option value="preferred">Preferred</option><option value="special">Special</option></select></div>
+<div class="form-group"><label class="form-label">Authorized Shares</label><input type="number" name="authorized_shares" class="form-control" placeholder="Blank = unlimited"></div>
+<div class="form-group"><label class="form-label">Par Value</label><input type="number" name="par_value" class="form-control" step="0.0001" placeholder="Optional"></div>
+<div class="form-group"><label class="form-label">Votes per Share</label><input type="number" name="votes_per_share" class="form-control" value="1" min="0"></div>
+<div class="form-group"><label class="form-label" style="display:block">Voting</label><label style="font-size:13px"><input type="checkbox" name="voting" checked> Voting class</label></div>
+<div class="form-group form-full"><label class="form-label">Rights &amp; Restrictions</label><input type="text" name="rights_restrictions" class="form-control" placeholder="Rights, privileges, restrictions and conditions"></div>
+</div>
+<button type="submit" class="btn btn-primary">Add Share Class</button>
+</form></div></div>
+
+<div class="card"><div class="card-header"><span class="card-title">Recent Share Transactions</span></div>
+<div class="card-body" style="padding:0"><table>
+<thead><tr><th>Date</th><th>Type</th><th>Class</th><th>Shares</th><th>From</th><th>To</th></tr></thead>
+<tbody>
+{% for t in transactions %}
+<tr><td>{{ t.transaction_date|date:"M d, Y" }}</td><td>{{ t.get_transaction_type_display }}</td><td>{{ t.share_class }}</td><td>{{ t.num_shares }}</td><td>{{ t.shareholder_from.full_name|default:"—" }}</td><td>{{ t.shareholder_to.full_name|default:"—" }}</td></tr>
+{% empty %}
+<tr><td colspan="6"><div class="empty-state"><p>No share transactions recorded.</p></div></td></tr>
+{% endfor %}
+</tbody></table></div></div>
+</div>{% endblock %}

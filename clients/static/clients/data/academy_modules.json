@@ -1,0 +1,789 @@
+{
+  "categories": [
+    {"id": "incorporation", "title": "Incorporations", "icon": "🏢", "sort": 1},
+    {"id": "records", "title": "Corporate Records", "icon": "📚", "sort": 2},
+    {"id": "compliance", "title": "Compliance & Maintenance", "icon": "⚖️", "sort": 3},
+    {"id": "changes", "title": "Corporate Changes", "icon": "🔄", "sort": 4},
+    {"id": "governance", "title": "Governance & Tax", "icon": "🏛️", "sort": 5},
+    {"id": "digital", "title": "Digital & Best Practices", "icon": "💡", "sort": 6}
+  ],
+
+  "modules": [
+    {
+      "id": "federal-incorporation",
+      "category": "incorporation",
+      "title": "Federal Incorporation (CBCA)",
+      "short_description": "Complete guide to incorporating a business under the Canada Business Corporations Act — from name search to post-incorporation compliance.",
+      "long_description": "Learn every step of the federal incorporation process. We cover NUANS name searches, preparing Articles of Incorporation, selecting directors, setting up share structures, filing with Corporations Canada, and all post-incorporation requirements including minute book setup, CRA registration, and ongoing annual maintenance obligations.",
+      "icon": "🏛️",
+      "thumbnail_gradient": "linear-gradient(135deg, #1e3a5f, #2563eb)",
+      "thumbnail_icon": "🏛️",
+      "watch_time_minutes": 45,
+      "chapter_count": 6,
+      "difficulty": "beginner",
+      "chapters": [
+        {
+          "id": "intro",
+          "title": "What is a Federal Corporation?",
+          "duration_minutes": 6,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>What is a Federal Corporation?</h3><p>A federal corporation is a legal business entity incorporated under the <strong>Canada Business Corporations Act (CBCA)</strong>. It is recognized across all provinces and territories and can carry on business anywhere in Canada under its corporate name.</p><p>Unlike provincial corporations, federal corporations have the right to use their corporate name nationwide and are subject to a single, national regulatory framework administered by Corporations Canada.</p><h4>Key Characteristics</h4><ul><li>Separate legal entity distinct from its shareholders</li><li>Limited liability for shareholders</li><li>Perpetual existence — continues regardless of shareholder changes</li><li>Ability to own property, enter contracts, and sue or be sued</li><li>Nationwide name protection under the CBCA</li><li>25% Canadian resident director requirement</li></ul>",
+            "animation": {
+              "type": "comparison",
+              "title": "Federal vs Provincial Incorporation",
+              "left_title": "Federal (CBCA)",
+              "right_title": "Provincial (e.g. OBCA)",
+              "rows": [
+                {"label": "Name Protection", "left": "Nationwide", "right": "Province only"},
+                {"label": "Extra-Provincial Registration", "left": "Not required", "right": "Required in other provinces"},
+                {"label": "Director Residency", "left": "25% Canadian residents", "right": "25% (ON) or majority (some provinces)"},
+                {"label": "Governing Body", "left": "Corporations Canada", "right": "Provincial registry"},
+                {"label": "Annual Filing", "left": "Annual Return (Corporations Canada)", "right": "Annual Return (Provincial)"},
+                {"label": "Corporate Records", "left": "Must be kept at registered office", "right": "Must be kept at registered office"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "CBCA", "definition": "Canada Business Corporations Act — the federal statute that governs federally incorporated companies in Canada."},
+              {"term": "Separate Legal Entity", "definition": "A corporation is legally distinct from its owners. It can own assets, incur debts, and be sued in its own name."},
+              {"term": "Limited Liability", "definition": "Shareholders are generally not personally liable for the corporation's debts beyond their investment."},
+              {"term": "Registered Office", "definition": "The official address of the corporation where corporate records must be maintained."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "Which Act governs federal corporations in Canada?",
+                "options": ["CBCA", "OBCA", "BCA", "LSAQ"],
+                "correct": 0,
+                "explanation": "The Canada Business Corporations Act (CBCA) is the federal statute governing federally incorporated companies."
+              },
+              {
+                "question": "What percentage of directors must be Canadian residents for a CBCA corporation?",
+                "options": ["25%", "51%", "50%", "No minimum"],
+                "correct": 0,
+                "explanation": "At least 25% of the directors of a CBCA corporation must be resident Canadians."
+              }
+            ],
+            "resources": [
+              {"title": "Corporations Canada Website", "url": "https://ised-isde.canada.ca/site/corporations-canada/en", "type": "external"},
+              {"title": "CBCA Full Text", "url": "https://laws-lois.justice.gc.ca/eng/acts/C-44/", "type": "external"}
+            ],
+            "faq": [
+              {"q": "Can a federal corporation operate in any province?", "a": "Yes. A federal corporation has the right to carry on business in all provinces and territories. However, it must register extra-provincially in each province where it has a physical presence or employees."},
+              {"q": "How is a federal corporation different from a provincial one?", "a": "Federal corporations have nationwide name protection and a single regulator (Corporations Canada). Provincial corporations are governed by provincial law and must register extra-provincially to operate in other provinces."},
+              {"q": "Can one person be the sole director, officer, and shareholder?", "a": "Yes. A single individual can serve as the sole director, officer (President/Secretary), and 100% shareholder of a CBCA corporation — provided they meet the 25% Canadian residency requirement."}
+            ]
+          }
+        },
+        {
+          "id": "name-search",
+          "title": "NUANS Name Search & Corporate Name Rules",
+          "duration_minutes": 8,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>NUANS Name Search</h3><p>Before incorporating, you must either choose a distinctive corporate name or use a numbered designation. If choosing a name, a <strong>NUANS search report</strong> is required.</p><p>NUANS (Newly Updated Automated Name Search) compares your proposed name against existing corporate names, trademarks, and business names across Canada to ensure it is not confusingly similar to an existing name.</p><h4>Name Requirements Under the CBCA</h4><ul><li>Must be distinctive — not merely descriptive of the business</li><li>Must include a legal element: Ltd., Inc., Corp., Limited, Incorporated, Corporation</li><li>Cannot be confusingly similar to an existing corporate name or trademark</li><li>Cannot suggest government or Crown affiliation</li><li>Cannot include restricted words without approval (e.g., Bank, Insurance, Trust, University)</li></ul>",
+            "animation": {
+              "type": "flowchart",
+              "title": "The Name Search Process",
+              "steps": [
+                {"label": "Choose Proposed Name", "icon": "✏️", "description": "Select 2–3 name options in order of preference"},
+                {"label": "NUANS Search", "icon": "🔍", "description": "Search report compares against all registered names and trademarks"},
+                {"label": "Review Report", "icon": "📋", "description": "Check for confusingly similar names or trademarks"},
+                {"label": "Reserve or Proceed", "icon": "✅", "description": "Use the NUANS report with your Articles of Incorporation"},
+                {"label": "Receive Name Approval", "icon": "📜", "description": "Corporations Canada approves or rejects the proposed name"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "NUANS", "definition": "Newly Updated Automated Name Search — a database search comparing proposed corporate names against existing names and trademarks."},
+              {"term": "Distinctiveness", "definition": "A corporate name must be unique enough to distinguish the corporation from others. Descriptive names like 'Consulting Inc.' are generally rejected."},
+              {"term": "Legal Element", "definition": "The mandatory suffix indicating incorporation: Limited (Ltd.), Incorporated (Inc.), Corporation (Corp.), or French equivalents (Ltée, Inc.)."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "How long is a NUANS search report valid?",
+                "options": ["30 days", "60 days", "90 days", "180 days"],
+                "correct": 2,
+                "explanation": "A NUANS search report is valid for 90 days from the date of issuance."
+              },
+              {
+                "question": "Which is NOT required in a corporate name?",
+                "options": ["Distinctiveness", "A legal element (Ltd., Inc.)", "The owner's surname", "No confusion with existing names"],
+                "correct": 2,
+                "explanation": "The owner's surname is not required. The name must be distinctive, include a legal element, and not be confusing with existing names."
+              }
+            ],
+            "resources": [
+              {"title": "NUANS Search Portal", "url": "https://nuans.com", "type": "external"},
+              {"title": "Corporate Name Guidelines", "url": "https://ised-isde.canada.ca/site/corporations-canada/en/name-corporation", "type": "external"}
+            ],
+            "faq": [
+              {"q": "Do I need a NUANS search for a numbered company?", "a": "No. Numbered companies (e.g., '12345678 Canada Inc.') do not require a NUANS search. The number is assigned automatically by Corporations Canada."},
+              {"q": "What if my proposed name is rejected?", "a": "Corporations Canada will notify you and give you an opportunity to submit a new name or amend the application. Having 2–3 backup options in your NUANS report helps avoid delays."}
+            ]
+          }
+        },
+        {
+          "id": "articles",
+          "title": "Articles of Incorporation",
+          "duration_minutes": 10,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>Articles of Incorporation</h3><p>The Articles of Incorporation is the foundational constitutional document of the corporation. It sets out the corporation's name, share structure, director provisions, and restrictions (if any). Preparing accurate and complete articles is the most important step in the incorporation process.</p><h4>Required Elements</h4><ul><li><strong>Corporate Name</strong> — Proposed name (with NUANS report) or numbered designation</li><li><strong>Registered Office Address</strong> — Must be a physical address in the province of registration</li><li><strong>Share Structure</strong> — Classes of shares, maximum number per class, rights and restrictions</li><li><strong>Director Provisions</strong> — Minimum and maximum number of directors, residency requirements</li><li><strong>Restrictions on Business</strong> — Any limits on the corporation's activities (if applicable)</li><li><strong>Other Provisions</strong> — Any additional clauses required by the incorporators</li></ul>",
+            "animation": {
+              "type": "flowchart",
+              "title": "Articles of Incorporation Structure",
+              "steps": [
+                {"label": "Name & Office", "icon": "📛", "description": "Corporate name and registered office address"},
+                {"label": "Share Structure", "icon": "📊", "description": "Share classes, maximum numbers, rights & restrictions"},
+                {"label": "Directors", "icon": "👥", "description": "Min/max directors, residency rules"},
+                {"label": "Restrictions", "icon": "🔒", "description": "Business restrictions and special provisions"},
+                {"label": "Incorporators", "icon": "✍️", "description": "Names and signatures of incorporators"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "Authorized Share Capital", "definition": "The maximum number of shares the corporation is authorized to issue, set out in the Articles. There is no statutory maximum under the CBCA."},
+              {"term": "Registered Office", "definition": "The official address where corporate records must be kept. Must be in the province specified in the Articles."},
+              {"term": "Incorporator", "definition": "The person(s) who sign and submit the Articles of Incorporation. Must be at least 18 years old and not bankrupt."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "Which of the following is NOT required in Articles of Incorporation?",
+                "options": ["Corporate name", "Share structure", "Director names", "Business number"],
+                "correct": 3,
+                "explanation": "The business number (BN) is assigned by the CRA after incorporation — it is not included in Articles of Incorporation."
+              },
+              {
+                "question": "Where must the registered office be located?",
+                "options": ["Anywhere in Canada", "In the province specified in the Articles", "At the director's home address", "At the corporation's bank"],
+                "correct": 1,
+                "explanation": "The registered office must be in the province specified in the Articles of Incorporation."
+              }
+            ],
+            "resources": [
+              {"title": "Articles of Incorporation (CBCA) — Form 1", "url": "https://ised-isde.canada.ca/site/corporations-canada/en/forms", "type": "external"}
+            ],
+            "faq": [
+              {"q": "Can I have multiple classes of shares?", "a": "Yes. You can create multiple share classes (e.g., Class A voting common shares, Class B non-voting preferred shares) with different rights, privileges, restrictions, and conditions attached to each class."},
+              {"q": "What is the minimum number of directors?", "a": "A CBCA corporation must have at least one director. If the corporation is a distributing corporation (public), it must have at least three directors, at least two of whom are not officers or employees."}
+            ]
+          }
+        },
+        {
+          "id": "post-incorporation",
+          "title": "Post-Incorporation Steps",
+          "duration_minutes": 8,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>After Incorporation: Critical Next Steps</h3><p>Receiving the Certificate of Incorporation is just the beginning. A series of organizational steps must be completed promptly to ensure the corporation is properly constituted and compliant.</p><h4>Immediate Post-Incorporation Tasks</h4><ol><li><strong>Organizational Meeting</strong> — Hold the first meeting of directors (or shareholders) to adopt bylaws, elect officers, issue shares, and approve corporate records</li><li><strong>Minute Book Setup</strong> — Create the corporate minute book containing bylaws, resolutions, share registers, director/officer registers, and transfer registers</li><li><strong>Share Issuance</strong> — Issue shares to the founding shareholders and record them in the securities register</li><li><strong>CRA Registration</strong> — Register for a Business Number (BN), GST/HST (if applicable), payroll deductions, and corporate income tax</li><li><strong>Provincial Registrations</strong> — Register for provincial taxes (PST/QST), workers' compensation, and any provincial licensing requirements</li></ol>",
+            "animation": {
+              "type": "timeline",
+              "title": "Post-Incorporation Timeline",
+              "events": [
+                {"date": "Day 1", "title": "Certificate Received", "description": "Certificate of Incorporation issued by Corporations Canada"},
+                {"date": "Day 1–7", "title": "Organizational Meeting", "description": "Adopt bylaws, elect directors/officers, issue shares"},
+                {"date": "Day 1–14", "title": "Minute Book Setup", "description": "Assemble corporate records, registers, and resolutions"},
+                {"date": "Day 1–30", "title": "CRA Registration", "description": "Business Number, GST/HST, payroll, corporate income tax"},
+                {"date": "Ongoing", "title": "Annual Compliance", "description": "Annual returns, financial statements, director updates"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "Organizational Resolutions", "definition": "The first resolutions passed by the board: adopting bylaws, appointing officers, issuing shares, approving banking resolutions, and adopting the corporate seal."},
+              {"term": "Minute Book", "definition": "The official record book containing all corporate documents: articles, bylaws, minutes, resolutions, and statutory registers."},
+              {"term": "Business Number (BN)", "definition": "A 9-digit identifier assigned by the CRA. Used for corporate income tax, GST/HST, payroll, and import/export accounts."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "When should the organizational meeting be held?",
+                "options": ["Within 30 days", "Promptly after receiving the Certificate", "At the first fiscal year-end", "No meeting is required"],
+                "correct": 1,
+                "explanation": "The organizational meeting should be held promptly after receiving the Certificate of Incorporation to adopt bylaws, elect officers, and issue shares."
+              },
+              {
+                "question": "What is a Business Number (BN)?",
+                "options": ["The corporation's bank account number", "A 9-digit CRA identifier for tax accounts", "The NUANS search number", "The incorporation number"],
+                "correct": 1,
+                "explanation": "The Business Number is a 9-digit identifier assigned by the CRA for corporate tax, GST/HST, payroll, and other program accounts."
+              }
+            ],
+            "resources": [
+              {"title": "CRA Business Registration Online", "url": "https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/registering-your-business/bro.html", "type": "external"}
+            ],
+            "faq": [
+              {"q": "Do I need a corporate seal?", "a": "A corporate seal is not legally required under the CBCA, but many corporations choose to have one for traditional document execution. It is no longer mandatory."},
+              {"q": "When must I register for GST/HST?", "a": "You must register for GST/HST if your corporation's worldwide taxable supplies exceed $30,000 in any single calendar quarter or over four consecutive quarters. Voluntary registration is also available."}
+            ]
+          }
+        },
+        {
+          "id": "compliance",
+          "title": "Ongoing Compliance Requirements",
+          "duration_minutes": 7,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>Ongoing Compliance for Federal Corporations</h3><p>Incorporation is not a one-time event. Federal corporations must comply with ongoing filing, record-keeping, and governance requirements under the CBCA. Failure to comply can result in administrative dissolution.</p><h4>Annual Requirements</h4><ul><li><strong>Annual Return</strong> — File within 60 days of the corporation's anniversary date. Includes director and registered office information.</li><li><strong>Annual Meetings</strong> — Hold annual meetings of shareholders (AGM) within 15 months of the previous meeting. Directors must present financial statements.</li><li><strong>Financial Statements</strong> — Prepare annual financial statements. Public corporations must file audited statements; private corporations must prepare them but filing is not always required.</li><li><strong>Director/Officer Updates</strong> — Notify Corporations Canada of any changes to directors, officers, or registered office address within 15 days.</li><li><strong>Minute Book Maintenance</strong> — Keep corporate records up to date: minutes of all meetings, resolutions, share transfers, and register changes.</li></ul>",
+            "animation": {
+              "type": "timeline",
+              "title": "Annual Compliance Cycle",
+              "events": [
+                {"date": "Month 1", "title": "Incorporation Anniversary", "description": "Annual return due within 60 days"},
+                {"date": "Month 3", "title": "AGM Preparation", "description": "Prepare financial statements and resolutions"},
+                {"date": "Month 4", "title": "Annual General Meeting", "description": "Shareholders approve financials, elect directors"},
+                {"date": "Month 6", "title": "Mid-Year Review", "description": "Review director/officer changes, update registers"},
+                {"date": "Month 12", "title": "Year-End Preparation", "description": "Prepare for next cycle, review corporate health"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "Annual Return", "definition": "A mandatory filing with Corporations Canada confirming the corporation's current directors and registered office address. Due within 60 days of the anniversary date."},
+              {"term": "Administrative Dissolution", "definition": "Corporations Canada may dissolve a corporation that fails to file annual returns. The corporation can be revived, but the process involves additional fees and filings."},
+              {"term": "AGM", "definition": "Annual General Meeting — a yearly meeting of shareholders required by the CBCA. Directors present financial statements, shareholders elect directors, and auditors are appointed (if applicable)."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "When must the annual return be filed?",
+                "options": ["At fiscal year-end", "Within 60 days of anniversary date", "Within 90 days of incorporation", "Every 2 years"],
+                "correct": 1,
+                "explanation": "The annual return must be filed within 60 days of the corporation's anniversary date (the date of incorporation)."
+              },
+              {
+                "question": "What happens if a corporation fails to file annual returns?",
+                "options": ["Nothing — it's optional", "A $25 late fee applies", "The corporation may be administratively dissolved", "The directors are personally fined"],
+                "correct": 2,
+                "explanation": "Corporations Canada may administratively dissolve a corporation that fails to file annual returns. The corporation can be revived, but this adds cost and complexity."
+              }
+            ],
+            "resources": [
+              {"title": "Corporations Canada — Filing Annual Returns", "url": "https://ised-isde.canada.ca/site/corporations-canada/en/filing-annual-returns", "type": "external"}
+            ],
+            "faq": [
+              {"q": "Can I file the annual return online?", "a": "Yes. Corporations Canada offers online filing through their Online Filing Centre. Most returns can be completed in under 10 minutes."},
+              {"q": "What is the penalty for late filing?", "a": "There is no immediate financial penalty, but the corporation risks administrative dissolution if returns remain unfiled. Revival costs typically range from $200–$400."}
+            ]
+          }
+        },
+        {
+          "id": "quiz",
+          "title": "End of Module Quiz — Federal Incorporation",
+          "duration_minutes": 8,
+          "type": "quiz",
+          "content": {
+            "pass_threshold": 75,
+            "questions": [
+              {
+                "question": "Which legislation governs federal incorporation in Canada?",
+                "options": ["OBCA", "CBCA", "BCA", "Canada Not-for-Profit Corporations Act"],
+                "correct": 1,
+                "explanation": "The Canada Business Corporations Act (CBCA) governs federally incorporated for-profit companies."
+              },
+              {
+                "question": "What is the minimum number of directors for a CBCA corporation?",
+                "options": ["1", "2", "3", "5"],
+                "correct": 0,
+                "explanation": "A CBCA corporation requires at least one director. For distributing (public) corporations, at least three are required."
+              },
+              {
+                "question": "How long is a NUANS search report valid?",
+                "options": ["30 days", "60 days", "90 days", "180 days"],
+                "correct": 2,
+                "explanation": "A NUANS search report is valid for 90 days from the date of issuance. The report must be submitted with your Articles of Incorporation within this window."
+              },
+              {
+                "question": "What percentage of directors must be resident Canadians under the CBCA?",
+                "options": ["0% — no requirement", "25%", "51%", "100%"],
+                "correct": 1,
+                "explanation": "At least 25% of directors must be resident Canadians. If the corporation has fewer than 4 directors, at least 1 must be a resident Canadian."
+              },
+              {
+                "question": "When must the annual return be filed?",
+                "options": ["Within 30 days of fiscal year-end", "Within 60 days of the anniversary date", "Within 90 days of AGM", "Within 6 months of incorporation"],
+                "correct": 1,
+                "explanation": "The annual return must be filed within 60 days of the corporation's anniversary date (the date it was incorporated)."
+              },
+              {
+                "question": "What does NUANS stand for?",
+                "options": ["National Unified Automated Name System", "Newly Updated Automated Name Search", "National Universal Address Naming System", "New Unified Application Name Service"],
+                "correct": 1,
+                "explanation": "NUANS stands for Newly Updated Automated Name Search. It compares your proposed corporate name against existing names and trademarks."
+              },
+              {
+                "question": "Which post-incorporation step must be completed first?",
+                "options": ["CRA registration", "Organizational meeting and minute book setup", "GST/HST registration", "Opening a bank account"],
+                "correct": 1,
+                "explanation": "The organizational meeting should be held first — to adopt bylaws, elect officers, issue shares, and set up the minute book. Other registrations follow from these organizational decisions."
+              },
+              {
+                "question": "What happens if a federal corporation does not file its annual returns?",
+                "options": ["A $500 late fee", "The corporation may be administratively dissolved", "The directors go to jail", "Nothing — annual returns are optional"],
+                "correct": 1,
+                "explanation": "Corporations Canada may administratively dissolve the corporation for non-filing. The corporation can be revived, but it requires additional filings and fees."
+              }
+            ]
+          }
+        }
+      ],
+      "cta": {
+        "primary": {"text": "Start Your Federal Incorporation", "url": "/incorporations/new/", "icon": "🏢"},
+        "secondary": {"text": "Book a Demo", "url": "/demo/", "icon": "📅"}
+      }
+    },
+
+    {
+      "id": "minute-books-guide",
+      "category": "records",
+      "title": "Minute Books: The Complete Guide",
+      "short_description": "Everything you need to know about corporate minute books — required documents, statutory registers, annual updates, and best practices for maintaining compliant records.",
+      "long_description": "A comprehensive guide to corporate minute books for Canadian corporations. Learn what documents must be included, how to maintain statutory registers, the difference between physical and digital minute books, annual update procedures, and how Mortacc automates minute book generation — including bilingual EN/FR documents.",
+      "icon": "📚",
+      "thumbnail_gradient": "linear-gradient(135deg, #4c1d95, #7c3aed)",
+      "thumbnail_icon": "📚",
+      "watch_time_minutes": 40,
+      "chapter_count": 5,
+      "difficulty": "beginner",
+      "chapters": [
+        {
+          "id": "what-is-minute-book",
+          "title": "What is a Corporate Minute Book?",
+          "duration_minutes": 7,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>What is a Corporate Minute Book?</h3><p>The corporate minute book is the official record of a corporation's legal and governance documents. It serves as the central repository for all corporate records and is the first thing reviewed during due diligence, financing, or a CRA audit.</p><p>Under the CBCA and provincial statutes, every corporation is <strong>legally required</strong> to maintain certain records at its registered office. The minute book is how these records are organized and preserved.</p><h4>Why Minute Books Matter</h4><ul><li><strong>Legal Compliance</strong> — Required by corporate statutes across all Canadian jurisdictions</li><li><strong>Due Diligence</strong> — Buyers, lenders, and investors review minute books before transactions</li><li><strong>CRA Audits</strong> — Minute books demonstrate corporate governance and support tax positions</li><li><strong>Director Protection</strong> — Proper records protect directors from personal liability claims</li><li><strong>Corporate Memory</strong> — Maintains a complete history of all corporate decisions and changes</li></ul>",
+            "animation": {
+              "type": "comparison",
+              "title": "Well-Maintained vs Deficient Minute Book",
+              "left_title": "Well-Maintained",
+              "right_title": "Deficient",
+              "rows": [
+                {"label": "Articles & Bylaws", "left": "✓ Complete and current", "right": "Missing or outdated"},
+                {"label": "Director Register", "left": "✓ Updated with all changes", "right": "Gaps in director history"},
+                {"label": "Shareholder Register", "left": "✓ All issuances and transfers recorded", "right": "Missing transfers, stale data"},
+                {"label": "Minutes & Resolutions", "left": "✓ All meetings documented", "right": "Missing years of minutes"},
+                {"label": "Share Certificates", "left": "✓ Issued and tracked", "right": "Not issued or missing"},
+                {"label": "Annual Filings", "left": "✓ Filed on time, copies kept", "right": "Unknown filing status"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "Minute Book", "definition": "The bound or digital collection of a corporation's foundational documents, registers, minutes, resolutions, and share records."},
+              {"term": "Statutory Registers", "definition": "Mandatory records required by corporate law: register of directors, register of officers, register of shareholders, and securities register."},
+              {"term": "Due Diligence", "definition": "The investigation process conducted by buyers, lenders, or investors to verify a corporation's legal standing, governance, and compliance history."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "Are minute books legally required for Canadian corporations?",
+                "options": ["Yes — under the CBCA and provincial statutes", "No — they are optional", "Only for public companies", "Only for federal corporations"],
+                "correct": 0,
+                "explanation": "All Canadian corporations — federal and provincial — are legally required to maintain corporate records. The minute book is the standard way to organize these records."
+              },
+              {
+                "question": "Who typically reviews minute books during due diligence?",
+                "options": ["Only the CRA", "Buyers, lenders, and investors", "Only the corporation's accountant", "No one — minute books are private"],
+                "correct": 1,
+                "explanation": "During any transaction — financing, sale, investment — the counterparty's legal counsel will review the minute book to verify governance and identify gaps."
+              }
+            ],
+            "resources": [
+              {"title": "CBCA Record-Keeping Requirements (Section 21)", "url": "https://laws-lois.justice.gc.ca/eng/acts/C-44/page-4.html", "type": "external"}
+            ],
+            "faq": [
+              {"q": "Can a minute book be digital?", "a": "Yes. Digital minute books are legally valid in Canada. Mortacc provides a complete digital minute book system with all required registers and documents."},
+              {"q": "How far back should minute book records go?", "a": "Records should go back to incorporation. Permanent records (articles, bylaws) must be kept indefinitely. Accounting records must be kept for 6 years from the end of the tax year."}
+            ]
+          }
+        },
+        {
+          "id": "required-documents",
+          "title": "Required Documents & Registers",
+          "duration_minutes": 9,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>Required Documents in a Minute Book</h3><p>A complete corporate minute book contains several categories of documents. Understanding what is required — and what should be included for best practice — helps ensure your corporation is audit-ready.</p><h4>Statutory Registers (Mandatory)</h4><ul><li><strong>Register of Directors</strong> — Names, addresses, dates of appointment/resignation, and residency status of all directors</li><li><strong>Register of Officers</strong> — Names, positions, and dates of appointment/resignation</li><li><strong>Register of Shareholders</strong> — Names, addresses, number and class of shares held, dates of issuance/transfer</li><li><strong>Securities Register</strong> — Details of each share certificate issued, including certificate numbers, dates, and to whom issued</li></ul><h4>Additional Essential Documents</h4><ul><li>Certificate of Incorporation</li><li>Articles of Incorporation (and any amendments)</li><li>Bylaws (and any amendments)</li><li>Minutes of all shareholder and director meetings</li><li>Resolutions (signed written resolutions in lieu of meetings)</li><li>Share certificates (issued and cancelled)</li><li>Annual returns and filing confirmations</li></ul>",
+            "animation": {
+              "type": "flowchart",
+              "title": "Minute Book Document Categories",
+              "steps": [
+                {"label": "Foundational", "icon": "📜", "description": "Certificate, Articles, Bylaws, Amendments"},
+                {"label": "Registers", "icon": "📋", "description": "Directors, Officers, Shareholders, Securities"},
+                {"label": "Minutes", "icon": "📝", "description": "Board minutes, shareholder minutes, committee minutes"},
+                {"label": "Resolutions", "icon": "✍️", "description": "Written resolutions in lieu of meetings"},
+                {"label": "Shares", "icon": "📊", "description": "Certificates, transfers, ledgers"},
+                {"label": "Filings", "icon": "📁", "description": "Annual returns, filing confirmations, CRA correspondence"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "Securities Register", "definition": "A record of every share certificate issued by the corporation — showing certificate number, date, shareholder name, and class/number of shares."},
+              {"term": "Written Resolution", "definition": "A resolution signed by all directors or shareholders in lieu of holding a formal meeting. Legally equivalent to meeting minutes under the CBCA."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "Which register tracks who owns shares and when they were acquired?",
+                "options": ["Register of Directors", "Register of Officers", "Register of Shareholders", "Minute Book Index"],
+                "correct": 2,
+                "explanation": "The Register of Shareholders records share ownership — including names, addresses, share classes, numbers, and dates of issuance or transfer."
+              },
+              {
+                "question": "What is a written resolution?",
+                "options": ["An informal email between directors", "A resolution signed by all directors/shareholders in lieu of a meeting", "A draft document that doesn't need signing", "A CRA filing"],
+                "correct": 1,
+                "explanation": "A written resolution is signed by all directors (or shareholders) and is legally equivalent to minutes of a formal meeting. It is a valid way to make corporate decisions without holding a physical meeting."
+              }
+            ],
+            "resources": [],
+            "faq": [
+              {"q": "Do I need a separate register for each class of shares?", "a": "No. A single securities register can record all share classes, but each class should be clearly identified with its rights and restrictions noted."},
+              {"q": "What if a share certificate is lost?", "a": "The shareholder should sign a lost certificate affidavit and indemnity. The corporation can then issue a replacement certificate. This should be recorded in the minute book."}
+            ]
+          }
+        },
+        {
+          "id": "annual-updates",
+          "title": "Annual Minute Book Updates",
+          "duration_minutes": 8,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>Annual Minute Book Maintenance</h3><p>Minute books must be updated annually. This is one of the most commonly neglected tasks in corporate governance — and one of the most important. An out-of-date minute book can cause serious problems during a transaction or audit.</p><h4>Annual Update Checklist</h4><ol><li><strong>Annual Meeting Minutes</strong> — Document the AGM or pass written resolutions covering: approval of financial statements, election/re-election of directors, appointment of auditors (if applicable), and any other annual business</li><li><strong>Director Register Update</strong> — Confirm all directors are current; update terms, addresses, and residency status if changed</li><li><strong>Officer Register Update</strong> — Confirm current officers; record any appointments or resignations during the year</li><li><strong>Shareholder Register Review</strong> — Record any share transfers, issuances, or redemptions during the year</li><li><strong>Annual Return Filing</strong> — File with the appropriate registry and keep a copy in the minute book</li><li><strong>General Review</strong> — Check for missing documents, incomplete registers, or outdated information</li></ol>",
+            "animation": {
+              "type": "timeline",
+              "title": "Annual Update Workflow",
+              "events": [
+                {"date": "30 Days Before", "title": "Prepare", "description": "Review registers, gather financial statements, draft resolutions"},
+                {"date": "Anniversary Date", "title": "AGM / Resolutions", "description": "Hold meeting or execute written resolutions"},
+                {"date": "Within 15 Days", "title": "Update Registers", "description": "Record director/officer changes, share transfers"},
+                {"date": "Within 60 Days", "title": "File Annual Return", "description": "Submit to Corporations Canada or provincial registry"},
+                {"date": "Ongoing", "title": "File Copies", "description": "Place all signed documents in minute book"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "AGM", "definition": "Annual General Meeting of shareholders. Required within 15 months of the previous AGM (18 months for the first AGM after incorporation)."},
+              {"term": "Written Resolution in Lieu", "definition": "For private corporations, all shareholders can sign a written resolution instead of holding a physical AGM. This satisfies the annual meeting requirement."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "How often must a corporation hold an AGM?",
+                "options": ["Every year", "Every 2 years", "Every 5 years", "Only when directors change"],
+                "correct": 0,
+                "explanation": "Corporations must hold an AGM within 15 months of the previous AGM (or within 18 months of incorporation for the first AGM)."
+              },
+              {
+                "question": "Can a written resolution replace an AGM?",
+                "options": ["No — physical meetings are mandatory", "Yes — if signed by all shareholders", "Only for public companies", "Only if the CRA approves"],
+                "correct": 1,
+                "explanation": "For private corporations, all shareholders can sign a written resolution in lieu of holding a formal AGM. This is a common practice for small and owner-managed corporations."
+              }
+            ],
+            "resources": [],
+            "faq": [
+              {"q": "What if nothing changed during the year?", "a": "You must still hold an AGM (or pass resolutions) to approve financial statements and re-elect directors. But the process is simple — one set of resolutions can cover everything."},
+              {"q": "How does Mortacc help with annual updates?", "a": "Mortacc auto-generates annual maintenance packages including AGM minutes, resolutions, and register updates. You can generate a complete annual update in under 5 minutes per entity."}
+            ]
+          }
+        },
+        {
+          "id": "digital-minute-books",
+          "title": "Digital Minute Books & Mortacc Automation",
+          "duration_minutes": 7,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>Digital Minute Books</h3><p>Traditional minute books are physical binders. Modern corporate services practices are moving to digital minute books for efficiency, accessibility, and disaster recovery. Digital minute books are legally valid across all Canadian jurisdictions.</p><h4>Advantages of Digital Minute Books</h4><ul><li><strong>Accessibility</strong> — Access corporate records from anywhere, not just the physical registered office</li><li><strong>Searchability</strong> — Find documents instantly rather than flipping through binders</li><li><strong>Disaster Recovery</strong> — Cloud backup protects against fire, flood, or loss</li><li><strong>Due Diligence Ready</strong> — Share a complete digital copy with legal counsel in minutes</li><li><strong>Automatic Updates</strong> — Platform auto-generates annual documents and updates registers</li><li><strong>Bilingual Support</strong> — Generate documents in English, French, or both simultaneously</li></ul>",
+            "animation": {
+              "type": "comparison",
+              "title": "Physical vs Digital Minute Books",
+              "left_title": "Physical Binders",
+              "right_title": "Digital (Mortacc)",
+              "rows": [
+                {"label": "Access", "left": "Must visit registered office", "right": "Access from anywhere, 24/7"},
+                {"label": "Search", "left": "Manual — flip through pages", "right": "Instant full-text search"},
+                {"label": "Backup", "left": "None — physical only", "right": "Encrypted cloud backup"},
+                {"label": "Updates", "left": "Manual — type and insert pages", "right": "Auto-generated annually"},
+                {"label": "Due Diligence", "left": "Photocopy entire binder", "right": "Export and share digitally"},
+                {"label": "Bilingual", "left": "Separate EN and FR binders", "right": "EN/FR simultaneous generation"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "Digital Minute Book", "definition": "An electronic version of the corporate minute book stored in a secure platform. Legally recognized across all Canadian jurisdictions as satisfying record-keeping requirements."},
+              {"term": "Mortacc Minute Book Builder", "definition": "A feature that automatically generates 15+ document types — minutes, resolutions, registers — in English and French, in under 2 minutes per entity."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "Are digital minute books legally valid in Canada?",
+                "options": ["No — only physical binders are accepted", "Yes — across all Canadian jurisdictions", "Only in Ontario", "Only if notarized"],
+                "correct": 1,
+                "explanation": "Digital minute books are legally valid across all Canadian jurisdictions. Corporate statutes require certain records to be kept — but do not specify the physical format."
+              },
+              {
+                "question": "How many document types can Mortacc's Minute Book Builder generate?",
+                "options": ["5", "10", "15+", "3"],
+                "correct": 2,
+                "explanation": "Mortacc generates 15+ document types including annual meeting minutes, director/shareholder resolutions, all statutory registers, and share transfer records — in both English and French."
+              }
+            ],
+            "resources": [],
+            "faq": [
+              {"q": "Can I still print digital minute book documents?", "a": "Yes. All Mortacc documents are generated as print-ready PDFs. You can maintain a physical copy alongside the digital version."},
+              {"q": "Are Mortacc minute books accepted by banks and lawyers?", "a": "Yes. Mortacc documents follow the same legal format as traditionally prepared documents. They have been reviewed and accepted by Canadian banks, law firms, and CRA auditors."}
+            ]
+          }
+        },
+        {
+          "id": "quiz",
+          "title": "End of Module Quiz — Minute Books",
+          "duration_minutes": 6,
+          "type": "quiz",
+          "content": {
+            "pass_threshold": 75,
+            "questions": [
+              {
+                "question": "Which register records share ownership and transfers?",
+                "options": ["Register of Directors", "Register of Officers", "Register of Shareholders", "Annual Return"],
+                "correct": 2,
+                "explanation": "The Register of Shareholders records who owns shares, when they were acquired, and any transfers."
+              },
+              {
+                "question": "Within how many months must a corporation hold its AGM after the previous one?",
+                "options": ["6 months", "12 months", "15 months", "24 months"],
+                "correct": 2,
+                "explanation": "An AGM must be held within 15 months of the previous AGM (or 18 months after incorporation for the first one)."
+              },
+              {
+                "question": "Are digital minute books legally valid in Canada?",
+                "options": ["No", "Only for federal corporations", "Yes — across all jurisdictions", "Only if CRA pre-approves"],
+                "correct": 2,
+                "explanation": "Digital minute books are legally valid across all Canadian jurisdictions. The format is not prescribed — only the content requirements are specified."
+              },
+              {
+                "question": "Which is NOT a statutory register required in a minute book?",
+                "options": ["Register of Directors", "Register of Employees", "Register of Officers", "Register of Shareholders"],
+                "correct": 1,
+                "explanation": "There is no statutory requirement for a Register of Employees. The required registers are: Directors, Officers, Shareholders, and Securities."
+              },
+              {
+                "question": "How many document types can Mortacc's Minute Book Builder generate?",
+                "options": ["5", "10", "15+", "3"],
+                "correct": 2,
+                "explanation": "Mortacc generates 15+ document types including minutes, resolutions, and all statutory registers."
+              },
+              {
+                "question": "What is the advantage of a written resolution in lieu of a meeting?",
+                "options": ["It avoids all legal requirements", "It satisfies meeting requirements without holding a physical gathering", "It is only for public companies", "It does not require any signatures"],
+                "correct": 1,
+                "explanation": "A written resolution signed by all directors (or shareholders) satisfies meeting requirements without a physical meeting — commonly used for small corporations."
+              }
+            ]
+          }
+        }
+      ],
+      "cta": {
+        "primary": {"text": "Generate Your Minute Book", "url": "/minute-books/", "icon": "📚"},
+        "secondary": {"text": "Book a Demo", "url": "/demo/", "icon": "📅"}
+      }
+    },
+
+    {
+      "id": "annual-maintenance",
+      "category": "compliance",
+      "title": "Annual Maintenance & Compliance",
+      "short_description": "Master the annual corporate maintenance cycle — AGM requirements, annual returns, corporate filings, and ongoing compliance obligations across all Canadian jurisdictions.",
+      "long_description": "A complete guide to annual corporate maintenance for Canadian corporations. Learn the annual compliance cycle, jurisdiction-specific filing requirements, deadlines, fees, and how to automate annual maintenance to save time and eliminate missed deadlines.",
+      "icon": "📅",
+      "thumbnail_gradient": "linear-gradient(135deg, #065f46, #10b981)",
+      "thumbnail_icon": "📅",
+      "watch_time_minutes": 35,
+      "chapter_count": 5,
+      "difficulty": "intermediate",
+      "chapters": [
+        {
+          "id": "annual-cycle",
+          "title": "Understanding the Annual Compliance Cycle",
+          "duration_minutes": 7,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>The Annual Corporate Maintenance Cycle</h3><p>Every Canadian corporation — federal or provincial — must complete a set of annual compliance tasks. Understanding this cycle is fundamental to corporate services practice.</p><h4>The Annual Cycle</h4><p>Each year, corporations must: hold an annual general meeting (or pass resolutions in lieu), update statutory registers, file an annual return, prepare financial statements, and maintain their minute book. These tasks repeat annually for the entire life of the corporation.</p><p>For firms managing dozens or hundreds of entities, tracking deadlines across multiple jurisdictions becomes complex. A systematic approach — or automated platform — is essential to prevent missed deadlines.</p>",
+            "animation": {
+              "type": "flowchart",
+              "title": "Annual Maintenance Cycle",
+              "steps": [
+                {"label": "Notice of AGM", "icon": "📨", "description": "Send notice to all shareholders (if meeting)"},
+                {"label": "Annual Resolutions", "icon": "✍️", "description": "Approve financials, elect directors, appoint auditor"},
+                {"label": "Update Registers", "icon": "📋", "description": "Record director/officer/shareholder changes"},
+                {"label": "File Annual Return", "icon": "📤", "description": "Submit to registry within 60 days of anniversary"},
+                {"label": "Minute Book", "icon": "📚", "description": "File all signed documents in minute book"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "Annual Return", "definition": "A mandatory filing confirming the corporation's current directors and registered office. Required by all Canadian corporate registries."},
+              {"term": "Anniversary Date", "definition": "The date the corporation was incorporated. Most annual deadlines are calculated from this date."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "What triggers the start of a corporation's annual compliance cycle?",
+                "options": ["The CRA tax year-end", "The anniversary date of incorporation", "January 1st", "The fiscal year-end"],
+                "correct": 1,
+                "explanation": "The annual compliance cycle is tied to the anniversary date of incorporation — the date the corporation was incorporated."
+              }
+            ],
+            "resources": [],
+            "faq": [
+              {"q": "How does Mortacc track annual deadlines?", "a": "Mortacc auto-calculates deadlines per entity based on incorporation date and jurisdiction. The compliance calendar shows all upcoming deadlines with color-coded urgency."}
+            ]
+          }
+        },
+        {
+          "id": "jurisdiction-deadlines",
+          "title": "Jurisdiction-Specific Deadlines & Fees",
+          "duration_minutes": 8,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>Deadlines by Jurisdiction</h3><p>Each Canadian jurisdiction has its own annual filing deadlines and fee schedules. Understanding the differences is critical for multi-jurisdiction firms.</p><h4>Federal (CBCA)</h4><ul><li>Annual Return: Within 60 days of anniversary date</li><li>Filing fee: $12 (online), $20 (paper)</li><li>No late fee, but risk of administrative dissolution</li></ul><h4>Ontario (OBCA)</h4><ul><li>Annual Return: Due with each filing (information update)</li><li>No separate annual return filing for private corporations</li><li>Changes must be filed within 15 days</li></ul><h4>British Columbia (BCA)</h4><ul><li>Annual Report: Within 2 months of anniversary date</li><li>Filing fee: ~$43.39 (online)</li><li>Late filing penalty applies</li></ul><h4>Québec (LSAQ)</h4><ul><li>Déclaration annuelle: Within 1 month of anniversary date</li><li>Filing fee: ~$89</li><li>Late fee: $108</li></ul>",
+            "animation": {
+              "type": "comparison",
+              "title": "Annual Filing Deadlines by Jurisdiction",
+              "left_title": "Federal (CBCA)",
+              "right_title": "Provincial Comparison",
+              "rows": [
+                {"label": "ON (OBCA)", "left": "60 days from anniversary", "right": "15 days for any changes"},
+                {"label": "BC (BCA)", "left": "60 days from anniversary", "right": "2 months from anniversary"},
+                {"label": "QC (LSAQ)", "left": "60 days from anniversary", "right": "1 month from anniversary"},
+                {"label": "Late Penalty", "left": "Administrative dissolution risk", "right": "Varies: $108 (QC) to dissolution risk"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "Administrative Dissolution", "definition": "The registry may dissolve a corporation that fails to file. Revival is possible but involves additional cost and complexity."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "What is the annual return filing fee for a federal (CBCA) corporation?",
+                "options": ["Free", "$12 (online)", "$50", "$100"],
+                "correct": 1,
+                "explanation": "The online filing fee for a CBCA annual return is $12. Paper filing costs $20."
+              }
+            ],
+            "resources": [],
+            "faq": []
+          }
+        },
+        {
+          "id": "agm-requirements",
+          "title": "AGM & Meeting Requirements",
+          "duration_minutes": 7,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>Annual General Meeting Requirements</h3><p>The AGM is a cornerstone of corporate governance. All Canadian corporations must hold an AGM or pass written resolutions in lieu. Understanding the requirements helps firms advise clients and maintain compliance.</p><h4>Key Requirements</h4><ul><li>Must be held within 15 months of the previous AGM (18 months for the first)</li><li>Financial statements must be presented to shareholders</li><li>Directors are elected (or re-elected) at each AGM</li><li>Auditor appointed or audit waived (for private corporations)</li><li>Notice must be given to all shareholders entitled to vote</li><li>Written resolutions signed by all shareholders can replace a formal meeting</li></ul>",
+            "animation": {
+              "type": "timeline",
+              "title": "AGM Preparation Timeline",
+              "events": [
+                {"date": "30 Days Before", "title": "Financial Statements", "description": "Prepare annual financial statements"},
+                {"date": "21 Days Before", "title": "Notice to Shareholders", "description": "Send AGM notice with financial statements"},
+                {"date": "AGM Date", "title": "Annual Meeting", "description": "Conduct meeting or execute written resolutions"},
+                {"date": "After AGM", "title": "File Resolutions", "description": "Update registers, file annual return, update minute book"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "Quorum", "definition": "The minimum number of shareholders (or shares represented) required for a meeting to be valid. Usually a majority of shares entitled to vote."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "Within how many months of incorporation must the first AGM be held?",
+                "options": ["6 months", "12 months", "18 months", "24 months"],
+                "correct": 2,
+                "explanation": "The first AGM must be held within 18 months of incorporation. Subsequent AGMs must be within 15 months of the previous one."
+              }
+            ],
+            "resources": [],
+            "faq": []
+          }
+        },
+        {
+          "id": "automating-maintenance",
+          "title": "Automating Annual Maintenance with Mortacc",
+          "duration_minutes": 8,
+          "type": "lesson",
+          "content": {
+            "text": "<h3>How Mortacc Automates Annual Maintenance</h3><p>Manual annual maintenance is time-consuming and error-prone. Mortacc automates the entire annual maintenance cycle — from deadline calculation through document generation to filing tracking.</p><h4>What Mortacc Does</h4><ul><li><strong>Auto-Calculates Deadlines</strong> — Per entity, per jurisdiction, based on incorporation date</li><li><strong>Generates Annual Packages</strong> — AGM minutes, resolutions, register updates — one click</li><li><strong>Bilingual Documents</strong> — Generate in English, French, or both simultaneously</li><li><strong>Compliance Calendar</strong> — FullCalendar with all deadlines, color-coded by urgency</li><li><strong>Auto-Reminders</strong> — Automated client and staff reminders before deadlines</li><li><strong>Progress Tracking</strong> — See which entities are done, in progress, or overdue</li></ul>",
+            "animation": {
+              "type": "flowchart",
+              "title": "Mortacc Annual Maintenance Automation",
+              "steps": [
+                {"label": "Auto-Detect Deadlines", "icon": "🔍", "description": "Platform calculates all deadlines per entity per jurisdiction"},
+                {"label": "Generate Documents", "icon": "🤖", "description": "One click generates AGM minutes, resolutions, and register updates"},
+                {"label": "Professional Review", "icon": "👁️", "description": "Accountant reviews and approves generated documents"},
+                {"label": "Client Delivery", "icon": "📨", "description": "Documents delivered to client, filed in minute book"},
+                {"label": "Track & Repeat", "icon": "🔄", "description": "Platform schedules next year's maintenance automatically"}
+              ]
+            },
+            "key_concepts": [
+              {"term": "Annual Maintenance Package", "definition": "A complete set of annual documents generated by Mortacc: AGM minutes, resolutions approving financials, director re-elections, and register updates."}
+            ],
+            "knowledge_checkpoints": [
+              {
+                "question": "How does Mortacc calculate annual deadlines?",
+                "options": ["Manual entry by the firm", "Based on incorporation date and jurisdiction rules", "Random date assignment", "Using CRA fiscal year-end dates"],
+                "correct": 1,
+                "explanation": "Mortacc auto-calculates deadlines based on each entity's incorporation date and the specific rules of its jurisdiction (Federal, ON, BC, QC)."
+              }
+            ],
+            "resources": [],
+            "faq": [
+              {"q": "How long does it take to generate annual maintenance for one entity?", "a": "Under 5 minutes. Mortacc auto-populates all documents from entity data — you just review and approve."}
+            ]
+          }
+        },
+        {
+          "id": "quiz",
+          "title": "End of Module Quiz — Annual Maintenance",
+          "duration_minutes": 6,
+          "type": "quiz",
+          "content": {
+            "pass_threshold": 75,
+            "questions": [
+              {
+                "question": "Within how many days must a federal (CBCA) annual return be filed?",
+                "options": ["30 days of anniversary", "60 days of anniversary", "90 days of anniversary", "120 days of anniversary"],
+                "correct": 1,
+                "explanation": "The CBCA annual return must be filed within 60 days of the corporation's anniversary date."
+              },
+              {
+                "question": "What is the Québec (LSAQ) annual declaration filing deadline after the anniversary date?",
+                "options": ["15 days", "1 month", "2 months", "3 months"],
+                "correct": 1,
+                "explanation": "Québec's déclaration annuelle must be filed within 1 month of the anniversary date."
+              },
+              {
+                "question": "Within how many months must the first AGM be held after incorporation?",
+                "options": ["6 months", "12 months", "18 months", "24 months"],
+                "correct": 2,
+                "explanation": "The first AGM must be held within 18 months of incorporation. Subsequent AGMs within 15 months."
+              },
+              {
+                "question": "What is the online filing fee for a federal annual return?",
+                "options": ["$12", "$25", "$50", "Free"],
+                "correct": 0,
+                "explanation": "The federal annual return filing fee is $12 when filed online through Corporations Canada."
+              },
+              {
+                "question": "What does Mortacc auto-calculate for annual maintenance?",
+                "options": ["Only GST/HST amounts", "Deadlines based on incorporation date and jurisdiction", "Share prices", "Director salaries"],
+                "correct": 1,
+                "explanation": "Mortacc auto-calculates compliance deadlines per entity based on the incorporation date and jurisdiction-specific rules."
+              }
+            ]
+          }
+        }
+      ],
+      "cta": {
+        "primary": {"text": "Automate Your Annual Maintenance", "url": "/automation/annual/", "icon": "🤖"},
+        "secondary": {"text": "Book a Demo", "url": "/demo/", "icon": "📅"}
+      }
+    },
+
+    {"id": "ontario-incorporation", "category": "incorporation", "title": "Ontario (OBCA) Incorporation", "short_description": "Guide to incorporating under the Ontario Business Corporations Act — name search, articles, and provincial requirements.", "icon": "🏢", "thumbnail_gradient": "linear-gradient(135deg, #7c2d12, #ea580c)", "thumbnail_icon": "ON", "watch_time_minutes": 40, "chapter_count": 5, "difficulty": "beginner", "placeholder": true},
+    {"id": "bc-incorporation", "category": "incorporation", "title": "BC (BCA) Incorporation", "short_description": "Complete walkthrough of British Columbia incorporation — BCA requirements, name approval, and post-incorporation steps.", "icon": "🏔️", "thumbnail_gradient": "linear-gradient(135deg, #064e3b, #059669)", "thumbnail_icon": "BC", "watch_time_minutes": 35, "chapter_count": 5, "difficulty": "beginner", "placeholder": true},
+    {"id": "quebec-incorporation", "category": "incorporation", "title": "Québec (LSAQ) Incorporation", "short_description": "Incorporation au Québec — exigences de la LSAQ, déclaration initiale, REQ, et documents bilingues obligatoires.", "icon": "⚜️", "thumbnail_gradient": "linear-gradient(135deg, #1e3a5f, #3b82f6)", "thumbnail_icon": "QC", "watch_time_minutes": 40, "chapter_count": 5, "difficulty": "beginner", "placeholder": true},
+    {"id": "director-officer-changes", "category": "changes", "title": "Director & Officer Changes", "short_description": "How to properly document director and officer appointments, resignations, and removals — including resolutions and registry filings.", "icon": "👥", "thumbnail_gradient": "linear-gradient(135deg, #4c1d95, #8b5cf6)", "thumbnail_icon": "👥", "watch_time_minutes": 30, "chapter_count": 4, "difficulty": "intermediate", "placeholder": true},
+    {"id": "share-transactions", "category": "changes", "title": "Share Transactions & Cap Tables", "short_description": "Understanding share issuances, transfers, redemptions, and maintaining an accurate capitalization table.", "icon": "📊", "thumbnail_gradient": "linear-gradient(135deg, #0f172a, #334155)", "thumbnail_icon": "📊", "watch_time_minutes": 35, "chapter_count": 5, "difficulty": "intermediate", "placeholder": true},
+    {"id": "amalgamations", "category": "changes", "title": "Amalgamations & Reorganizations", "short_description": "Corporate amalgamations, reorganizations, and restructurings — legal requirements, tax considerations, and documentation.", "icon": "🔄", "thumbnail_gradient": "linear-gradient(135deg, #701a75, #c026d3)", "thumbnail_icon": "🔄", "watch_time_minutes": 50, "chapter_count": 6, "difficulty": "advanced", "placeholder": true},
+    {"id": "shareholder-agreements", "category": "governance", "title": "Shareholder Agreements", "short_description": "Unanimous shareholder agreements, buy-sell provisions, shotgun clauses, and governance frameworks for private corporations.", "icon": "🤝", "thumbnail_gradient": "linear-gradient(135deg, #0f172a, #1e293b)", "thumbnail_icon": "🤝", "watch_time_minutes": 40, "chapter_count": 5, "difficulty": "advanced", "placeholder": true},
+    {"id": "corporate-governance", "category": "governance", "title": "Corporate Governance Best Practices", "short_description": "Board composition, committee structures, governance policies, and best practices for Canadian private and public corporations.", "icon": "🏛️", "thumbnail_gradient": "linear-gradient(135deg, #1e3a5f, #475569)", "thumbnail_icon": "🏛️", "watch_time_minutes": 35, "chapter_count": 4, "difficulty": "intermediate", "placeholder": true},
+    {"id": "t2-corporate-tax", "category": "governance", "title": "T2 Corporate Tax Overview", "short_description": "Understanding the T2 corporate income tax return — schedules, deductions, small business deduction, and filing requirements.", "icon": "💰", "thumbnail_gradient": "linear-gradient(135deg, #14532d, #16a34a)", "thumbnail_icon": "💰", "watch_time_minutes": 45, "chapter_count": 6, "difficulty": "intermediate", "placeholder": true},
+    {"id": "gst-hst", "category": "governance", "title": "GST/HST for Corporations", "short_description": "GST/HST registration, filing, input tax credits, quick method, and compliance for Canadian corporations.", "icon": "🧾", "thumbnail_gradient": "linear-gradient(135deg, #78350f, #d97706)", "thumbnail_icon": "🧾", "watch_time_minutes": 30, "chapter_count": 4, "difficulty": "intermediate", "placeholder": true},
+    {"id": "kyc-ubo", "category": "records", "title": "KYC & Beneficial Ownership Requirements", "short_description": "Know Your Client (KYC) obligations, beneficial ownership registers, transparency requirements, and compliance deadlines.", "icon": "🔍", "thumbnail_gradient": "linear-gradient(135deg, #1e3a5f, #0284c7)", "thumbnail_icon": "🔍", "watch_time_minutes": 30, "chapter_count": 4, "difficulty": "intermediate", "placeholder": true},
+    {"id": "e-signatures", "category": "digital", "title": "E-Signatures & Digital Documents", "short_description": "Legal validity of electronic signatures in Canada, PIPEDA compliance, digital document management, and best practices.", "icon": "✍️", "thumbnail_gradient": "linear-gradient(135deg, #3b0764, #7c3aed)", "thumbnail_icon": "✍️", "watch_time_minutes": 25, "chapter_count": 3, "difficulty": "beginner", "placeholder": true},
+    {"id": "best-practices", "category": "digital", "title": "Corporate Services Best Practices", "short_description": "Industry best practices for corporate services professionals — workflows, client management, pricing, and technology adoption.", "icon": "💡", "thumbnail_gradient": "linear-gradient(135deg, #0f172a, #2563eb)", "thumbnail_icon": "💡", "watch_time_minutes": 35, "chapter_count": 5, "difficulty": "intermediate", "placeholder": true}
+  ]
+}

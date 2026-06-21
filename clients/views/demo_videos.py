@@ -1,0 +1,122 @@
+"""Demo video walkthrough page — publicly accessible."""
+from django.shortcuts import render
+
+
+def demo_videos(request):
+    """Video walkthrough page showing how to use every Mortacc feature."""
+    tutorials = [
+        {
+            'id': 'dashboard',
+            'icon': '📊',
+            'title': 'Dashboard & Command Center',
+            'duration': '3:45',
+            'description': 'Tour the main dashboard — stat cards, client health scores, quick actions, search & filter, bulk operations, and the command center for firm-wide oversight.',
+            'topics': ['Client health scoring explained', 'Search & filter clients by status/type', 'Bulk actions: send reminders, update statuses', 'Quick-action cards for common workflows', 'Command center: overdue tasks, missing docs, upcoming deadlines'],
+            'video_id': 'VIDEO_ID_DASHBOARD',
+        },
+        {
+            'id': 'entities',
+            'icon': '🏢',
+            'title': 'Entity Records & Corporate Profiles',
+            'duration': '5:20',
+            'description': 'Learn how to manage corporate entities — create, view, and edit directors, shareholders, share classes, and key corporate dates.',
+            'topics': ['Creating a new entity profile', 'Adding directors with appointment/resignation dates', 'Managing shareholders and share classes', 'Setting jurisdiction, incorporation date, fiscal year end', 'Viewing entity overview and quick stats'],
+            'video_id': 'VIDEO_ID_ENTITIES',
+        },
+        {
+            'id': 'compliance',
+            'icon': '📅',
+            'title': 'Compliance Calendar & Tasks',
+            'duration': '4:10',
+            'description': 'Master the compliance dashboard — auto-generated tasks, calendar view, status updates, reminders, and iCal feed export.',
+            'topics': ['How compliance tasks are auto-generated', 'Calendar, timeline, and table views', 'Marking tasks complete, overdue, or waived', 'Bulk status updates across entities', 'Sending automated reminders to clients', 'Exporting compliance calendar to iCal'],
+            'video_id': 'VIDEO_ID_COMPLIANCE',
+        },
+        {
+            'id': 'minute-books',
+            'icon': '📚',
+            'title': 'Minute Books & Document Generation',
+            'duration': '6:15',
+            'description': 'Build complete minute books — generate 15+ PDF document types, use the minute book builder, and download as ZIP or individual files.',
+            'topics': ['Minute Book Builder: step-by-step guided workflow', 'Generating Directors & Shareholders Registers', 'Creating by-laws, resolutions, and banking docs', 'Share certificates with auto-filled shareholder data', 'Downloading as combined ZIP or individual PDFs', 'Bilingual document generation (EN/FR)'],
+            'video_id': 'VIDEO_ID_MINUTEBOOKS',
+        },
+        {
+            'id': 'billing',
+            'icon': '💰',
+            'title': 'Billing, Invoices & Subscriptions',
+            'duration': '4:50',
+            'description': 'Handle all billing — create and send invoices, track payments via Stripe, manage entity subscriptions, and monitor collections.',
+            'topics': ['Creating one-time and recurring invoices', 'Stripe payment integration for online payments', 'Tracking paid, sent, and overdue invoices', 'Setting up entity subscription plans', 'Payment reminders and collections workflow', 'Financial dashboard with revenue analytics'],
+            'video_id': 'VIDEO_ID_BILLING',
+        },
+        {
+            'id': 'cap-tables',
+            'icon': '📈',
+            'title': 'Cap Tables & Structure Charts',
+            'duration': '5:00',
+            'description': 'Manage share transactions, view real-time cap tables with ownership percentages, and generate interactive D3.js structure charts.',
+            'topics': ['Recording share issuances, transfers, cancellations', 'Viewing cap table with ownership breakdown', 'Creating share classes with voting rights', 'Structure charts: interactive org chart visualization', 'Saved chart views for recurring reports'],
+            'video_id': 'VIDEO_ID_CAPTABLES',
+        },
+        {
+            'id': 'onboarding',
+            'icon': '📋',
+            'title': 'Client Onboarding Portal',
+            'duration': '3:30',
+            'description': 'Send secure onboarding links to clients, track document uploads, review submissions, and automate follow-up reminders.',
+            'topics': ['Generating and sending onboarding tokens', 'Client view: uploading ID, tax, and banking docs', 'Reviewing and approving client documents', 'Automatic 7-day reminder emails', 'Tracking onboarding completion status'],
+            'video_id': 'VIDEO_ID_ONBOARDING',
+        },
+        {
+            'id': 'people-kyc',
+            'icon': '👤',
+            'title': 'People Registry & KYC',
+            'duration': '3:00',
+            'description': 'Maintain a firm-wide KYC database — track identity verification, citizenship, residency, and link people to multiple entities.',
+            'topics': ['Adding people to the KYC registry', 'Tracking KYC verification status', 'ID types and verification dates', 'Linking people across multiple entities', 'People reports and exports'],
+            'video_id': 'VIDEO_ID_KYC',
+        },
+        {
+            'id': 'ai',
+            'icon': '🤖',
+            'title': 'AI Document Extraction & Assistant',
+            'duration': '4:40',
+            'description': 'Use Claude AI to extract data from uploaded documents, generate corporate documents, and get answers to Canadian corporate law questions.',
+            'topics': ['Uploading documents for AI data extraction', 'Auto-populating directors, shareholders from PDFs', 'AI document generation: articles, agreements', 'AI Assistant: Canadian corporate law Q&A', 'AI time reconstruction for billable hours'],
+            'video_id': 'VIDEO_ID_AI',
+        },
+        {
+            'id': 'workflows',
+            'icon': '⚡',
+            'title': 'Workflow Automation',
+            'duration': '4:00',
+            'description': 'Build automated workflows — triggers and actions that run when events happen, like new client onboarding or compliance deadline reminders.',
+            'topics': ['Creating a new workflow with triggers', 'Adding steps: emails, tasks, document generation', 'Built-in workflow templates', 'Viewing workflow run history and logs', 'Pausing, activating, and editing workflows'],
+            'video_id': 'VIDEO_ID_WORKFLOWS',
+        },
+        {
+            'id': 'reports',
+            'icon': '📋',
+            'title': 'Reports Center & CSV Exports',
+            'duration': '2:45',
+            'description': 'Generate cross-entity reports, export data to CSV (UTF-8 BOM for Excel), and view firm analytics with benchmarks.',
+            'topics': ['Running cross-entity compliance reports', 'CSV exports: clients, compliance, invoices', 'Firm analytics: revenue trends, collection rates', 'Industry benchmarks for firm comparison', 'KPI dashboard with target tracking'],
+            'video_id': 'VIDEO_ID_REPORTS',
+        },
+        {
+            'id': 'settings',
+            'icon': '⚙',
+            'title': 'Settings & Firm Configuration',
+            'duration': '3:15',
+            'description': 'Configure your firm — invite staff, set roles and permissions, manage billing, branding, and white-label portal settings.',
+            'topics': ['Inviting staff members via email', 'Setting up RBAC roles and permissions', 'Managing subscription plan and billing', 'White-label portal branding', 'Security settings and activity log'],
+            'video_id': 'VIDEO_ID_SETTINGS',
+        },
+    ]
+
+    return render(request, 'clients/demo_videos.html', {
+        'tutorials': tutorials,
+        'total_duration': '120:00',
+        'video_count': 39,
+    })

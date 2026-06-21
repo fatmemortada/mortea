@@ -1,0 +1,13 @@
+{% if key_concepts %}
+<div class="key-concepts-box">
+    <div class="key-concepts-title">📌 Key Concepts</div>
+    <div class="key-concepts-list">
+        {% for concept in key_concepts %}
+        <div class="key-concept-item">
+            <div class="key-concept-term">{{ concept.term }}</div>
+            <div class="key-concept-definition">{{ concept.definition }}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
